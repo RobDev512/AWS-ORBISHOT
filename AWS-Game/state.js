@@ -6,10 +6,11 @@ import { CONFIG, DIFFICULTIES } from './config.js';
 import {
   createActivePowerUps,
   createPowerUpInventory,
-} from './powerups.js';
-import { createPowerCoreState } from './powercore.js';
+} from './powerups.js?build=v142-economy-r5';
+import { createPowerCoreState } from './powercore.js?build=v142-economy-r5';
 import { createInactiveBossState } from './boss.js';
 import { STABILITY_CONFIG } from './stability.js';
+import { ECONOMY_CONFIG } from './economy.js?build=v142-economy-r5';
 
 function randomIcon() {
   return CONFIG.AWS_ICONS[
@@ -19,7 +20,7 @@ function randomIcon() {
 
 /**
  * @typedef {Object} GameState
- * @property {'idle'|'playing'|'bossintro'|'levelcomplete'|'gameover'} phase
+ * @property {'idle'|'playing'|'bossintro'|'lifelost'|'levelcomplete'|'gameover'} phase
  * @property {number} score
  * @property {number} highScore
  * @property {number} level
@@ -31,6 +32,12 @@ function randomIcon() {
  * @property {Object|null} flyingProjectile
  * @property {Object[]} anchoredProjectiles
  * @property {boolean} pendingLaunch
+ * @property {boolean} bowVisualPressed
+ * @property {number} bowVisualPressAt
+ * @property {number} bowVisualReleaseAt
+ * @property {boolean} bowVisualReleaseCharged
+ * @property {boolean} pendingLaunchCharged
+ * @property {Object[]} splitArrowFragments
  * @property {string|null} pendingPowerUpActivation
  * @property {number} gameOverTimestamp
  * @property {string|null} gameOverReason
@@ -52,8 +59,13 @@ export function createInitialState(
   highScore = 0,
   difficulty = CONFIG.DEFAULT_DIFFICULTY,
   stats = null,
+  economy = null,
 ) {
   const diff = DIFFICULTIES[difficulty] ?? DIFFICULTIES.medium;
+  const maxLives = Math.max(
+    ECONOMY_CONFIG.initialMaxLives,
+    Math.floor(Number(economy?.maxLives) || ECONOMY_CONFIG.initialMaxLives),
+  );
 
   return {
     phase: 'idle',
@@ -65,6 +77,14 @@ export function createInitialState(
     levelTransitionTimer: 0,
     levelCompleteBonus: 0,
     completedLevel: 0,
+    levelStartScore: 0,
+    levelPerfectShots: 0,
+    levelBestCombo: 1,
+    lastCoinReward: 0,
+
+    currentLives: maxLives,
+    lifeLostTimer: 0,
+    lifeLostReason: null,
 
     centralElement: {
       x: CONFIG.CANVAS_WIDTH / 2,
@@ -82,6 +102,15 @@ export function createInitialState(
     pendingLaunch: false,
     pendingPowerUpActivation: null,
     hoveredPowerUpSlot: null,
+
+    // Estado exclusivamente visual del arco. No participa en físicas,
+    // colisiones ni cadencia de disparo.
+    bowVisualPressed: false,
+    bowVisualPressAt: 0,
+    bowVisualReleaseAt: 0,
+    bowVisualReleaseCharged: false,
+    pendingLaunchCharged: false,
+    splitArrowFragments: [],
     gameOverTimestamp: 0,
     gameOverReason: null,
     stability: STABILITY_CONFIG.max,
@@ -105,6 +134,7 @@ export function createInitialState(
     lastAnchorTime: 0,
 
     stats,
+    economy,
   };
 }
 

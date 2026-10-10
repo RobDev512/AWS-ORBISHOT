@@ -1,5 +1,56 @@
 # AWS ORBISHOT — Release Notes
 
+## v1.4.2 — Economy & Lives Update
+
+**Enfoque:** añadir una primera economía reutilizable y convertir la derrota en una estructura de vidas/continuaciones sin alterar el control principal.
+
+### Economía
+- Monedas persistentes mediante almacenamiento local.
+- Niveles normales: recompensa base de 8 monedas, con bonus pequeños por Perfect Shots y combo del nivel.
+- Boss Levels: recompensa base de 25 monedas más bonus por ranking.
+- El saldo aparece en el HUD y se conserva entre sesiones.
+
+### Vidas
+- Cada run comienza con la capacidad máxima desbloqueada; inicialmente son 3 corazones.
+- Al agotar Stability o Boss Overload se pierde un corazón. Si aún quedan vidas, el nivel actual se reinicia en lugar de terminar toda la run.
+- El reintento restaura el score al inicio del nivel para impedir farming de puntos durante continuaciones.
+- La tienda permite ampliar la capacidad hasta 5 en v1.4.2. El renderer ya soporta más de 5 mostrando `♥ ×N`, pensando en futuras expansiones/campaña.
+- Capacidad persistente de Power-Ups: Freeze, Shield, Double y Cleanup parten en `x2` y pueden mejorarse individualmente hasta `x5`.
+- Accesos móviles de Tienda/Configuración ampliados y apilados; hover/press añadido también al Dock de Power-Ups en escritorio.
+- Scrollbars de Configuración y Tienda rediseñadas con el estilo de AWS ORBISHOT.
+
+### Tienda
+- Panel independiente de Configuración, abierto desde un botón propio del HUD.
+- Tarjetas compactas organizadas en Vidas y Potenciadores, con costos visibles de un vistazo.
+- Recarga de un corazón.
+- Mejoras permanentes de capacidad `3→4→5`.
+- Compra directa de Freeze, Shield, Double y Cleanup para la run actual.
+- La misma moneda queda preparada para cosméticos, mejoras y desbloqueables posteriores.
+
+### Configuración
+- Audio, música, volumen, combo y FX se aplican sin reiniciar la run.
+- Cambiar dificultad sí inicia una run nueva porque modifica las reglas de progresión.
+- Visual/Icon Polish r5 reemplaza la iconografía dependiente del dispositivo por SVG propios en dificultad, audio, música, combo, FX, Power-Ups, Tienda, monedas y vidas.
+- En móvil, el bloque de progreso superior recupera el espacio libre mientras Tienda y Ajustes siguen apilados a la derecha.
+
+### Arco, carga y Split Shot
+- La flecha preparada queda montada sobre un arco visible que flota discretamente en la base del campo.
+- Mantener clic/tap/Space tensa visualmente el arco; el disparo rápido conserva la respuesta inmediata y no recibe cooldown adicional.
+- A ~`0.6 s` se completa la carga y queda disponible **Split Shot**.
+- Un Split Shot solo parte una flecha anclada cuando la coincidencia es especialmente precisa; en caso contrario se conserva la resolución normal de colisión.
+- El Split no concede monedas ni doble puntaje y permanece deshabilitado contra bosses para no alterar su balance.
+- Lanzamiento, impacto y tensión del arco usan SFX procedurales; el impacto se afinó para sentirse más grueso y amortiguado.
+
+### Presentación final
+- Iconografía propia para economía, configuración y Power-Ups.
+- Banner de Power Core con mejor ajuste de texto y fondo.
+- Arco y flecha con flotación ligera.
+- Footer/versionado reposicionado para evitar solapamientos, especialmente en escritorio y móvil.
+
+### Compatibilidad
+- `collision.js` no se modifica.
+- La hitbox continúa exactamente en `fp.radius * 0.35`.
+
 ## v1.4.1 — Audio Update
 
 **Audio Polish r4:** restaura la presentación final de v1.4.0, fuerza la recarga de módulos de UI y rehace los sonidos de lanzamiento/anclaje de flecha para que sean más físicos y menos arcade.

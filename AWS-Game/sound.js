@@ -12,6 +12,7 @@ let musicGain = null;
 let musicFilter = null;
 let compressor = null;
 let noiseBuffer = null;
+let bowTensionVoice = null;
 
 let fxEnabled = true;
 let musicEnabled = true;
@@ -249,6 +250,119 @@ function resonantNoiseBurst({
   }
 }
 
+// ── Arrow SFX helpers (v1.4.2 r5 final profile) ─────────────────────────────
+function arrowFilteredNoise({
+  delay = 0,
+  duration = 0.2,
+  gain = 0.1,
+  hp = 80,
+  lp = 8000,
+  lpStart = null,
+  lpEnd = null,
+  peakAt = 0.65,
+} = {}) {
+  if (!fxEnabled) return;
+  try {
+    const ac = getCtx();
+    const source = ac.createBufferSource();
+    const hpFilter = ac.createBiquadFilter();
+    const lpFilter = ac.createBiquadFilter();
+    const env = ac.createGain();
+
+    source.buffer = ensureNoiseBuffer();
+
+    hpFilter.type = 'highpass';
+    hpFilter.frequency.value = hp;
+
+    lpFilter.type = 'lowpass';
+    lpFilter.frequency.value = lpStart ?? lp;
+
+    source.connect(hpFilter);
+    hpFilter.connect(lpFilter);
+    lpFilter.connect(env);
+    env.connect(fxGain);
+
+    const start = ac.currentTime + delay;
+
+    if (lpStart !== null && lpEnd !== null) {
+      lpFilter.frequency.setValueAtTime(Math.max(20, lpStart), start);
+      lpFilter.frequency.exponentialRampToValueAtTime(
+        Math.max(20, lpEnd),
+        start + duration,
+      );
+    }
+
+    env.gain.setValueAtTime(0.0001, start);
+    env.gain.exponentialRampToValueAtTime(
+      Math.max(0.0001, gain * 0.03),
+      start + duration * 0.12,
+    );
+    env.gain.exponentialRampToValueAtTime(
+      Math.max(0.0001, gain),
+      start + duration * peakAt,
+    );
+    env.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+    source.start(start);
+    source.stop(start + duration + 0.03);
+  } catch {
+    // noop
+  }
+}
+
+function arrowResonator(
+  frequency,
+  gain,
+  duration,
+  delay = 0,
+  type = 'sine',
+  frequencyEnd = null,
+) {
+  if (!fxEnabled) return;
+  try {
+    const ac = getCtx();
+    const osc = ac.createOscillator();
+    const env = ac.createGain();
+    const start = ac.currentTime + delay;
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(Math.max(20, frequency), start);
+
+    if (frequencyEnd !== null) {
+      osc.frequency.exponentialRampToValueAtTime(
+        Math.max(20, frequencyEnd),
+        start + duration,
+      );
+    }
+
+    osc.connect(env);
+    env.connect(fxGain);
+
+    env.gain.setValueAtTime(0.0001, start);
+    env.gain.exponentialRampToValueAtTime(
+      Math.max(0.0001, gain),
+      start + 0.002,
+    );
+    env.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+    osc.start(start);
+    osc.stop(start + duration + 0.03);
+  } catch {
+    // noop
+  }
+}
+
+function arrowClickBurst(gain, delay = 0) {
+  arrowFilteredNoise({
+    delay,
+    duration: 0.022,
+    gain,
+    hp: 2200,
+    lp: 11000,
+    peakAt: 0.16,
+  });
+}
+
 function musicTone({
   type = 'sine',
   time = now(),
@@ -339,6 +453,7 @@ function musicNoise({
 
 export function setSoundEnabled(val) {
   fxEnabled = Boolean(val);
+  if (!fxEnabled) playSoundBowTensionStop(0.018);
   if (fxGain && ctx) {
     safeRamp(fxGain.gain, fxEnabled ? Math.max(0.0001, fxVolume) : 0.0001, ctx.currentTime, 0.05);
   }
@@ -585,57 +700,334 @@ export function updateMusicSystem(state, progression) {
 
 // ── SFX base ────────────────────────────────────────────────────────────────
 
+export function playSoundBowTensionStop(release = 0.035) {
+  const voice = bowTensionVoice;
+  bowTensionVoice = null;
+  if (!voice) return;
+
+  try {
+    const ac = getCtx();
+    const t = ac.currentTime;
+    const fade = Math.max(0.008, Number(release) || 0.035);
+
+    if (typeof voice.master.gain.cancelAndHoldAtTime === 'function') {
+      voice.master.gain.cancelAndHoldAtTime(t);
+    } else {
+      voice.master.gain.cancelScheduledValues(t);
+      voice.master.gain.setValueAtTime(
+        Math.max(0.0001, voice.master.gain.value || 0.0001),
+        t,
+      );
+    }
+
+    voice.master.gain.exponentialRampToValueAtTime(0.0001, t + fade);
+
+    for (const node of voice.sources) {
+      try {
+        node.stop(t + fade + 0.025);
+      } catch {
+        // El nodo puede haberse detenido ya.
+      }
+    }
+  } catch {
+    // noop
+  }
+}
+
+export function playSoundBowTensionStart() {
+  if (!fxEnabled) return;
+
+  playSoundBowTensionStop(0.010);
+
+  try {
+    const ac = getCtx();
+    const start = ac.currentTime;
+
+    const master = ac.createGain();
+    master.gain.setValueAtTime(0.0001, start);
+    master.gain.exponentialRampToValueAtTime(0.95, start + 0.018);
+    master.connect(fxGain);
+
+    const sources = [];
+
+    // La referencia de cuerda/rope no es un zumbido continuo:
+    // son pequeños chirridos y crujidos repetidos conforme aumenta la tensión.
+    const scheduleRopeCreak = ({
+      delay,
+      bandFreq,
+      bandQ,
+      noiseGain,
+      duration,
+      toneStart,
+      toneEnd,
+      toneGain,
+    }) => {
+      const t = start + delay;
+
+      // Fibra rozando: ruido corto y bastante resonante.
+      const source = ac.createBufferSource();
+      source.buffer = ensureNoiseBuffer();
+
+      const hp = ac.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 520;
+
+      const band = ac.createBiquadFilter();
+      band.type = 'bandpass';
+      band.frequency.setValueAtTime(bandFreq * 0.88, t);
+      band.frequency.exponentialRampToValueAtTime(
+        bandFreq,
+        t + duration * 0.72,
+      );
+      band.Q.value = bandQ;
+
+      const noiseEnv = ac.createGain();
+      noiseEnv.gain.setValueAtTime(0.0001, t);
+      noiseEnv.gain.exponentialRampToValueAtTime(
+        noiseGain,
+        t + Math.min(0.009, duration * 0.18),
+      );
+      noiseEnv.gain.exponentialRampToValueAtTime(
+        noiseGain * 0.42,
+        t + duration * 0.55,
+      );
+      noiseEnv.gain.exponentialRampToValueAtTime(
+        0.0001,
+        t + duration,
+      );
+
+      source.connect(hp);
+      hp.connect(band);
+      band.connect(noiseEnv);
+      noiseEnv.connect(master);
+
+      source.start(t);
+      source.stop(t + duration + 0.025);
+      sources.push(source);
+
+      // Chirrido tonal corto de la cuerda/fibra apretándose.
+      const tone = ac.createOscillator();
+      tone.type = 'triangle';
+      tone.frequency.setValueAtTime(toneStart, t);
+      tone.frequency.exponentialRampToValueAtTime(
+        toneEnd,
+        t + duration * 0.86,
+      );
+
+      const toneEnv = ac.createGain();
+      toneEnv.gain.setValueAtTime(0.0001, t);
+      toneEnv.gain.exponentialRampToValueAtTime(
+        toneGain,
+        t + Math.min(0.012, duration * 0.22),
+      );
+      toneEnv.gain.exponentialRampToValueAtTime(
+        toneGain * 0.50,
+        t + duration * 0.62,
+      );
+      toneEnv.gain.exponentialRampToValueAtTime(
+        0.0001,
+        t + duration,
+      );
+
+      tone.connect(toneEnv);
+      toneEnv.connect(master);
+      tone.start(t);
+      tone.stop(t + duration + 0.025);
+      sources.push(tone);
+    };
+
+    // Ritmo inspirado en los primeros instantes de la referencia:
+    // varios "creaks" separados, cada vez un poco más tensos/agudos.
+    scheduleRopeCreak({
+      delay: 0.025,
+      bandFreq: 1050,
+      bandQ: 3.0,
+      noiseGain: 0.055,
+      duration: 0.082,
+      toneStart: 250,
+      toneEnd: 310,
+      toneGain: 0.018,
+    });
+
+    scheduleRopeCreak({
+      delay: 0.105,
+      bandFreq: 1280,
+      bandQ: 3.2,
+      noiseGain: 0.060,
+      duration: 0.075,
+      toneStart: 285,
+      toneEnd: 350,
+      toneGain: 0.020,
+    });
+
+    scheduleRopeCreak({
+      delay: 0.195,
+      bandFreq: 1510,
+      bandQ: 3.4,
+      noiseGain: 0.064,
+      duration: 0.072,
+      toneStart: 320,
+      toneEnd: 395,
+      toneGain: 0.022,
+    });
+
+    scheduleRopeCreak({
+      delay: 0.295,
+      bandFreq: 1780,
+      bandQ: 3.6,
+      noiseGain: 0.067,
+      duration: 0.067,
+      toneStart: 360,
+      toneEnd: 445,
+      toneGain: 0.023,
+    });
+
+    scheduleRopeCreak({
+      delay: 0.400,
+      bandFreq: 2070,
+      bandQ: 3.8,
+      noiseGain: 0.070,
+      duration: 0.062,
+      toneStart: 405,
+      toneEnd: 505,
+      toneGain: 0.024,
+    });
+
+    scheduleRopeCreak({
+      delay: 0.505,
+      bandFreq: 2380,
+      bandQ: 4.0,
+      noiseGain: 0.073,
+      duration: 0.058,
+      toneStart: 455,
+      toneEnd: 570,
+      toneGain: 0.025,
+    });
+
+    // Pequeño asentamiento del cuerpo del arco cerca del 100%.
+    const body = ac.createOscillator();
+    body.type = 'sine';
+    body.frequency.setValueAtTime(118, start + 0.50);
+    body.frequency.exponentialRampToValueAtTime(142, start + 0.61);
+
+    const bodyEnv = ac.createGain();
+    bodyEnv.gain.setValueAtTime(0.0001, start);
+    bodyEnv.gain.setValueAtTime(0.0001, start + 0.49);
+    bodyEnv.gain.exponentialRampToValueAtTime(0.010, start + 0.535);
+    bodyEnv.gain.exponentialRampToValueAtTime(0.0001, start + 0.64);
+
+    body.connect(bodyEnv);
+    bodyEnv.connect(master);
+    body.start(start);
+    sources.push(body);
+
+    bowTensionVoice = {
+      master,
+      sources,
+    };
+  } catch {
+    bowTensionVoice = null;
+  }
+}
+
 export function playSoundLaunch() {
-  // Arco/flecha: chasquido seco de cuerda, resonancia breve del arco y un
-  // soplo corto del proyectil. Sin tono electrónico sostenido.
-  noiseBurst({ duration: 0.020, gain: 0.105, hp: 2600, lp: 9000 });
-  resonantNoiseBurst({
-    frequency: 235,
-    q: 3.4,
-    duration: 0.060,
-    gain: 0.110,
-    delay: 0.002,
+  // Perfil final r5: whoosh creciente + cuerpo grave + liberación breve.
+  const whooshDur = 0.060;
+  const whooshBright = 0.7477780065774047;
+  const whooshLow = 0.8485478096103793;
+  const launchThumpF = 117;
+  const launchThumpG = 0.135404026072453;
+  const launchClickG = 0.05492593355258016;
+
+  arrowFilteredNoise({
+    duration: whooshDur,
+    gain: 0.10 + 0.13 * whooshBright,
+    hp: 260,
+    lpStart: 1400,
+    lpEnd: 4200 + 4200 * whooshBright,
+    peakAt: 0.78,
   });
-  resonantNoiseBurst({
-    frequency: 480,
-    q: 2.4,
-    duration: 0.042,
-    gain: 0.050,
-    delay: 0.004,
+
+  arrowFilteredNoise({
+    delay: 0.025,
+    duration: whooshDur * 0.92,
+    gain: 0.04 + 0.12 * whooshLow,
+    hp: 55,
+    lp: 900,
+    peakAt: 0.82,
   });
-  noiseBurst({
-    duration: 0.075,
-    gain: 0.034,
-    hp: 900,
-    lp: 5200,
-    delay: 0.010,
-  });
+
+  arrowResonator(
+    launchThumpF,
+    launchThumpG,
+    whooshDur * 0.48,
+    whooshDur * 0.62,
+    'sine',
+    launchThumpF * 0.72,
+  );
+
+  arrowResonator(
+    launchThumpF * 1.82,
+    launchThumpG * 0.48,
+    whooshDur * 0.34,
+    whooshDur * 0.68,
+    'triangle',
+    launchThumpF * 1.35,
+  );
+
+  arrowClickBurst(launchClickG, whooshDur * 0.74);
 }
 
 export function playSoundAnchor(_combo = 1) {
-  // Impacto tipo "thock" de una flecha penetrando un blanco: ataque muy
-  // corto, cuerpo grave amortiguado y una pequeña resonancia de madera.
-  noiseBurst({ duration: 0.024, gain: 0.145, hp: 260, lp: 4200 });
-  resonantNoiseBurst({
-    frequency: 175,
-    q: 2.8,
-    duration: 0.085,
-    gain: 0.145,
-    delay: 0.001,
+  // Perfil final r5: impacto grueso tipo flecha clavándose en madera.
+  // El delay de 505 ms usado en el laboratorio NO se fija aquí:
+  // en gameplay el impacto suena cuando la flecha realmente se ancla.
+  const impactHit = 0.295;
+  const impactNoise = 0.05;
+  const impactRing = 0.225;
+  const impactTail = 0.145;
+
+  const impactModes = [
+    87.890625,
+    152.34375,
+    908.203125,
+    840.8203125,
+    793.9453125,
+    462.890625,
+    336.9140625,
+    243.1640625,
+  ];
+
+  const weights = [1, 0.55, 0.43, 0.34, 0.29, 0.22, 0.18, 0.15];
+
+  arrowClickBurst(impactNoise * 1.25);
+
+  arrowFilteredNoise({
+    duration: 0.034,
+    gain: impactHit,
+    hp: 90,
+    lp: 10500,
+    peakAt: 0.08,
   });
-  resonantNoiseBurst({
-    frequency: 390,
-    q: 3.2,
-    duration: 0.050,
-    gain: 0.068,
-    delay: 0.004,
+
+  impactModes.slice(0, 8).forEach((frequency, index) => {
+    arrowResonator(
+      frequency,
+      impactRing * (weights[index] ?? 0.15),
+      impactTail * (1 - index * 0.055),
+      0.002 + index * 0.0005,
+      index < 2 ? 'sine' : 'triangle',
+      frequency * (index < 2 ? 0.94 : 0.985),
+    );
   });
-  noiseBurst({
-    duration: 0.055,
-    gain: 0.043,
-    hp: 1100,
-    lp: 5000,
-    delay: 0.003,
+
+  arrowFilteredNoise({
+    delay: 0.012,
+    duration: Math.min(0.12, impactTail * 0.68),
+    gain: impactNoise * 0.52,
+    hp: 850,
+    lp: 6500,
+    peakAt: 0.10,
   });
 }
 

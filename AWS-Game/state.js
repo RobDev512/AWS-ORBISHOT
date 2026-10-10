@@ -6,11 +6,11 @@ import { CONFIG, DIFFICULTIES } from './config.js';
 import {
   createActivePowerUps,
   createPowerUpInventory,
-} from './powerups.js?build=v142-economy-r4';
-import { createPowerCoreState } from './powercore.js?build=v142-economy-r4';
+} from './powerups.js?build=v142-economy-r5';
+import { createPowerCoreState } from './powercore.js?build=v142-economy-r5';
 import { createInactiveBossState } from './boss.js';
 import { STABILITY_CONFIG } from './stability.js';
-import { ECONOMY_CONFIG } from './economy.js?build=v142-economy-r4';
+import { ECONOMY_CONFIG } from './economy.js?build=v142-economy-r5';
 
 function randomIcon() {
   return CONFIG.AWS_ICONS[
@@ -32,6 +32,12 @@ function randomIcon() {
  * @property {Object|null} flyingProjectile
  * @property {Object[]} anchoredProjectiles
  * @property {boolean} pendingLaunch
+ * @property {boolean} bowVisualPressed
+ * @property {number} bowVisualPressAt
+ * @property {number} bowVisualReleaseAt
+ * @property {boolean} bowVisualReleaseCharged
+ * @property {boolean} pendingLaunchCharged
+ * @property {Object[]} splitArrowFragments
  * @property {string|null} pendingPowerUpActivation
  * @property {number} gameOverTimestamp
  * @property {string|null} gameOverReason
@@ -96,6 +102,15 @@ export function createInitialState(
     pendingLaunch: false,
     pendingPowerUpActivation: null,
     hoveredPowerUpSlot: null,
+
+    // Estado exclusivamente visual del arco. No participa en físicas,
+    // colisiones ni cadencia de disparo.
+    bowVisualPressed: false,
+    bowVisualPressAt: 0,
+    bowVisualReleaseAt: 0,
+    bowVisualReleaseCharged: false,
+    pendingLaunchCharged: false,
+    splitArrowFragments: [],
     gameOverTimestamp: 0,
     gameOverReason: null,
     stability: STABILITY_CONFIG.max,

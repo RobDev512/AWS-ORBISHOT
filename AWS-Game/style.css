@@ -545,3 +545,79 @@ html, body {
   .settings-toggle-label img { width: 17px; height: 17px; }
   .shop-item-icon img { width: 23px; height: 23px; }
 }
+
+/* ── v1.4.2 r5: Visual/Icon Polish ─────────────────────────────────────── */
+.gameover-economy-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.gameover-economy-item img {
+  width: 15px;
+  height: 15px;
+  display: block;
+  object-fit: contain;
+}
+
+.shop-coin-balance,
+.shop-item-cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.shop-coin-balance::before,
+.shop-item-cost:not(.maxed)::before {
+  content: "";
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+  background: center / contain no-repeat url("assets/ui/coin.svg");
+}
+.shop-item-cost:not(.maxed)::before {
+  width: 11px;
+  height: 11px;
+  flex-basis: 11px;
+}
+
+.shop-life-upgrade-icon::after {
+  content: "+";
+  position: absolute;
+  right: 3px;
+  bottom: 2px;
+  min-width: 13px;
+  height: 13px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255,176,193,.75);
+  background: #151e2b;
+  color: #FFB0C1;
+  font: 900 10px/1 "Amazon Ember", Arial, sans-serif;
+}
+
+.shop-power[data-shop-power="freeze"] .shop-item-icon,
+.shop-capacity[data-shop-capacity="freeze"] .shop-item-icon {
+  border-color: rgba(54,197,240,.34);
+  background: rgba(54,197,240,.075);
+}
+.shop-power[data-shop-power="shield"] .shop-item-icon,
+.shop-capacity[data-shop-capacity="shield"] .shop-item-icon {
+  border-color: rgba(124,131,255,.34);
+  background: rgba(124,131,255,.075);
+}
+.shop-power[data-shop-power="double"] .shop-item-icon,
+.shop-capacity[data-shop-capacity="double"] .shop-item-icon {
+  border-color: rgba(255,209,102,.34);
+  background: rgba(255,209,102,.075);
+}
+.shop-power[data-shop-power="cleanup"] .shop-item-icon,
+.shop-capacity[data-shop-capacity="cleanup"] .shop-item-icon {
+  border-color: rgba(93,211,158,.34);
+  background: rgba(93,211,158,.075);
+}
+
+@media (max-width: 520px), (max-height: 700px) {
+  .gameover-economy-item img { width: 14px; height: 14px; }
+  .shop-coin-balance::before { width: 12px; height: 12px; flex-basis: 12px; }
+  .shop-item-cost:not(.maxed)::before { width: 10px; height: 10px; flex-basis: 10px; }
+}

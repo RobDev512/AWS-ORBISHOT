@@ -43,13 +43,6 @@ export const POWER_UP_CONFIG = Object.freeze({
     cleanup: '#5DD39E',
   }),
 
-  labels: Object.freeze({
-    freeze: 'CON',
-    shield: 'ESC',
-    double: '2X',
-    cleanup: 'LIM',
-  }),
-
   names: Object.freeze({
     freeze: 'CONGELAR',
     shield: 'ESCUDO',

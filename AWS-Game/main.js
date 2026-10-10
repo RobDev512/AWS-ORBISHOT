@@ -2,18 +2,18 @@
  * main.js — Punto de entrada y coordinación de UI.
  */
 
-import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v142-economy-r4';
-import { createInitialState }                from './state.js?build=v142-economy-r4';
+import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v142-economy-r5';
+import { createInitialState }                from './state.js?build=v142-economy-r5.8-charged-split';
 import { captureHighScore, loadHighScore }   from './scoring.js';
-import { registerInputHandlers }             from './input.js?build=v142-economy-r4';
-import { startGameLoop }                     from './gameLoop.js?build=v142-economy-r5';
-import { hideGameOver }                      from './ui.js?build=v142-economy-r4';
+import { registerInputHandlers }             from './input.js?build=v142-economy-r5.8-charged-split';
+import { startGameLoop }                     from './gameLoop.js?build=v142-economy-r5.8-charged-split';
+import { hideGameOver }                      from './ui.js?build=v142-economy-r5';
 import {
   setSoundEnabled,
   setMusicEnabled,
   setSoundVolume,
   setMusicVolume,
-} from './sound.js?build=v142-economy-r4';
+} from './sound.js?build=v142-economy-r5';
 import { setFxEnabled }                      from './particles.js';
 import { setFeedbackFxEnabled }              from './feedback.js';
 import { setComboEnabled }                   from './combo.js';
@@ -28,7 +28,7 @@ import {
   upgradeMaxLives,
   upgradePowerUpCapacity,
   buyPowerUp,
-} from './economy.js?build=v142-economy-r4';
+} from './economy.js?build=v142-economy-r5';
 
 // ── DOM ──────────────────────────────────────────────────────────────────────
 const gameWrapper     = document.getElementById('gameWrapper');
@@ -99,6 +99,16 @@ for (const [type, file] of Object.entries({
   const img = new Image();
   img.src = `assets/ui/${file}`;
   assets.powerUpIcons[type] = img;
+}
+
+assets.hudIcons = {};
+for (const [id, file] of Object.entries({
+  settings: 'settings-sliders.svg',
+  shop: 'shop-bag.svg',
+})) {
+  const img = new Image();
+  img.src = `assets/ui/${file}`;
+  assets.hudIcons[id] = img;
 }
 
 // ── Responsive ───────────────────────────────────────────────────────────────
@@ -304,10 +314,10 @@ function updateShopPanel() {
     Math.floor(Number(economy.maxLives) || ECONOMY_CONFIG.initialMaxLives),
   );
   const currentLives = Math.max(0, Math.floor(Number(state.currentLives) || 0));
-  if (shopCoinBalance) shopCoinBalance.textContent = `🪙 ${coins}`;
+  if (shopCoinBalance) shopCoinBalance.textContent = String(coins);
   if (shopLivesValue) shopLivesValue.textContent = `${currentLives} / ${maxLives}`;
 
-  if (buyLifeCost) buyLifeCost.textContent = `🪙 ${ECONOMY_CONFIG.lifeRefillCost}`;
+  if (buyLifeCost) buyLifeCost.textContent = String(ECONOMY_CONFIG.lifeRefillCost);
   if (buyLifeBtn) {
     buyLifeBtn.disabled = currentLives >= maxLives || coins < ECONOMY_CONFIG.lifeRefillCost;
     buyLifeBtn.title = currentLives >= maxLives
@@ -321,7 +331,8 @@ function updateShopPanel() {
   if (upgradeLivesCost) {
     upgradeLivesCost.textContent = upgradeCost === null
       ? 'MÁX.'
-      : `🪙 ${upgradeCost}`;
+      : String(upgradeCost);
+    upgradeLivesCost.classList.toggle('maxed', upgradeCost === null);
   }
   if (upgradeLivesBtn) {
     upgradeLivesBtn.disabled = upgradeCost === null || coins < upgradeCost;
@@ -363,7 +374,10 @@ function updateShopPanel() {
         ? `Capacidad x${current} • MÁX.`
         : `x${current} → x${current + 1}`;
     }
-    if (costEl) costEl.textContent = cost === null ? 'MÁX.' : `🪙 ${cost}`;
+    if (costEl) {
+      costEl.textContent = cost === null ? 'MÁX.' : String(cost);
+      costEl.classList.toggle('maxed', cost === null);
+    }
 
     btn.disabled = cost === null || coins < cost;
     btn.title = cost === null

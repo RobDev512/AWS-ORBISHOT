@@ -13,7 +13,7 @@ Estado: **publicado**.
 
 ## v1.4.2 — Economy & Lives Update
 
-Estado: **en desarrollo**.
+Estado: **publicado**.
 
 Objetivo: crear una primera economía persistente y un sistema de vidas reutilizable por versiones futuras.
 
@@ -39,6 +39,12 @@ Objetivo: crear una primera economía persistente y un sistema de vidas reutiliz
 - Comprar una carga de Freeze, Shield, Double o Cleanup para la run actual.
 - Mantener la economía simple y reusable, sin introducir todavía árboles de mejoras ni cosméticos.
 
+### Cierre de v1.4.2
+- Arco visible como lanzador base, con carga visual opcional.
+- Split Shot como recompensa de precisión al completar la carga.
+- Refinamiento de SFX de flecha/arco y pulido final de HUD/footers.
+- La cadencia del disparo normal, la velocidad de proyectil y la hitbox base permanecen intactas.
+
 ## v1.4.3 — UI & Progression Polish
 
 - Redefinir las estrellas de dificultad para que comuniquen información útil.
@@ -56,5 +62,17 @@ Objetivo: crear una primera economía persistente y un sistema de vidas reutiliz
 ## Más adelante
 
 Se mantiene el roadmap mayor: **Challenge → Mastery → Modes → Visual/Cosmetics → Events → Campaign**.
+
+### Progresión de armas — idea reservada
+La progresión futura puede ampliar el arco base con armas/variantes que cambien sensación y especialización sin abandonar el control principal de una sola acción:
+
+- **Arco largo:** precisión y recompensa por tiros limpios.
+- **Arco compuesto:** carga más estable y especialización en Split Shot.
+- **Ballesta:** sensación pesada y controlada, con identidad propia de recarga/disparo.
+- **Arco pesado:** orientación a daño/ruptura de armadura en contenido futuro.
+- **Arco técnico:** especialización en ventanas de precisión y Perfect Shots.
+- **Arco energético/experimental:** opción tardía o cosmético-funcional para Mastery/Campaign.
+
+Estas variantes quedan como dirección de progresión futura; no forman parte del balance ni del contenido jugable de v1.4.2.
 
 La economía de v1.4.2 se diseña como una base compatible con esos sistemas, no como una tienda aislada.

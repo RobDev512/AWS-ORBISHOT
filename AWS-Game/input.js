@@ -10,8 +10,12 @@
 import {
   POWER_UP_ORDER,
   canActivateStoredPowerUp,
-} from './powerups.js?build=v142-economy-r4';
-import { getPowerUpSlotAtPoint } from './powerupUi.js?build=v142-economy-r4';
+} from './powerups.js?build=v142-economy-r5';
+import { getPowerUpSlotAtPoint } from './powerupUi.js?build=v142-economy-r5';
+import {
+  playSoundBowTensionStart,
+  playSoundBowTensionStop,
+} from './sound.js?build=v142-economy-r5';
 
 function getLogicalCanvasSize(canvas) {
   return {
@@ -40,7 +44,7 @@ function getHudControlGeometry(canvas, control) {
   if (compact) {
     return {
       cx: width - 42,
-      cy: control === 'shop' ? 122 : 184,
+      cy: control === 'shop' ? 128 : 190,
       r: 31,
     };
   }
@@ -99,9 +103,78 @@ function requestPowerUpActivation(state, type) {
   return false;
 }
 
+
+const BOW_CHARGE_MS = 600;
+
+function getNowMs() {
+  return typeof performance !== 'undefined' && typeof performance.now === 'function'
+    ? performance.now()
+    : Date.now();
+}
+
+function getBowChargeProgress(state, now = getNowMs()) {
+  if (!state.bowVisualPressed) return 0;
+  const startedAt = Number(state.bowVisualPressAt) || now;
+  return Math.max(0, Math.min(1, (now - startedAt) / BOW_CHARGE_MS));
+}
+
+function beginBowDraw(state) {
+  if (
+    state.phase !== 'playing' ||
+    state.flyingProjectile !== null ||
+    state.pendingLaunch
+  ) {
+    return false;
+  }
+
+  if (!state.bowVisualPressed) {
+    state.bowVisualPressed = true;
+    state.bowVisualPressAt = getNowMs();
+    state.bowVisualReleaseCharged = false;
+    playSoundBowTensionStart();
+  }
+
+  return true;
+}
+
+function cancelBowDraw(state) {
+  playSoundBowTensionStop();
+  state.bowVisualPressed = false;
+  state.bowVisualPressAt = 0;
+}
+
+function releaseBowAndRequestLaunch(state) {
+  if (!state.bowVisualPressed) return false;
+
+  const now = getNowMs();
+  const charged = getBowChargeProgress(state, now) >= 1;
+
+  playSoundBowTensionStop(charged ? 0.020 : 0.028);
+
+  state.bowVisualPressed = false;
+  state.bowVisualPressAt = 0;
+  state.bowVisualReleaseAt = now;
+  state.bowVisualReleaseCharged = charged;
+
+  if (
+    state.phase !== 'playing' ||
+    state.flyingProjectile !== null ||
+    state.pendingLaunch
+  ) {
+    return false;
+  }
+
+  state.pendingLaunchCharged = charged;
+  state.pendingLaunch = true;
+  return true;
+}
+
 export function registerInputHandlers(canvas, state, abortController) {
   const controller = abortController ?? new AbortController();
   const { signal } = controller;
+
+  let shotPointerId = null;
+  let spaceShotArmed = false;
 
   canvas.tabIndex = 0;
   canvas.style.outline = 'none';
@@ -118,8 +191,18 @@ export function registerInputHandlers(canvas, state, abortController) {
     if (event.code !== 'Space' && event.key !== ' ') return;
     event.preventDefault();
 
-    if (state.phase === 'playing' && state.flyingProjectile === null) {
-      state.pendingLaunch = true;
+    if (!event.repeat && !spaceShotArmed) {
+      spaceShotArmed = beginBowDraw(state);
+    }
+  }, { signal });
+
+  window.addEventListener('keyup', (event) => {
+    if (event.code !== 'Space' && event.key !== ' ') return;
+    event.preventDefault();
+
+    if (spaceShotArmed) {
+      releaseBowAndRequestLaunch(state);
+      spaceShotArmed = false;
     }
   }, { signal });
 
@@ -149,6 +232,15 @@ export function registerInputHandlers(canvas, state, abortController) {
     } else {
       delete canvas.dataset.hudPressed;
       state.pressedPowerUpSlot = null;
+
+      if (beginBowDraw(state)) {
+        shotPointerId = event.pointerId;
+        try {
+          canvas.setPointerCapture(event.pointerId);
+        } catch {
+          // Algunos navegadores no implementan pointer capture en canvas.
+        }
+      }
     }
   }, { signal });
 
@@ -157,8 +249,31 @@ export function registerInputHandlers(canvas, state, abortController) {
     state.pressedPowerUpSlot = null;
   };
 
-  canvas.addEventListener('pointerup', clearHudPressed, { signal });
-  canvas.addEventListener('pointercancel', clearHudPressed, { signal });
+  canvas.addEventListener('pointerup', (event) => {
+    clearHudPressed();
+
+    if (shotPointerId === event.pointerId) {
+      releaseBowAndRequestLaunch(state);
+      shotPointerId = null;
+
+      try {
+        if (canvas.hasPointerCapture(event.pointerId)) {
+          canvas.releasePointerCapture(event.pointerId);
+        }
+      } catch {
+        // noop
+      }
+    }
+  }, { signal });
+
+  canvas.addEventListener('pointercancel', (event) => {
+    clearHudPressed();
+
+    if (shotPointerId === event.pointerId) {
+      shotPointerId = null;
+      cancelBowDraw(state);
+    }
+  }, { signal });
 
   canvas.addEventListener('click', (event) => {
     const { x, y } = toCanvasPoint(canvas, event);
@@ -186,11 +301,6 @@ export function registerInputHandlers(canvas, state, abortController) {
 
     if (powerUpType) {
       requestPowerUpActivation(state, powerUpType);
-      return;
-    }
-
-    if (state.phase === 'playing' && state.flyingProjectile === null) {
-      state.pendingLaunch = true;
     }
   }, { signal });
 
@@ -237,6 +347,12 @@ export function registerInputHandlers(canvas, state, abortController) {
     delete canvas.dataset.hudHover;
     delete canvas.dataset.hudPressed;
     canvas.style.cursor = 'default';
+  }, { signal });
+
+  window.addEventListener('blur', () => {
+    shotPointerId = null;
+    spaceShotArmed = false;
+    cancelBowDraw(state);
   }, { signal });
 
   return controller;

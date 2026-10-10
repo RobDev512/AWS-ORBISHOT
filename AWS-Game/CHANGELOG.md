@@ -2,9 +2,17 @@
 
 ## v1.4.2 — Economy & Lives Update
 
+- Cierre r5: añadido un arco visible como lanzador base, con orientación física corregida (cuerpo del arco arriba y cuerda debajo de la flecha), flotación visual ligera y tensión animada.
+- Nueva carga opcional del disparo: mantener pulsado aproximadamente `0.6 s` prepara **Split Shot** sin introducir cooldown ni reducir la velocidad/cadencia del disparo normal.
+- **Split Shot** permite partir una flecha anclada únicamente con un impacto cargado y muy preciso; un intento cargado mal alineado conserva la colisión normal.
+- Split Shot no sustituye Double Score, no entrega monedas adicionales y no se habilita contra bosses.
+- El lanzamiento y el impacto de flecha recibieron un nuevo perfil procedural más físico; el impacto busca una sensación de flecha clavándose en madera.
+- La tensión del arco usa un SFX procedural de crujidos/chirridos progresivos inspirado en cuerda/fibra bajo tensión.
+- Pulido final de presentación: arco separado del footer en escritorio, flotación discreta, banner del Power Core más legible y textos inferiores/versionado con mejor margen.
+
 - UI Polish r5: en móvil el HUD recupera el espacio superior que antes reservaba Configuración; RÉCORD y vidas vuelven al borde derecho mientras Tienda/Ajustes permanecen apilados debajo.
-- Nuevo set SVG propio para Freeze, Shield, Double y Cleanup, reutilizado en el Dock y en la tienda/mejoras de capacidad.
-- Configuración deja de usar emojis y adopta iconos SVG coherentes para dificultad, sonido, música, combo y efectos visuales.
+- Nuevo set SVG propio para Freeze, Shield, Double y Cleanup, reutilizado en Dock, Power Core, tienda y mejoras de capacidad.
+- Configuración deja de usar emojis y adopta iconos SVG coherentes para dificultad, sonido, música, combo y efectos visuales; Tienda/monedas/vidas también reciben iconografía propia.
 - Nueva economía persistente con monedas guardadas en `localStorage`.
 - Los niveles normales entregan monedas por completar el objetivo, con bonus moderados por Perfect Shots y mejor combo del nivel.
 - Los Boss Levels entregan una recompensa mayor y un bonus adicional según rango `S/A/B/C/D`.

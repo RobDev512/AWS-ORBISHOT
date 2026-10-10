@@ -1,16 +1,16 @@
-import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v142-economy-r4';
-import { getLevelTarget, getLevelTheme, LEVEL_COMPLETE_DELAY } from './levels.js?build=v142-economy-r4';
+import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v142-economy-r5';
+import { getLevelTarget, getLevelTheme, LEVEL_COMPLETE_DELAY } from './levels.js?build=v142-economy-r5';
 import {
   POWER_UP_CONFIG,
   POWER_UP_ORDER,
   canActivateStoredPowerUp,
   getPowerUpInventoryCap,
-} from './powerups.js?build=v142-economy-r4';
+} from './powerups.js?build=v142-economy-r5';
 import {
   getPowerUpChargeRect,
   getPowerUpSlotRects,
-} from './powerupUi.js?build=v142-economy-r4';
-import { getPowerCorePosition } from './powercore.js?build=v142-economy-r4';
+} from './powerupUi.js?build=v142-economy-r5';
+import { getPowerCorePosition } from './powercore.js?build=v142-economy-r5';
 import {
   BOSS_CONFIG,
   getBossPhase,
@@ -19,7 +19,7 @@ import {
   getBossPhaseBreak,
   getBossOverload,
   isBossPhaseTransitionActive,
-} from './boss.js?build=v142-economy-r4';
+} from './boss.js?build=v142-economy-r5';
 import { getStability } from './stability.js';
 
 /**
@@ -416,7 +416,7 @@ function getHudControlGeometry(ctx, control, canvasW) {
   if (compact) {
     return {
       x: canvasW - 42,
-      y: control === 'shop' ? 122 : 184,
+      y: control === 'shop' ? 128 : 190,
       radius: 26,
       compact: true,
     };
@@ -430,7 +430,7 @@ function getHudControlGeometry(ctx, control, canvasW) {
   };
 }
 
-function drawSettingsIcon(ctx, canvasW) {
+function drawSettingsIcon(ctx, canvasW, assets) {
   const geometry = getHudControlGeometry(ctx, 'settings', canvasW);
   const { x, y, compact } = geometry;
   const { hovered, pressed } = getHudControlState(ctx, 'settings');
@@ -461,28 +461,39 @@ function drawSettingsIcon(ctx, canvasW) {
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  // Icono tipo sliders.
-  const sliderCenterY = compact ? y - 5 : y;
-  const halfW = compact ? 10 : 8;
-  const spacing = compact ? 5.5 : 6;
-  ctx.strokeStyle = pressed || hovered ? '#FFFFFF' : 'rgba(255,255,255,.9)';
-  ctx.lineWidth = compact ? 2.1 : 1.8;
-  ctx.lineCap = 'round';
-  const ys = [
-    sliderCenterY - spacing,
-    sliderCenterY,
-    sliderCenterY + spacing,
-  ];
-  const knobs = [x + 4, x - 5, x + 2];
-  for (let i = 0; i < ys.length; i++) {
-    ctx.beginPath();
-    ctx.moveTo(x - halfW, ys[i]);
-    ctx.lineTo(x + halfW, ys[i]);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(knobs[i], ys[i], compact ? 2.5 : 2.1, 0, Math.PI * 2);
-    ctx.fillStyle = pressed ? '#FFF0B3' : '#FF9900';
-    ctx.fill();
+  const settingsIcon = assets?.hudIcons?.settings;
+  const iconY = compact ? y - 5 : y;
+  const iconSize = compact ? 23 : 20;
+  if (isImageReady(settingsIcon)) {
+    ctx.save();
+    ctx.globalAlpha = pressed ? 1 : hovered ? .98 : .90;
+    ctx.drawImage(
+      settingsIcon,
+      x - iconSize / 2,
+      iconY - iconSize / 2,
+      iconSize,
+      iconSize,
+    );
+    ctx.restore();
+  } else {
+    // Fallback geométrico mientras termina de cargar el SVG.
+    const halfW = compact ? 10 : 8;
+    const spacing = compact ? 5.5 : 6;
+    ctx.strokeStyle = pressed || hovered ? '#FFFFFF' : 'rgba(255,255,255,.9)';
+    ctx.lineWidth = compact ? 2.1 : 1.8;
+    ctx.lineCap = 'round';
+    const ys = [iconY - spacing, iconY, iconY + spacing];
+    const knobs = [x + 4, x - 5, x + 2];
+    for (let i = 0; i < ys.length; i++) {
+      ctx.beginPath();
+      ctx.moveTo(x - halfW, ys[i]);
+      ctx.lineTo(x + halfW, ys[i]);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(knobs[i], ys[i], compact ? 2.5 : 2.1, 0, Math.PI * 2);
+      ctx.fillStyle = pressed ? '#FFF0B3' : '#FF9900';
+      ctx.fill();
+    }
   }
 
   if (compact) {
@@ -495,7 +506,7 @@ function drawSettingsIcon(ctx, canvasW) {
   ctx.restore();
 }
 
-function drawShopIcon(ctx, canvasW) {
+function drawShopIcon(ctx, canvasW, assets) {
   const geometry = getHudControlGeometry(ctx, 'shop', canvasW);
   const { x, y, compact } = geometry;
   const { hovered, pressed } = getHudControlState(ctx, 'shop');
@@ -526,20 +537,35 @@ function drawShopIcon(ctx, canvasW) {
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  // Moneda central.
-  const coinY = compact ? y - 5 : y - 1;
-  ctx.beginPath();
-  ctx.arc(x, coinY, compact ? 9.5 : 7.5, 0, Math.PI * 2);
-  ctx.fillStyle = pressed ? 'rgba(255,209,102,.34)' : 'rgba(255,153,0,.18)';
-  ctx.fill();
-  ctx.strokeStyle = pressed || hovered ? '#FFF0B3' : '#FFD166';
-  ctx.lineWidth = compact ? 1.9 : 1.6;
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(x, coinY, compact ? 5.5 : 4.3, 0, Math.PI * 2);
-  ctx.strokeStyle = pressed || hovered ? '#FFD166' : 'rgba(255,209,102,.62)';
-  ctx.lineWidth = 1;
-  ctx.stroke();
+  const shopIcon = assets?.hudIcons?.shop;
+  const iconY = compact ? y - 5 : y - 1;
+  const iconSize = compact ? 24 : 19;
+  if (isImageReady(shopIcon)) {
+    ctx.save();
+    ctx.globalAlpha = pressed ? 1 : hovered ? .98 : .92;
+    ctx.drawImage(
+      shopIcon,
+      x - iconSize / 2,
+      iconY - iconSize / 2,
+      iconSize,
+      iconSize,
+    );
+    ctx.restore();
+  } else {
+    // Fallback de moneda si el SVG aún no está disponible.
+    ctx.beginPath();
+    ctx.arc(x, iconY, compact ? 9.5 : 7.5, 0, Math.PI * 2);
+    ctx.fillStyle = pressed ? 'rgba(255,209,102,.34)' : 'rgba(255,153,0,.18)';
+    ctx.fill();
+    ctx.strokeStyle = pressed || hovered ? '#FFF0B3' : '#FFD166';
+    ctx.lineWidth = compact ? 1.9 : 1.6;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x, iconY, compact ? 5.5 : 4.3, 0, Math.PI * 2);
+    ctx.strokeStyle = pressed || hovered ? '#FFD166' : 'rgba(255,209,102,.62)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
 
   ctx.fillStyle = pressed || hovered ? '#FFFFFF' : 'rgba(255,255,255,.72)';
   ctx.font = `bold ${compact ? 6 : 5.5}px "Amazon Ember", Arial, sans-serif`;
@@ -608,8 +634,8 @@ function drawHUD(ctx, state, progression, canvasW, assets) {
   ctx.fillStyle = '#FFB24D';
   ctx.fillText(badgeText, canvasW / 2, 74);
 
-  drawSettingsIcon(ctx, canvasW);
-  drawShopIcon(ctx, canvasW);
+  drawSettingsIcon(ctx, canvasW, assets);
+  drawShopIcon(ctx, canvasW, assets);
   ctx.restore();
 }
 
@@ -626,7 +652,7 @@ function drawLevelProgress(ctx, state, canvasW) {
   const barW = compact ? 220 : 190;
   const barH = compact ? 9 : 8;
   const x = (canvasW - barW) / 2;
-  const y = compact ? 148 : 145;
+  const y = compact ? 143 : 145;
 
   ctx.save();
   ctx.textAlign = 'center';
@@ -664,7 +690,7 @@ function drawStability(ctx, state, canvasW) {
   const barW = compact ? 180 : 128;
   const barH = compact ? 7 : 5;
   const x = (canvasW - barW) / 2;
-  const y = compact ? 178 : 166;
+  const y = compact ? 174 : 166;
   const color = ratio >= 0.75
     ? '#FF4D4D'
     : ratio >= 0.4
@@ -989,7 +1015,7 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
       ctx.textAlign = 'center';
       ctx.fillText(shortcut, slot.x + 18, slot.y + 19.5);
 
-      // Icono SVG en lugar de la sigla FRZ/SHD/2X/CLR.
+      // Icono SVG propio del potenciador; no depende de abreviaturas textuales.
       ctx.save();
       ctx.globalAlpha *= occupied ? 1 : .62;
       drawPowerUpIconImage(ctx, assets, type, slot.x + 47, slot.y + 15, 19);
@@ -1061,7 +1087,7 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
 
   if (compact) {
     // HUD móvil: texto arriba y barra abajo. Nunca dibujamos texto encima de
-    // la pista vacía para evitar recortes del tipo "FRZ ACTIVE".
+    // la pista vacía para evitar recortes en el estado activo.
     const pad = 12;
     const topY = chargeRect.y + 10;
     const hintY = chargeRect.y + 22;
@@ -1069,7 +1095,7 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
     const barW = chargeRect.width - pad * 2;
     const barY = chargeRect.y + chargeRect.height - 12;
     const barH = 7;
-    const shortType = POWER_UP_CONFIG.labels[coreType] ?? 'PU';
+    const coreName = coreType ? (POWER_UP_CONFIG.names[coreType] ?? 'PODER') : '';
 
     ctx.save();
     roundedRectPath(ctx, chargeRect.x + 2, chargeRect.y + 2, chargeRect.width - 4, chargeRect.height - 4, 12);
@@ -1080,23 +1106,39 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
     ctx.font = 'bold 11px "Amazon Ember", Arial, sans-serif';
     ctx.fillStyle = coreActive ? coreColor : '#FFB24D';
     ctx.fillText(
-      state.level < POWER_UP_CONFIG.minLevel ? 'PODER BLOQUEADO' : coreActive ? 'NÚCLEO ACTIVO' : 'PODER',
+      state.level < POWER_UP_CONFIG.minLevel
+        ? 'PODER BLOQUEADO'
+        : coreActive
+          ? `NÚCLEO • ${coreName}`
+          : 'PODER',
       chargeRect.x + pad,
       topY,
     );
 
-    ctx.textAlign = 'right';
-    ctx.font = 'bold 10px "Amazon Ember", Arial, sans-serif';
-    ctx.fillStyle = coreActive ? coreColor : 'rgba(255,255,255,.78)';
-    ctx.fillText(
-      state.level < POWER_UP_CONFIG.minLevel
-        ? `LV ${POWER_UP_CONFIG.minLevel}`
-        : coreActive
-          ? shortType
+    if (coreActive && coreType) {
+      ctx.save();
+      ctx.globalAlpha = .96;
+      drawPowerUpIconImage(
+        ctx,
+        assets,
+        coreType,
+        chargeRect.x + chargeRect.width - pad - 2,
+        topY,
+        18,
+      );
+      ctx.restore();
+    } else {
+      ctx.textAlign = 'right';
+      ctx.font = 'bold 10px "Amazon Ember", Arial, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,.78)';
+      ctx.fillText(
+        state.level < POWER_UP_CONFIG.minLevel
+          ? `LV ${POWER_UP_CONFIG.minLevel}`
           : `${Math.round(charge)}%`,
-      chargeRect.x + chargeRect.width - pad,
-      topY,
-    );
+        chargeRect.x + chargeRect.width - pad,
+        topY,
+      );
+    }
 
     // La instrucción contextual vive DENTRO del panel, entre etiqueta y barra.
     // Así nunca compite con el borde inferior del canvas ni queda bajo la pista.
@@ -1165,7 +1207,7 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
       state.level < POWER_UP_CONFIG.minLevel
         ? 'BLOQUEADO'
         : coreActive
-          ? `${POWER_UP_CONFIG.labels[coreType] ?? 'PU'} ACTIVO`
+          ? `${POWER_UP_CONFIG.names[coreType] ?? 'PODER'} ACTIVO`
           : charge >= POWER_UP_CONFIG.chargeMax
             ? 'ESPERANDO ESPACIO'
             : 'JUEGA BIEN PARA CARGAR',
@@ -1207,14 +1249,34 @@ function drawComboBadge(ctx, state) {
   ctx.restore();
 }
 
+function getFooterLayout(ctx, canvasH) {
+  const compact = getCanvasLayout(ctx) === 'compact';
+  if (compact) {
+    return {
+      compact,
+      hintY: canvasH - 32,
+      versionY: canvasH - 12,
+      versionX: null,
+    };
+  }
+
+  return {
+    compact,
+    hintY: canvasH - 24,
+    versionY: canvasH - 10,
+    versionX: 12,
+  };
+}
+
 function drawBottomHint(ctx, state, canvasW, canvasH) {
   if (state.phase !== 'playing' || state.flyingProjectile) return;
 
-  const compact = getCanvasLayout(ctx) === 'compact';
+  const footer = getFooterLayout(ctx, canvasH);
+  const compact = footer.compact;
   if (compact) return; // En móvil la ayuda ya vive dentro del panel Power/Core.
   let text = compact
     ? 'TOCA / ESPACIO PARA DISPARAR'
-    : 'CLIC/ESPACIO: DISPARAR  •  POTENCIADORES: CLIC O 1–4';
+    : 'CLIC/ESPACIO: DISPARAR  •  MANTÉN: CARGAR SPLIT  •  POTENCIADORES 1–4';
   let fill = 'rgba(255,255,255,.43)';
 
   if (state.boss?.active && !state.boss.defeated) {
@@ -1240,23 +1302,24 @@ function drawBottomHint(ctx, state, canvasW, canvasH) {
   ctx.textBaseline = 'middle';
   ctx.font = `bold ${compact ? 11 : 11}px "Amazon Ember", Arial, sans-serif`;
   ctx.fillStyle = fill;
-  ctx.fillText(text, canvasW / 2, canvasH - 22);
+  ctx.fillText(text, canvasW / 2, footer.hintY);
   ctx.restore();
 }
 
 function drawVersion(ctx, canvasW, canvasH) {
-  const compact = getCanvasLayout(ctx) === 'compact';
+  const footer = getFooterLayout(ctx, canvasH);
+  const compact = footer.compact;
   ctx.save();
   ctx.textBaseline = 'middle';
-  ctx.font = `${compact ? 7.5 : 9}px "Amazon Ember", Arial, sans-serif`;
-  ctx.fillStyle = 'rgba(255,255,255,.28)';
+  ctx.font = `${compact ? 7.2 : 8.7}px "Amazon Ember", Arial, sans-serif`;
+  ctx.fillStyle = compact ? 'rgba(255,255,255,.30)' : 'rgba(255,255,255,.28)';
 
   if (compact) {
     ctx.textAlign = 'center';
-    ctx.fillText(`v${APP_VERSION} - ${APP_CODENAME}`, canvasW / 2, canvasH - 8);
+    ctx.fillText(`v${APP_VERSION} - ${APP_CODENAME}`, canvasW / 2, footer.versionY);
   } else {
     ctx.textAlign = 'left';
-    ctx.fillText(`v${APP_VERSION} - ${APP_CODENAME}`, 12, canvasH - 14);
+    ctx.fillText(`v${APP_VERSION} - ${APP_CODENAME}`, footer.versionX, footer.versionY);
   }
   ctx.restore();
 }
@@ -1273,13 +1336,12 @@ export function drawGameOverFlash(ctx, flashTimer) {
 // ---------------------------------------------------------------------------
 // Power Core — recompensa orbitante que debe atravesarse con un tiro válido.
 // ---------------------------------------------------------------------------
-function drawPowerCore(ctx, state) {
+function drawPowerCore(ctx, state, assets) {
   const position = getPowerCorePosition(state);
   if (!position) return;
 
   const type = position.type;
   const color = POWER_UP_CONFIG.colors[type] ?? '#FFFFFF';
-  const label = POWER_UP_CONFIG.labels[type] ?? 'PU';
   const name = POWER_UP_CONFIG.names[type] ?? 'POWER';
   const pulse = state.powerCore?.pulse ?? 0;
   const pulseScale = 1 + Math.sin(pulse * 7) * 0.08;
@@ -1335,34 +1397,38 @@ function drawPowerCore(ctx, state) {
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  // Punto energético central.
+  // Firma visual central: el mismo SVG que usa el Dock y la tienda.
   ctx.beginPath();
   ctx.arc(
     position.x,
     position.y,
-    Math.max(4, position.radius * 0.35),
+    Math.max(4, position.radius * 0.30),
     0,
     Math.PI * 2,
   );
-  ctx.fillStyle = color;
+  ctx.fillStyle = `${color}28`;
   ctx.fill();
+
+  ctx.save();
+  ctx.globalAlpha = .98;
+  drawPowerUpIconImage(
+    ctx,
+    assets,
+    type,
+    position.x,
+    position.y,
+    Math.max(20, position.radius * 1.15),
+  );
+  ctx.restore();
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = 'bold 8px "Amazon Ember", Arial, sans-serif';
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillText(
-    label,
-    position.x,
-    position.y + position.radius + 13,
-  );
-
   ctx.font = 'bold 7px "Amazon Ember", Arial, sans-serif';
   ctx.fillStyle = color;
   ctx.fillText(
     position.bossPickupMode ? `${name} • PICKUP` : name,
     position.x,
-    position.y + position.radius + 23,
+    position.y + position.radius + 16,
   );
 
   ctx.restore();
@@ -2081,31 +2147,299 @@ function drawDisc(ctx, ce, progression, level = 1) {
 }
 
 
+
 // ---------------------------------------------------------------------------
-// drawReadyArrow — flecha en espera (parte inferior del canvas)
-// Apunta siempre hacia arriba (-PI/2 en convenio canvas, o sea angle = 0
-// en drawArrow porque local -Y ya es arriba).
+// Arco del lanzador + carga de Split Shot.
+//
+// Orientación: el cuerpo rígido del arco queda ARRIBA y la cuerda ABAJO.
+// La flecha se engancha físicamente en la cuerda y retrocede con ella al
+// cargar. Todo el movimiento de esta sección es visual; la física real del
+// proyectil continúa viviendo en projectile.js.
+// ---------------------------------------------------------------------------
+const BOW_CHARGE_MS = 600;
+
+function getBowVisualState(state) {
+  const now = typeof performance !== 'undefined' && typeof performance.now === 'function'
+    ? performance.now()
+    : Date.now();
+
+  let charge = 0;
+  let recoil = 0;
+  let energy = 0.18;
+
+  if (state.bowVisualPressed) {
+    const startedAt = Number(state.bowVisualPressAt) || now;
+    charge = Math.max(0, Math.min(1, (now - startedAt) / BOW_CHARGE_MS));
+    energy = 0.30 + charge * 0.70;
+  } else {
+    const releaseAt = Number(state.bowVisualReleaseAt) || 0;
+    const releaseAge = releaseAt > 0 ? Math.max(0, now - releaseAt) : Infinity;
+
+    if (releaseAge < 135) {
+      const p = releaseAge / 135;
+      recoil = Math.sin(p * Math.PI) * (1 - p * 0.28);
+      energy = (state.bowVisualReleaseCharged ? 1 : 0.68) * (1 - p * 0.72);
+    }
+  }
+
+  return {
+    charge,
+    recoil,
+    energy,
+    charged: charge >= 1,
+  };
+}
+
+function getBowGeometry(state) {
+  const now = typeof performance !== 'undefined' && typeof performance.now === 'function'
+    ? performance.now()
+    : Date.now();
+
+  const r = 22;
+  const readyBottomFactor = Number(CONFIG.READY_ARROW_BOTTOM_FACTOR) || 5;
+  const baseY = LOGICAL_HEIGHT - r * readyBottomFactor;
+  const arrowHalf = r * 2.1;
+  const visual = getBowVisualState(state);
+  const hoverLift = 4.5 + Math.sin(now / 320) * 1.3;
+  const bowY = baseY + arrowHalf - hoverLift;
+
+  const tipHalfWidth = 57 - visual.charge * 3.2 + visual.recoil * 1.6;
+  const tipY = 2 + visual.charge * 3.6 - visual.recoil * 2.4;
+  const bowCrownY = -20 + visual.charge * 1.6;
+  const stringNockY =
+    5 + visual.charge * 31 - visual.recoil * 8;
+
+  return {
+    r,
+    baseY,
+    arrowHalf,
+    bowY,
+    visual,
+    hoverLift,
+    tipHalfWidth,
+    tipY,
+    bowCrownY,
+    stringNockY,
+  };
+}
+
+function drawBowLauncher(ctx, state, canvasW) {
+  if (state.phase !== 'playing') return;
+
+  const cx = canvasW / 2;
+  const g = getBowGeometry(state);
+  const compact = getCanvasLayout(ctx) === 'compact';
+  const launcherY = g.bowY - (compact ? 0 : 12);
+  const {
+    visual,
+    hoverLift,
+    tipHalfWidth,
+    tipY,
+    bowCrownY,
+    stringNockY,
+  } = g;
+
+  ctx.save();
+  ctx.translate(cx, launcherY);
+
+  // Sombra de apoyo.
+  ctx.beginPath();
+  ctx.ellipse(0, 34 + hoverLift * 0.9, 44, 5.2, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0,0,0,.18)';
+  ctx.fill();
+
+  // Cuerpo del arco: una curva ∩. El arco rígido queda sobre la cuerda.
+  ctx.beginPath();
+  ctx.moveTo(-tipHalfWidth, tipY);
+  ctx.bezierCurveTo(
+    -48 + visual.charge * 2.5,
+    -4 + visual.charge * 1.8,
+    -28,
+    bowCrownY - 1,
+    -8,
+    bowCrownY,
+  );
+  ctx.bezierCurveTo(
+    -3,
+    bowCrownY - 1.5,
+    3,
+    bowCrownY - 1.5,
+    8,
+    bowCrownY,
+  );
+  ctx.bezierCurveTo(
+    28,
+    bowCrownY - 1,
+    48 - visual.charge * 2.5,
+    -4 + visual.charge * 1.8,
+    tipHalfWidth,
+    tipY,
+  );
+  ctx.strokeStyle = '#FF9900';
+  ctx.lineWidth = 5.4;
+  ctx.lineCap = 'round';
+  ctx.shadowColor = '#FF9900';
+  ctx.shadowBlur = 7 + visual.energy * 7;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Brillo interior del cuerpo.
+  ctx.beginPath();
+  ctx.moveTo(-tipHalfWidth + 2, tipY - 1);
+  ctx.bezierCurveTo(-45, -5, -27, bowCrownY + 1, -9, bowCrownY + 1);
+  ctx.moveTo(tipHalfWidth - 2, tipY - 1);
+  ctx.bezierCurveTo(45, -5, 27, bowCrownY + 1, 9, bowCrownY + 1);
+  ctx.strokeStyle = 'rgba(255,211,140,.80)';
+  ctx.lineWidth = 1.15;
+  ctx.stroke();
+
+  // Empuñadura integrada en la parte superior/central del arco.
+  roundedRectPath(ctx, -8, bowCrownY - 7, 16, 17, 5);
+  const gripGradient = ctx.createLinearGradient(0, bowCrownY - 7, 0, bowCrownY + 10);
+  gripGradient.addColorStop(0, '#2A3645');
+  gripGradient.addColorStop(1, '#101720');
+  ctx.fillStyle = gripGradient;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,153,0,.74)';
+  ctx.lineWidth = 1.1;
+  ctx.stroke();
+
+  // Cuerda: los extremos se fijan a las puntas y el culatín baja al cargar.
+  ctx.beginPath();
+  ctx.moveTo(-tipHalfWidth, tipY);
+  ctx.lineTo(0, stringNockY);
+  ctx.lineTo(tipHalfWidth, tipY);
+  ctx.strokeStyle = `rgba(238,245,255,${0.68 + visual.energy * 0.28})`;
+  ctx.lineWidth = visual.charged ? 1.75 : 1.25;
+  ctx.shadowColor = visual.charged ? '#FFD166' : '#DCEBFF';
+  ctx.shadowBlur = 4 + visual.energy * 8;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Punto de enganche de la flecha a la cuerda.
+  ctx.beginPath();
+  ctx.arc(0, stringNockY, 2.5 + visual.energy * 1.2, 0, Math.PI * 2);
+  ctx.fillStyle = visual.charged ? '#FFF1A8' : '#FFD28A';
+  ctx.shadowColor = visual.charged ? '#FFD166' : '#FF9900';
+  ctx.shadowBlur = 5 + visual.energy * 9;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Progreso de carga alrededor del culatín. No ocupa espacio extra de HUD.
+  if (state.bowVisualPressed) {
+    ctx.beginPath();
+    ctx.arc(
+      0,
+      stringNockY,
+      10.5,
+      -Math.PI / 2,
+      -Math.PI / 2 + Math.PI * 2 * visual.charge,
+    );
+    ctx.strokeStyle = visual.charged ? '#5FE1AE' : '#FFD166';
+    ctx.lineWidth = 2.2;
+    ctx.shadowColor = ctx.strokeStyle;
+    ctx.shadowBlur = 7;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.font = 'bold 9px "Amazon Ember", Arial, sans-serif';
+    ctx.fillStyle = visual.charged ? '#5FE1AE' : 'rgba(255,209,102,.90)';
+    ctx.fillText(
+      visual.charged ? 'SPLIT LISTO' : `CARGA ${Math.round(visual.charge * 100)}%`,
+      67,
+      -7,
+    );
+  }
+
+  ctx.restore();
+}
+
+// ---------------------------------------------------------------------------
+// drawReadyArrow — flecha montada sobre la cuerda.
 // ---------------------------------------------------------------------------
 function drawReadyArrow(ctx, state, assets, canvasW, canvasH) {
   if (state.flyingProjectile) return;
   if (state.phase !== 'playing') return;
 
-  const r  = 22;
   const cx = canvasW / 2;
-  const t  = Date.now() / 1000;
+  const g = getBowGeometry(state);
+  const compact = getCanvasLayout(ctx) === 'compact';
+  const launcherY = g.bowY - (compact ? 0 : 12);
+  const t = Date.now() / 1000;
 
-  // La flecha preparada queda un poco más abajo para distinguirla mejor de
-  // las ya clavadas. La misma posición se usa al lanzar para evitar saltos.
-  const readyBottomFactor = Number(CONFIG.READY_ARROW_BOTTOM_FACTOR) || 5;
-  const baseY = LOGICAL_HEIGHT - r * readyBottomFactor;
-  // Flotado: oscilación vertical suave ±5px, período ~2s
-  const floatY = baseY + Math.sin(t * Math.PI) * 5;
+  // El extremo trasero de la flecha coincide con el culatín de la cuerda.
+  const readyY = launcherY + g.stringNockY - g.arrowHalf;
 
-  // Opacidad: ligeramente pulsante entre 0.82 y 1.0
-  ctx.globalAlpha = 0.82 + 0.18 * Math.sin(t * Math.PI * 0.8);
-  drawArrow(ctx, cx, floatY, r, 0, state.nextArrowId, assets);
+  if (g.visual.charged) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, readyY, g.r * 1.18, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(95,225,174,.72)';
+    ctx.lineWidth = 1.6;
+    ctx.shadowColor = '#5FE1AE';
+    ctx.shadowBlur = 12;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  ctx.globalAlpha = 0.94 + 0.06 * Math.sin(t * Math.PI * 0.8);
+  drawArrow(ctx, cx, readyY, g.r, 0, state.nextArrowId, assets);
   ctx.globalAlpha = 1;
+}
 
+function drawSplitArrowFragments(ctx, state) {
+  const fragments = Array.isArray(state.splitArrowFragments)
+    ? state.splitArrowFragments
+    : [];
+
+  for (const fragment of fragments) {
+    const life = Math.max(0, Number(fragment.life) || 0);
+    const maxLife = Math.max(0.001, Number(fragment.maxLife) || 0.55);
+    if (life <= 0) continue;
+
+    const alpha = Math.min(1, life / maxLife);
+    const len = Math.max(10, Number(fragment.length) || 22);
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(fragment.x, fragment.y);
+    ctx.rotate(fragment.rotation || 0);
+
+    ctx.beginPath();
+    ctx.moveTo(0, -len / 2);
+    ctx.lineTo(0, len / 2);
+    ctx.strokeStyle = '#C8A96E';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.shadowColor = fragment.color ?? '#FFD166';
+    ctx.shadowBlur = 5 * alpha;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-3.4, fragment.side < 0 ? -len / 2 : len / 2);
+    ctx.lineTo(3.4, fragment.side < 0 ? -len / 2 : len / 2);
+    ctx.strokeStyle = fragment.color ?? '#FFD166';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.restore();
+  }
+}
+
+function drawChargedProjectileAura(ctx, fp) {
+  if (!fp?.chargedShot) return;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(fp.x, fp.y, fp.radius * 1.05, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(95,225,174,.68)';
+  ctx.lineWidth = 1.8;
+  ctx.shadowColor = '#5FE1AE';
+  ctx.shadowBlur = 12;
+  ctx.stroke();
+  ctx.restore();
 }
 
 function drawLevelCompleteOverlay(ctx, state) {
@@ -2290,11 +2624,17 @@ export function render(ctx, state, assets, progression = null) {
   // de ser gameplay y continúan cayendo como restos físicos independientes.
   drawBossDetachedDebris(ctx, state);
   drawBossDetachedArrows(ctx, state, assets);
+  drawSplitArrowFragments(ctx, state);
 
-  drawPowerCore(ctx, state);
+  drawPowerCore(ctx, state, assets);
+
+  // Lanzador visual: permanece en la base durante el vuelo y hace un snap
+  // breve al disparar. No interviene en la posición lógica del proyectil.
+  drawBowLauncher(ctx, state, LOGICAL_WIDTH);
 
   if (flyingProjectile) {
     const fp = flyingProjectile;
+    drawChargedProjectileAura(ctx, fp);
     const flyAngle = Math.atan2(fp.vy, fp.vx) + Math.PI / 2;
     drawArrow(ctx, fp.x, fp.y, fp.radius, flyAngle, fp.awsIconId, assets);
   }

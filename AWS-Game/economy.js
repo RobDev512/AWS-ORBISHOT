@@ -12,7 +12,7 @@ import {
   POWER_UP_ORDER,
   collectPowerUp,
   getPowerUpInventoryCap,
-} from './powerups.js?build=v142-economy-r4';
+} from './powerups.js?build=v142-economy-r5';
 
 const ECONOMY_KEY = 'awsOrbishotEconomyV1';
 

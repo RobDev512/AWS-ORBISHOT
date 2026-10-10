@@ -24,6 +24,9 @@ https://robdev512.github.io/Proyectos-Taller-AWS/AWS-Game/
 - El HUD ya soporta más de 5 vidas mediante formato compacto `♥ ×N`, dejando preparada una expansión futura.
 - Tienda independiente de Configuración, con acceso propio desde el HUD, tarjetas compactas y secciones de Vidas/Potenciadores.
 - Saldo de monedas y capacidad máxima guardados localmente.
+- Lanzador visual con arco en la base y animación de tensión sin retrasar el disparo normal.
+- Mantener el disparo ~`0.6 s` carga **Split Shot**: si el tiro coincide casi exactamente con una flecha anclada, la parte y permite que la nueva flecha se ancle.
+- SFX procedural refinado para lanzamiento, impacto, tensión de cuerda y cuerpo del arco.
 
 ## Audio Update (v1.4.1)
 
@@ -70,18 +73,18 @@ Desde v1.3.2 los Power-Ups se ganan mediante **Power Charge + Power Core** en lu
 
 - Los aciertos, Perfect Shots, combos y Level Complete llenan Power Charge.
 - Al llegar a 100 % aparece un Power Core orbitando alrededor del disco.
-- El Core cambia entre **FRZ**, **SHD**, **2X** y **CLR**.
+- El Core cambia visualmente entre **Freeze**, **Shield**, **Double** y **Cleanup** mediante iconos SVG propios.
 - Debes atravesar el Core con una flecha y luego anclar ese mismo tiro correctamente.
 - Si el tiro termina en colisión, el Core no se pierde y puedes intentarlo de nuevo.
 - La recompensa capturada entra al Power-Up Dock.
-- El Dock permite guardar hasta 2 unidades por tipo y activarlas con clic/tap o teclas `1–4`.
+- El Dock parte con capacidad `x2` por tipo; las mejoras permanentes de la tienda pueden ampliarla hasta `x5` en v1.4.2. Se activa con clic/tap o teclas `1–4`.
 
 Los efectos siguen siendo:
 
-- **FRZ — Freeze:** detiene temporalmente la rotación y habilita **Stack Shots**, permitiendo apilar flechas en el mismo punto sin sumar Overload mientras dure el efecto.
-- **SHD — Shield:** absorbe una colisión.
-- **2X — Double Score:** duplica los puntos de los siguientes 3 aciertos.
-- **CLR — Cleanup:** elimina la flecha anclada más antigua.
+- **Freeze:** detiene temporalmente la rotación y habilita **Stack Shots**, permitiendo apilar flechas en el mismo punto sin sumar Overload mientras dure el efecto.
+- **Shield:** absorbe una colisión.
+- **Double Score:** duplica los puntos de los siguientes 3 aciertos.
+- **Cleanup:** elimina la flecha anclada más antigua.
 
 ## Características
 
@@ -212,6 +215,9 @@ Primera actualización mayor bajo la identidad **AWS ORBISHOT**:
 - Vidas por run con 3 corazones iniciales y continuaciones de nivel.
 - Tienda para recargar corazones, ampliar capacidad y comprar Power-Ups.
 - Capacidad de tienda hasta 5 vidas, con HUD preparado para cantidades mayores.
+- Rediseño visual final con iconografía propia, mejor responsive móvil y arco visible como lanzador.
+- Disparo cargado opcional con **Split Shot**, conservando intacta la cadencia del tiro normal.
+- Nuevo perfil procedural de lanzamiento/impacto y SFX de tensión del arco.
 
 ## GitHub Pages
 

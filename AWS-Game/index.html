@@ -101,8 +101,8 @@
       </div>
       <div class="gameover-level">Nivel alcanzado: <strong id="finalLevel">1</strong></div>
       <div class="gameover-economy">
-        <span>🪙 <strong id="finalCoins">0</strong> monedas</span>
-        <span>♥ Capacidad <strong id="finalMaxLives">3</strong></span>
+        <span class="gameover-economy-item"><img src="assets/ui/coin.svg" alt="" aria-hidden="true"/><strong id="finalCoins">0</strong> monedas</span>
+        <span class="gameover-economy-item"><img src="assets/ui/life-heart.svg" alt="" aria-hidden="true"/>Capacidad <strong id="finalMaxLives">3</strong></span>
       </div>
       <button id="playAgainBtn" type="button">Jugar de nuevo</button>
     </div>
@@ -197,7 +197,7 @@
           <span class="shop-kicker">Economía de la run</span>
           <h2 id="shopTitle">Tienda</h2>
         </div>
-        <span id="shopCoinBalance" class="shop-coin-balance">🪙 0</span>
+        <span id="shopCoinBalance" class="shop-coin-balance">0</span>
       </div>
 
       <div class="shop-life-summary">
@@ -215,14 +215,14 @@
         </div>
         <div class="shop-grid shop-grid-lives">
           <button id="buyLifeBtn" class="shop-item shop-life-item" type="button">
-            <span class="shop-item-icon">♥</span>
+            <span class="shop-item-icon"><img src="assets/ui/life-heart.svg" alt="" aria-hidden="true"/></span>
             <span class="shop-item-copy"><strong>Recargar vida</strong><small>+1 corazón de esta run</small></span>
-            <span id="buyLifeCost" class="shop-item-cost">🪙 20</span>
+            <span id="buyLifeCost" class="shop-item-cost">20</span>
           </button>
           <button id="upgradeLivesBtn" class="shop-item shop-life-item" type="button">
-            <span class="shop-item-icon">♥+</span>
+            <span class="shop-item-icon shop-life-upgrade-icon"><img src="assets/ui/life-heart.svg" alt="" aria-hidden="true"/></span>
             <span class="shop-item-copy"><strong>Ampliar capacidad</strong><small>Mejora permanente +1</small></span>
-            <span id="upgradeLivesCost" class="shop-item-cost">🪙 60</span>
+            <span id="upgradeLivesCost" class="shop-item-cost">60</span>
           </button>
         </div>
       </section>
@@ -236,22 +236,22 @@
           <button class="shop-item shop-power" data-shop-power="freeze" type="button">
             <span class="shop-item-icon"><img src="assets/ui/power-freeze.svg" alt="" aria-hidden="true"/></span>
             <span class="shop-item-copy"><strong>Congelar +1</strong><small>Una carga de Freeze</small></span>
-            <span class="shop-item-cost">🪙 12</span>
+            <span class="shop-item-cost">12</span>
           </button>
           <button class="shop-item shop-power" data-shop-power="shield" type="button">
             <span class="shop-item-icon"><img src="assets/ui/power-shield.svg" alt="" aria-hidden="true"/></span>
             <span class="shop-item-copy"><strong>Escudo +1</strong><small>Una carga de Shield</small></span>
-            <span class="shop-item-cost">🪙 14</span>
+            <span class="shop-item-cost">14</span>
           </button>
           <button class="shop-item shop-power" data-shop-power="double" type="button">
             <span class="shop-item-icon"><img src="assets/ui/power-double.svg" alt="" aria-hidden="true"/></span>
             <span class="shop-item-copy"><strong>Doble +1</strong><small>Una carga de Double</small></span>
-            <span class="shop-item-cost">🪙 16</span>
+            <span class="shop-item-cost">16</span>
           </button>
           <button class="shop-item shop-power" data-shop-power="cleanup" type="button">
             <span class="shop-item-icon"><img src="assets/ui/power-cleanup.svg" alt="" aria-hidden="true"/></span>
             <span class="shop-item-copy"><strong>Limpieza +1</strong><small>Una carga de Cleanup</small></span>
-            <span class="shop-item-cost">🪙 18</span>
+            <span class="shop-item-cost">18</span>
           </button>
         </div>
       </section>
@@ -266,22 +266,22 @@
           <button class="shop-item shop-capacity" data-shop-capacity="freeze" type="button">
             <span class="shop-item-icon"><img src="assets/ui/power-freeze.svg" alt="" aria-hidden="true"/></span>
             <span class="shop-item-copy"><strong>Capacidad Congelar</strong><small data-capacity-label="freeze">x2 → x3</small></span>
-            <span class="shop-item-cost" data-capacity-cost="freeze">🪙 25</span>
+            <span class="shop-item-cost" data-capacity-cost="freeze">25</span>
           </button>
           <button class="shop-item shop-capacity" data-shop-capacity="shield" type="button">
             <span class="shop-item-icon"><img src="assets/ui/power-shield.svg" alt="" aria-hidden="true"/></span>
             <span class="shop-item-copy"><strong>Capacidad Escudo</strong><small data-capacity-label="shield">x2 → x3</small></span>
-            <span class="shop-item-cost" data-capacity-cost="shield">🪙 25</span>
+            <span class="shop-item-cost" data-capacity-cost="shield">25</span>
           </button>
           <button class="shop-item shop-capacity" data-shop-capacity="double" type="button">
             <span class="shop-item-icon"><img src="assets/ui/power-double.svg" alt="" aria-hidden="true"/></span>
             <span class="shop-item-copy"><strong>Capacidad Doble</strong><small data-capacity-label="double">x2 → x3</small></span>
-            <span class="shop-item-cost" data-capacity-cost="double">🪙 25</span>
+            <span class="shop-item-cost" data-capacity-cost="double">25</span>
           </button>
           <button class="shop-item shop-capacity" data-shop-capacity="cleanup" type="button">
             <span class="shop-item-icon"><img src="assets/ui/power-cleanup.svg" alt="" aria-hidden="true"/></span>
             <span class="shop-item-copy"><strong>Capacidad Limpieza</strong><small data-capacity-label="cleanup">x2 → x3</small></span>
-            <span class="shop-item-cost" data-capacity-cost="cleanup">🪙 25</span>
+            <span class="shop-item-cost" data-capacity-cost="cleanup">25</span>
           </button>
         </div>
       </section>
@@ -292,6 +292,6 @@
   </div>
 
 </div>
-<script type="module" src="main.js?build=v142-economy-r5"></script>
+<script type="module" src="main.js?build=v142-economy-r5.8-charged-split"></script>
 </body>
 </html>

@@ -9,7 +9,7 @@ import {
   anchorProjectile,
 } from './projectile.js?build=v143-pages-hotfix2';
 import { checkCollision } from './collision.js';
-import { render, drawGameOverFlash } from './renderer.js?build=v1431-perf-monitor3';
+import { render, drawGameOverFlash } from './renderer.js?build=v1432-boss-hud1';
 import { recordPerformanceFrame, resetPerformanceMonitor } from './performanceMonitor.js?build=v1431-devfps1';
 import { showGameOver } from './ui.js';
 import { getProgression } from './config.js?build=v1431-perf-r1';

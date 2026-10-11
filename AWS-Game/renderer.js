@@ -3642,9 +3642,16 @@ export function render(ctx, state, assets, progression = null) {
   drawHUD(ctx, state, progression, screenW, assets);
   drawEconomyStatus(ctx, state, screenW);
 
+  const bossCompleteHudActive = Boolean(
+    state.phase === 'levelcomplete' &&
+    state.boss?.active &&
+    state.boss?.defeated &&
+    state.boss?.result
+  );
+
   if (isR61WideHud(ctx)) {
     drawR61WideHud(ctx, state, progression);
-  } else {
+  } else if (!bossCompleteHudActive) {
     const mobileBossHud =
       getCanvasLayout(ctx) === 'compact' &&
       !isCompactDesktop(ctx) &&

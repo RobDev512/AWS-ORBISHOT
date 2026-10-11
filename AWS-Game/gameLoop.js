@@ -7,11 +7,11 @@ import {
   launchProjectile,
   advanceProjectile,
   anchorProjectile,
-} from './projectile.js?build=v143-pages-hotfix1';
+} from './projectile.js?build=v143-pages-hotfix2';
 import { checkCollision } from './collision.js';
-import { render, drawGameOverFlash } from './renderer.js?build=v143-pages-hotfix1';
+import { render, drawGameOverFlash } from './renderer.js?build=v143-pages-hotfix2';
 import { showGameOver } from './ui.js';
-import { getProgression } from './config.js?build=v143-pages-hotfix1';
+import { getProgression } from './config.js?build=v143-pages-hotfix2';
 import {
   playSoundLaunch,
   playSoundAnchor,
@@ -34,7 +34,7 @@ import {
   playSoundOverload,
   playSoundTransition,
   updateMusicSystem,
-} from './sound.js?build=v143-pages-hotfix1';
+} from './sound.js?build=v143-pages-hotfix2';
 import {
   emitImpact,
   updateAndDraw,
@@ -70,7 +70,7 @@ import {
   isLevelComplete,
   beginLevelComplete,
   advanceToNextLevel,
-} from './levels.js?build=v143-pages-hotfix1';
+} from './levels.js?build=v143-pages-hotfix2';
 import {
   activateStoredPowerUp,
   addPowerUpCharge,
@@ -83,14 +83,14 @@ import {
   POWER_UP_TYPES,
   resetPowerUps,
   updatePowerUps,
-} from './powerups.js?build=v143-pages-hotfix1';
+} from './powerups.js?build=v143-pages-hotfix2';
 import {
   checkPowerCoreCrossing,
   completePowerCoreCapture,
   resetPowerCore,
   trySpawnPowerCore,
   updatePowerCore,
-} from './powercore.js?build=v143-pages-hotfix1';
+} from './powercore.js?build=v143-pages-hotfix2';
 import {
   damageStability,
   recoverStability,
@@ -113,12 +113,12 @@ import {
   updateBossPhaseTransition,
   updateBoss,
   updateBossIntro,
-} from './boss.js?build=v143-pages-hotfix1';
+} from './boss.js?build=v143-pages-hotfix2';
 import {
   awardCoins,
   getNormalLevelCoinReward,
   getBossCoinReward,
-} from './economy.js?build=v143-pages-hotfix1';
+} from './economy.js?build=v143-pages-hotfix2';
 
 let rafId = null;
 let overlayShown = false;

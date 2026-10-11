@@ -13,7 +13,7 @@
 - HUD compacto refinado para resoluciones angostas.
 - Tienda y Ajustes quedan centrados, espaciados y con feedback visual consistente.
 - Monedas, vidas, dificultad, nivel y progreso se redistribuyen para liberar el centro del campo.
-- Sobrecarga usa una barra vertical cuando el layout compacto lo requiere.
+- Sobrecarga usa una barra vertical en móvil, escritorio compacto y escritorio de media pantalla.
 - Boss Levels reciben una jerarquía propia de título/barra de fase y evitan duplicar Sobrecarga.
 - Pantalla completa aprovecha los laterales con una distribución más legible y consistente.
 
@@ -30,7 +30,7 @@
 - `collision.js` no se modifica.
 - La detección de colisión permanece exactamente en `fp.radius * 0.35`.
 - No se cambia la velocidad de proyectil, cadencia normal, audio, economía ni balance de Power-Ups.
-- Cache-buster final de la release: `v143-pages-hotfix1`.
+- Cache-buster final de la release: `v143-pages-hotfix2`.
 
 ## v1.4.2 — Economy & Lives Update
 

@@ -7,7 +7,7 @@
  * área jugable.
  */
 
-import { POWER_UP_ORDER } from './powerups.js?build=v143-pages-hotfix1';
+import { POWER_UP_ORDER } from './powerups.js?build=v143-pages-hotfix2';
 
 export const POWER_UP_DOCK = Object.freeze({
   desktop: Object.freeze({

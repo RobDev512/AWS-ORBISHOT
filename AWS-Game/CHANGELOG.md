@@ -6,14 +6,14 @@
 - El RANGO de progresión queda separado de las estrellas para no mezclar dificultad seleccionada con avance dinámico.
 - Cambiar la dificultad desde Configuración se aplica a la run actual sin reiniciar nivel, score, vidas, inventario ni Power Charge.
 - Rediseño responsive del HUD para escritorio angosto y pantalla completa, con mejor aprovechamiento del espacio y controles de Tienda/Ajustes más claros.
-- Sobrecarga se reubica verticalmente cuando el layout compacto lo necesita, incluido el HUD de Boss Levels, evitando solapamientos con estrellas, progreso y barra del jefe.
+- Sobrecarga se reubica verticalmente en móvil, escritorio compacto y escritorio de media pantalla, incluido el HUD de Boss Levels, evitando solapamientos con estrellas, progreso y barra del jefe.
 - Pantalla completa recibe distribución lateral más legible y una presentación consistente de progreso, boss y Sobrecarga.
 - Móvil recibe un pase completo de legibilidad: barra superior más compacta, monedas/vidas más visibles, estrellas/progreso reposicionados y botones táctiles de Tienda/Ajustes ampliados.
 - El Power-Up Dock móvil aumenta tamaño y legibilidad; los contadores usan fondo sólido y el panel Power/Core muestra instrucciones más grandes y centradas.
 - Las áreas táctiles de Tienda y Ajustes quedan alineadas con su posición visual real.
 - El HUD móvil de bosses elimina elementos duplicados/encimados y conserva una única lectura clara de Boss + Sobrecarga.
 - Se elimina el rótulo flotante redundante del Power Core en móvil; la instrucción permanece en el panel inferior.
-- Cache-buster final de release: `v143-pages-hotfix1`.
+- Cache-buster final de release: `v143-pages-hotfix2`.
 - No se cambia física, audio, economía ni balance de combate. `collision.js` conserva exactamente `fp.radius * 0.35`.
 - Versión publicada como `v1.4.3 - UI & Progression Polish`.
 

@@ -1,16 +1,16 @@
-import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v143-pages-hotfix1';
-import { getLevelTarget, getLevelTheme, LEVEL_COMPLETE_DELAY } from './levels.js?build=v143-pages-hotfix1';
+import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v143-pages-hotfix2';
+import { getLevelTarget, getLevelTheme, LEVEL_COMPLETE_DELAY } from './levels.js?build=v143-pages-hotfix2';
 import {
   POWER_UP_CONFIG,
   POWER_UP_ORDER,
   canActivateStoredPowerUp,
   getPowerUpInventoryCap,
-} from './powerups.js?build=v143-pages-hotfix1';
+} from './powerups.js?build=v143-pages-hotfix2';
 import {
   getPowerUpChargeRect,
   getPowerUpSlotRects,
-} from './powerupUi.js?build=v143-pages-hotfix1';
-import { getPowerCorePosition } from './powercore.js?build=v143-pages-hotfix1';
+} from './powerupUi.js?build=v143-pages-hotfix2';
+import { getPowerCorePosition } from './powercore.js?build=v143-pages-hotfix2';
 import {
   BOSS_CONFIG,
   getBossPhase,
@@ -19,7 +19,7 @@ import {
   getBossPhaseBreak,
   getBossOverload,
   isBossPhaseTransitionActive,
-} from './boss.js?build=v143-pages-hotfix1';
+} from './boss.js?build=v143-pages-hotfix2';
 import { getStability } from './stability.js';
 
 /**
@@ -1294,6 +1294,9 @@ function drawStability(ctx, state, canvasW) {
   const compactDesktop =
     compact && isCompactDesktop(ctx);
 
+  const narrowDesktop =
+    isNarrowDesktopHud(ctx);
+
   const bossActive = Boolean(
     state.boss?.active && !state.boss?.defeated,
   );
@@ -1305,7 +1308,7 @@ function drawStability(ctx, state, canvasW) {
     // En boss, la sobrecarga viene del sistema propio del jefe.
     // En móvil y escritorio angosto la dibujamos como barra vertical
     // separada del centro para no competir con la rueda.
-    if (!(compactDesktop || compact)) return;
+    if (!(compact || narrowDesktop)) return;
 
     const bossOverload = getBossOverload(state);
     overloadValue = bossOverload.value;
@@ -1338,13 +1341,14 @@ function drawStability(ctx, state, canvasW) {
         ? '#FFD166'
         : '#72C66B';
 
-  // Escritorio angosto y móvil: Sobrecarga vertical a la izquierda para
-  // liberar el carril central del HUD y evitar choques con la rueda.
-  if (compact) {
-    const barX = compactDesktop ? 30 : 28;
-    const barY = compactDesktop ? 180 : 208;
-    const barW = compactDesktop ? 10 : 11;
-    const barH = compactDesktop ? 132 : 126;
+  // Escritorio angosto/media pantalla y móvil: Sobrecarga vertical a la
+  // izquierda para liberar el carril central del HUD y evitar choques.
+  if (compact || narrowDesktop) {
+    const desktopVertical = compactDesktop || narrowDesktop;
+    const barX = desktopVertical ? 30 : 28;
+    const barY = desktopVertical ? 180 : 208;
+    const barW = desktopVertical ? 10 : 11;
+    const barH = desktopVertical ? 132 : 126;
 
     ctx.save();
 
@@ -1380,11 +1384,11 @@ function drawStability(ctx, state, canvasW) {
     }
 
     ctx.save();
-    ctx.translate(barX - (compactDesktop ? 11 : 13), barY + barH / 2);
+    ctx.translate(barX - ((compactDesktop || narrowDesktop) ? 11 : 13), barY + barH / 2);
     ctx.rotate(-Math.PI / 2);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = compactDesktop
+    ctx.font = (compactDesktop || narrowDesktop)
       ? 'bold 9.8px "Amazon Ember", Arial, sans-serif'
       : `bold ${11.2 * u}px "Amazon Ember", Arial, sans-serif`;
     ctx.fillStyle = 'rgba(255,255,255,.72)';
@@ -1393,14 +1397,14 @@ function drawStability(ctx, state, canvasW) {
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = compactDesktop
+    ctx.font = (compactDesktop || narrowDesktop)
       ? 'bold 10.2px "Amazon Ember", Arial, sans-serif'
       : `bold ${11.8 * u}px "Amazon Ember", Arial, sans-serif`;
     ctx.fillStyle = color;
     ctx.fillText(
       `${Math.round(overloadValue)}%`,
       barX + barW / 2,
-      barY + barH + (compactDesktop ? 15 : 18),
+      barY + barH + ((compactDesktop || narrowDesktop) ? 15 : 18),
     );
 
     ctx.restore();
@@ -1515,6 +1519,15 @@ function isCompactDesktop(ctx) {
   return (
     getCanvasLayout(ctx) === 'compact' &&
     ctx?.canvas?.dataset?.compactDesktop === '1'
+  );
+}
+
+function isNarrowDesktopHud(ctx) {
+  return (
+    getCanvasLayout(ctx) === 'desktop' &&
+    ctx?.canvas?.dataset?.inputMode === 'pointer' &&
+    ctx?.canvas?.dataset?.viewportMode === 'standard' &&
+    !isR61WideHud(ctx)
   );
 }
 
@@ -2503,6 +2516,7 @@ function drawBossProgress(ctx, state, canvasW) {
   const compact = getCanvasLayout(ctx) === 'compact';
   const compactDesktop = compact && isCompactDesktop(ctx);
   const mobileCompact = compact && !compactDesktop;
+  const narrowDesktop = isNarrowDesktopHud(ctx);
   const barW = compactDesktop ? 244 : mobileCompact ? 252 : 220;
   const barH = compactDesktop ? 10 : mobileCompact ? 10 : 9;
   const x = (canvasW - barW) / 2;
@@ -2537,10 +2551,11 @@ function drawBossProgress(ctx, state, canvasW) {
   }
 
   // La Sobrecarga ya tiene un lugar dedicado según el layout:
-  // - compacto escritorio: barra vertical izquierda
+  // - móvil/compacto escritorio: barra vertical izquierda
+  // - escritorio standard/media pantalla: barra vertical izquierda
   // - HUD ancho/fullscreen: panel lateral
   // Evitamos una segunda barra horizontal duplicada.
-  if (compact || isR61WideHud(ctx)) {
+  if (compact || narrowDesktop || isR61WideHud(ctx)) {
     ctx.restore();
     return;
   }

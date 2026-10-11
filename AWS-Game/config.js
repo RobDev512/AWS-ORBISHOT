@@ -70,8 +70,8 @@ export function getProgression(diffKey, score, level = 1) {
   }
 }
 
-export const APP_VERSION = '1.4.3';
-export const APP_CODENAME = 'UI & Progression Polish';
+export const APP_VERSION = '1.4.3.1';
+export const APP_CODENAME = 'Performance & Infrastructure Patch';
 export const APP_NAME = 'AWS ORBISHOT';
 
 export const DIFFICULTIES = {

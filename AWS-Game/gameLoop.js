@@ -2,16 +2,17 @@
  * gameLoop.js — Bucle principal.
  */
 
-import { updateRotation, triggerReverse } from './centralElement.js';
+import { updateRotation, triggerReverse } from './centralElement.js?build=v1431-devfps1';
 import {
   launchProjectile,
   advanceProjectile,
   anchorProjectile,
 } from './projectile.js?build=v143-pages-hotfix2';
 import { checkCollision } from './collision.js';
-import { render, drawGameOverFlash } from './renderer.js?build=v143-pages-hotfix2';
+import { render, drawGameOverFlash } from './renderer.js?build=v1431-perf-monitor3';
+import { recordPerformanceFrame, resetPerformanceMonitor } from './performanceMonitor.js?build=v1431-devfps1';
 import { showGameOver } from './ui.js';
-import { getProgression } from './config.js?build=v143-pages-hotfix2';
+import { getProgression } from './config.js?build=v1431-perf-r1';
 import {
   playSoundLaunch,
   playSoundAnchor,
@@ -123,6 +124,22 @@ import {
 let rafId = null;
 let overlayShown = false;
 let flashTimer = 0;
+let resetTimestampOnResume = false;
+let targetFpsCap = 0;
+let fpsPacingRevision = 0;
+
+export function setTargetFps(value = 'auto') {
+  const parsed = Number(value);
+  targetFpsCap = [30, 60, 90, 120].includes(parsed) ? parsed : 0;
+  fpsPacingRevision += 1;
+}
+
+// Los navegadores móviles pueden pausar RAF al ocultar la pestaña y devolver
+// un salto grande al volver. Marcamos el siguiente frame para reanudar sin
+// simular tiempo perdido ni provocar un tirón de catch-up.
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) resetTimestampOnResume = true;
+});
 
 const LIFE_LOST_DELAY = 1.35;
 
@@ -656,6 +673,7 @@ export function startGameLoop(ctx, state, assets, config, overlayEl) {
   stopGameLoop();
   overlayShown = false;
   flashTimer = 0;
+  resetPerformanceMonitor();
 
   clearParticles();
   clearFeedback();
@@ -663,12 +681,23 @@ export function startGameLoop(ctx, state, assets, config, overlayEl) {
   ensureLevelState(state);
   ensureBossState(state);
 
-  state.lastTier =
-    getProgression(
-      state.difficulty,
-      state.score,
-      state.level,
-    ).tier;
+  let progressionKey = '';
+  let progressionCache = null;
+
+  function getCurrentProgression() {
+    const key = `${state.difficulty}|${state.score}|${state.level}`;
+    if (key !== progressionKey || !progressionCache) {
+      progressionKey = key;
+      progressionCache = getProgression(
+        state.difficulty,
+        state.score,
+        state.level,
+      );
+    }
+    return progressionCache;
+  }
+
+  state.lastTier = getCurrentProgression().tier;
 
   if (state.boss?.active) {
     state.phase = 'bossintro';
@@ -682,8 +711,62 @@ export function startGameLoop(ctx, state, assets, config, overlayEl) {
   }
 
   let lastTimestamp = performance.now();
+  let pacingLastRafTimestamp = null;
+  let pacingAccumulator = 0;
+  let pacingRevisionSeen = fpsPacingRevision;
 
   function tick(timestamp) {
+    if (document.hidden) {
+      lastTimestamp = timestamp;
+      rafId = requestAnimationFrame(tick);
+      return;
+    }
+
+    if (resetTimestampOnResume) {
+      lastTimestamp = timestamp;
+      pacingLastRafTimestamp = timestamp;
+      pacingAccumulator = 0;
+      resetTimestampOnResume = false;
+    }
+
+    if (pacingRevisionSeen !== fpsPacingRevision) {
+      pacingRevisionSeen = fpsPacingRevision;
+      lastTimestamp = timestamp;
+      pacingLastRafTimestamp = null;
+      pacingAccumulator = 0;
+    }
+
+    if (targetFpsCap > 0) {
+      const frameInterval = 1000 / targetFpsCap;
+
+      if (pacingLastRafTimestamp === null) {
+        pacingLastRafTimestamp = timestamp;
+        pacingAccumulator = frameInterval;
+      } else {
+        pacingAccumulator += Math.max(
+          0,
+          Math.min(timestamp - pacingLastRafTimestamp, 250),
+        );
+        pacingLastRafTimestamp = timestamp;
+      }
+
+      if (pacingAccumulator + 0.35 < frameInterval) {
+        rafId = requestAnimationFrame(tick);
+        return;
+      }
+
+      pacingAccumulator = Math.max(
+        0,
+        pacingAccumulator - frameInterval,
+      );
+      if (pacingAccumulator >= frameInterval) {
+        pacingAccumulator %= frameInterval;
+      }
+    } else {
+      pacingLastRafTimestamp = timestamp;
+      pacingAccumulator = 0;
+    }
+
     const deltaTime = Math.min(
       (timestamp - lastTimestamp) / 1000,
       0.1,
@@ -709,11 +792,7 @@ export function startGameLoop(ctx, state, assets, config, overlayEl) {
     state.uiLogicalHeight = logicalHeight;
     state.uiSceneOffsetY = sceneOffsetY;
 
-    let progression = getProgression(
-      state.difficulty,
-      state.score,
-      state.level,
-    );
+    let progression = getCurrentProgression();
 
     updateMusicSystem(state, progression);
 
@@ -1098,11 +1177,7 @@ export function startGameLoop(ctx, state, assets, config, overlayEl) {
             emitBossHitFeedback(state, bossHitResult);
           }
 
-          progression = getProgression(
-            state.difficulty,
-            state.score,
-            state.level,
-          );
+          progression = getCurrentProgression();
 
           if (progression.tier > state.lastTier) {
             state.lastTier = progression.tier;
@@ -1280,11 +1355,7 @@ export function startGameLoop(ctx, state, assets, config, overlayEl) {
 
       if (state.lifeLostTimer <= 0) {
         const boss = prepareRetryAfterLifeLoss(state);
-        progression = getProgression(
-          state.difficulty,
-          state.score,
-          state.level,
-        );
+        progression = getCurrentProgression();
         state.lastTier = progression.tier;
 
         if (boss?.active) {
@@ -1322,11 +1393,7 @@ export function startGameLoop(ctx, state, assets, config, overlayEl) {
         const nextLevel = advanceToNextLevel(state);
         resetCombo(state);
 
-        progression = getProgression(
-          state.difficulty,
-          state.score,
-          state.level,
-        );
+        progression = getCurrentProgression();
 
         state.lastTier = progression.tier;
 
@@ -1377,6 +1444,7 @@ export function startGameLoop(ctx, state, assets, config, overlayEl) {
       sceneScale,
     });
     drawGameOverFlash(ctx, flashTimer);
+    recordPerformanceFrame(timestamp, ctx.canvas, state);
 
     rafId = requestAnimationFrame(tick);
   }

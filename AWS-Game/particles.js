@@ -49,9 +49,12 @@ export function updateAndDraw(ctx, dt) {
     p.life -= dt / p.maxLife;
     if (p.life <= 0) { pool.splice(i, 1); continue; }
 
-    p.x  += p.vx;
-    p.y  += p.vy;
-    p.vy += 0.15;   // gravedad leve
+    // vx/vy y gravedad fueron calibrados originalmente por frame a 60 FPS.
+    // Escalarlos por dt mantiene la misma apariencia temporal a otros FPS.
+    const frameScale = dt * 60;
+    p.x  += p.vx * frameScale;
+    p.y  += p.vy * frameScale;
+    p.vy += 0.15 * frameScale;   // gravedad leve
     p.rot += p.rotV * dt;
 
     ctx.save();

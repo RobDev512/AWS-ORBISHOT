@@ -13,6 +13,17 @@ const DEFAULTS = Object.freeze({
   musicVolume: 1,
   combo: true,
   fx: true,
+  performanceHud: true,
+  developerMode: false,
+  targetFps: 'auto',
+  performanceMetrics: Object.freeze({
+    fps: true,
+    frameTime: true,
+    renderResolution: false,
+    renderScale: false,
+    layout: false,
+    objects: false,
+  }),
 });
 
 export function loadPreferences() {
@@ -35,6 +46,35 @@ export function loadPreferences() {
         : DEFAULTS.musicVolume,
       combo: typeof parsed?.combo === 'boolean' ? parsed.combo : DEFAULTS.combo,
       fx: typeof parsed?.fx === 'boolean' ? parsed.fx : DEFAULTS.fx,
+      performanceHud: typeof parsed?.performanceHud === 'boolean'
+        ? parsed.performanceHud
+        : DEFAULTS.performanceHud,
+      developerMode: typeof parsed?.developerMode === 'boolean'
+        ? parsed.developerMode
+        : DEFAULTS.developerMode,
+      targetFps: ['auto', '30', '60', '90', '120'].includes(String(parsed?.targetFps))
+        ? String(parsed.targetFps)
+        : DEFAULTS.targetFps,
+      performanceMetrics: {
+        fps: typeof parsed?.performanceMetrics?.fps === 'boolean'
+          ? parsed.performanceMetrics.fps
+          : DEFAULTS.performanceMetrics.fps,
+        frameTime: typeof parsed?.performanceMetrics?.frameTime === 'boolean'
+          ? parsed.performanceMetrics.frameTime
+          : DEFAULTS.performanceMetrics.frameTime,
+        renderResolution: typeof parsed?.performanceMetrics?.renderResolution === 'boolean'
+          ? parsed.performanceMetrics.renderResolution
+          : DEFAULTS.performanceMetrics.renderResolution,
+        renderScale: typeof parsed?.performanceMetrics?.renderScale === 'boolean'
+          ? parsed.performanceMetrics.renderScale
+          : DEFAULTS.performanceMetrics.renderScale,
+        layout: typeof parsed?.performanceMetrics?.layout === 'boolean'
+          ? parsed.performanceMetrics.layout
+          : DEFAULTS.performanceMetrics.layout,
+        objects: typeof parsed?.performanceMetrics?.objects === 'boolean'
+          ? parsed.performanceMetrics.objects
+          : DEFAULTS.performanceMetrics.objects,
+      },
     };
   } catch {
     return { ...DEFAULTS };
@@ -56,6 +96,19 @@ export function savePreferences(prefs) {
       : DEFAULTS.musicVolume,
     combo: prefs?.combo !== false,
     fx: prefs?.fx !== false,
+    performanceHud: prefs?.performanceHud !== false,
+    developerMode: prefs?.developerMode === true,
+    targetFps: ['auto', '30', '60', '90', '120'].includes(String(prefs?.targetFps))
+      ? String(prefs.targetFps)
+      : DEFAULTS.targetFps,
+    performanceMetrics: {
+      fps: prefs?.performanceMetrics?.fps !== false,
+      frameTime: prefs?.performanceMetrics?.frameTime !== false,
+      renderResolution: prefs?.performanceMetrics?.renderResolution === true,
+      renderScale: prefs?.performanceMetrics?.renderScale === true,
+      layout: prefs?.performanceMetrics?.layout === true,
+      objects: prefs?.performanceMetrics?.objects === true,
+    },
   };
 
   try {

@@ -20,7 +20,16 @@ export function updateRotation(state, deltaTime, progression) {
 
   // Inversión aleatoria por probabilidad
   if (progression.reverseChance > 0 && ce.reverseTimer <= 0) {
-    if (Math.random() < progression.reverseChance) {
+    // reverseChance fue calibrado originalmente por frame a ~60 FPS.
+    // Convertimos esa probabilidad a deltaTime para conservar exactamente
+    // la misma frecuencia temporal al renderizar a 30/60/90/120 FPS.
+    const reverseChanceThisFrame =
+      1 - Math.pow(
+        1 - progression.reverseChance,
+        Math.max(0, deltaTime) * 60,
+      );
+
+    if (Math.random() < reverseChanceThisFrame) {
       ce.direction    *= -1;
       ce.reverseTimer  = 1.2 + Math.random() * 0.8;
     }

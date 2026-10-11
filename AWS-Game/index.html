@@ -15,7 +15,6 @@
       height: 100%;
       overflow: hidden;
       overscroll-behavior: none;
-      -webkit-text-size-adjust: 100%;
       background: #232F3E;
     }
     #gameWrapper {
@@ -72,6 +71,233 @@
         overflow-y: auto;
       }
     }
+
+    /* Monitor técnico opcional — no altera la geometría del canvas. */
+    #performanceHud {
+      position: absolute;
+      z-index: 8;
+      top: auto;
+      right: auto;
+      bottom: 36px;
+      left: 16px;
+      min-width: 108px;
+      padding: 7px 9px;
+      border: 1px solid rgba(255,153,0,.30);
+      border-radius: 9px;
+      background: rgba(8,13,20,.78);
+      color: rgba(255,255,255,.78);
+      font-family: "Amazon Ember", Arial, sans-serif;
+      font-size: 10px;
+      line-height: 1.35;
+      pointer-events: none;
+      -webkit-user-select: none;
+      user-select: none;
+      font-variant-numeric: tabular-nums;
+    }
+    #performanceHud[hidden],
+    #performanceHud [hidden] {
+      display: none !important;
+    }
+    .performance-hud-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 3px;
+      color: rgba(255,255,255,.52);
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: .12em;
+    }
+    .performance-hud-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #FF9900;
+    }
+    #performanceHud[data-fps-state="good"] .performance-hud-dot { background: #5FE1AE; }
+    #performanceHud[data-fps-state="warn"] .performance-hud-dot { background: #FFD166; }
+    #performanceHud[data-fps-state="low"] .performance-hud-dot { background: #FF6688; }
+    .performance-hud-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      white-space: nowrap;
+    }
+    .performance-hud-key { color: rgba(255,255,255,.48); }
+    .performance-hud-value { color: rgba(255,255,255,.92); font-weight: 800; }
+
+    /* Escritorio muy angosto: abajo a la izquierda,
+      dentro de la zona libre entre HUD y potenciadores. */
+    html[data-game-layout="compact"][data-input-mode="pointer"] #performanceHud {
+      top: auto;
+      right: auto;
+      bottom: 170px;
+      left: 12px;
+      min-width: 102px;
+      padding: 6px 8px;
+    }
+
+    /* Móvil: monitor compacto lateral.
+      Cada valor queda al lado de su título. */
+    html[data-input-mode="touch"] #performanceHud {
+      top: auto;
+      right: auto;
+      bottom: 200px;
+      left: 8px;
+      transform: none;
+      display: grid;
+      grid-template-columns: 1fr;
+      align-items: stretch;
+      width: min(115px, calc(100% - 16px));
+      min-width: 0;
+      padding: 6px 7px;
+      gap: 3px;
+      border-radius: 8px;
+      font-size: 7.4px;
+      line-height: 1.12;
+      background: rgba(8,13,20,.72);
+    }
+
+    html[data-input-mode="touch"] #performanceHud[hidden] {
+      display: none !important;
+    }
+
+    html[data-input-mode="touch"] #performanceHud .performance-hud-title {
+      grid-column: 1;
+      margin-bottom: 2px;
+      font-size: 6.8px;
+      line-height: 1.05;
+    }
+
+    html[data-input-mode="touch"] #performanceHud .performance-hud-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    html[data-input-mode="touch"] #performanceHud .performance-hud-key {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 6.7px;
+      line-height: 1.05;
+    }
+
+    html[data-input-mode="touch"] #performanceHud .performance-hud-value {
+      flex: 0 0 auto;
+      min-width: 0;
+      text-align: right;
+      font-size: 7.6px;
+      line-height: 1.08;
+    }
+
+    html[data-input-mode="touch"] #performanceHud [data-perf-row="renderResolution"] .performance-hud-key,
+    html[data-input-mode="touch"] #performanceHud [data-perf-row="renderScale"] .performance-hud-key,
+    html[data-input-mode="touch"] #performanceHud [data-perf-row="layout"] .performance-hud-key {
+      font-size: 6.4px;
+    }
+
+    html[data-input-mode="touch"] #performanceHud [data-perf-row="renderResolution"] .performance-hud-value,
+    html[data-input-mode="touch"] #performanceHud [data-perf-row="renderScale"] .performance-hud-value,
+    html[data-input-mode="touch"] #performanceHud [data-perf-row="layout"] .performance-hud-value {
+      font-size: 7.1px;
+    }
+
+    #performanceDesktopOnlyNote {
+      display: block;
+      margin-top: 8px;
+      color: rgba(255,255,255,.54);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .performance-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px 12px;
+      margin-top: 8px;
+    }
+    .performance-metric-option {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      color: rgba(255,255,255,.78);
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .performance-metric-option input {
+      flex: 0 0 auto;
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      accent-color: #FF9900;
+    }
+    .performance-metrics-grid.disabled {
+      opacity: .42;
+    }
+    .performance-dev-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .performance-fps-select {
+      min-width: 110px;
+      min-height: 36px;
+      padding: 6px 28px 6px 10px;
+      border: 1px solid rgba(255,153,0,.38);
+      border-radius: 8px;
+      background: rgba(10,16,24,.94);
+      color: #FFFFFF;
+      font: 700 12px "Amazon Ember", Arial, sans-serif;
+    }
+    #performanceMetricOptions[hidden] {
+      display: none !important;
+    }
+    #performanceHud[data-developer-mode="off"] {
+      min-width: 0;
+      width: auto;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    #performanceHud[data-developer-mode="off"] .performance-hud-title {
+      display: none !important;
+    }
+    #performanceHud[data-developer-mode="off"] [data-perf-row="fps"] {
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+      gap: 7px;
+      min-width: 54px;
+    }
+
+    /* SOLO FPS — PC ultraangosta */
+    html[data-game-layout="compact"][data-input-mode="pointer"]
+    #performanceHud[data-developer-mode="off"] {
+      top: 95px !important;
+      right: auto !important;
+      bottom: auto !important;
+      left: 15px !important;
+    }
+
+    /* SOLO FPS — teléfono */
+    html[data-input-mode="touch"]
+    #performanceHud[data-developer-mode="off"] {
+      top: 90px !important;
+      right: auto !important;
+      bottom: auto !important;
+      left: 12px !important;
+
+      width: auto !important;
+      min-width: 0 !important;
+    }
   </style>
 </head>
 <body>
@@ -80,6 +306,37 @@
   <canvas id="gameCanvas" width="600" height="700">
     Tu navegador no soporta HTML5 Canvas.
   </canvas>
+
+  <div id="performanceHud" aria-hidden="true">
+    <div class="performance-hud-title">
+      <span>RENDIMIENTO</span>
+      <span class="performance-hud-dot"></span>
+    </div>
+    <div class="performance-hud-row" data-perf-row="fps">
+      <span class="performance-hud-key">FPS</span>
+      <span class="performance-hud-value" data-perf-value>—</span>
+    </div>
+    <div class="performance-hud-row" data-perf-row="frameTime">
+      <span class="performance-hud-key">FRAME</span>
+      <span class="performance-hud-value" data-perf-value>—</span>
+    </div>
+    <div class="performance-hud-row" data-perf-row="renderResolution" hidden>
+      <span class="performance-hud-key">RENDER</span>
+      <span class="performance-hud-value" data-perf-value>—</span>
+    </div>
+    <div class="performance-hud-row" data-perf-row="renderScale" hidden>
+      <span class="performance-hud-key">ESCALA</span>
+      <span class="performance-hud-value" data-perf-value>—</span>
+    </div>
+    <div class="performance-hud-row" data-perf-row="layout" hidden>
+      <span class="performance-hud-key">LAYOUT</span>
+      <span class="performance-hud-value" data-perf-value>—</span>
+    </div>
+    <div class="performance-hud-row" data-perf-row="objects" hidden>
+      <span class="performance-hud-key">OBJETOS</span>
+      <span class="performance-hud-value" data-perf-value>—</span>
+    </div>
+  </div>
 
   <!-- Game Over -->
   <div id="gameOverOverlay" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
@@ -140,11 +397,11 @@
         <p class="settings-label">Opciones</p>
         <div class="settings-toggle-row">
           <span class="settings-toggle-label"><img src="assets/ui/option-sound.svg" alt="" aria-hidden="true"/>Efectos de sonido</span>
-          <button id="soundToggle" class="toggle-btn on" aria-pressed="true"></button>
+          <button id="soundToggle" class="toggle-btn on" aria-pressed="true" aria-label="Activar o desactivar efectos de sonido"></button>
         </div>
         <div class="settings-toggle-row">
           <span class="settings-toggle-label"><img src="assets/ui/option-music.svg" alt="" aria-hidden="true"/>Música dinámica</span>
-          <button id="musicToggle" class="toggle-btn on" aria-pressed="true"></button>
+          <button id="musicToggle" class="toggle-btn on" aria-pressed="true" aria-label="Activar o desactivar música dinámica"></button>
         </div>
         <div class="settings-volume-row">
           <label class="settings-volume-label" for="soundVolume">Volumen de efectos</label>
@@ -158,12 +415,44 @@
         </div>
         <div class="settings-toggle-row">
           <span class="settings-toggle-label"><img src="assets/ui/option-combo.svg" alt="" aria-hidden="true"/>Multiplicador de combo</span>
-          <button id="comboToggle" class="toggle-btn on" aria-pressed="true"></button>
+          <button id="comboToggle" class="toggle-btn on" aria-pressed="true" aria-label="Activar o desactivar multiplicador de combo"></button>
         </div>
         <div class="settings-toggle-row">
           <span class="settings-toggle-label"><img src="assets/ui/option-fx.svg" alt="" aria-hidden="true"/>Efectos visuales</span>
-          <button id="fxToggle" class="toggle-btn on" aria-pressed="true"></button>
+          <button id="fxToggle" class="toggle-btn on" aria-pressed="true" aria-label="Activar o desactivar efectos visuales"></button>
         </div>
+      </div>
+
+      <div id="performanceSettingsSection" class="settings-section">
+        <p class="settings-label">Monitor de rendimiento</p>
+        <div class="settings-toggle-row">
+          <span id="performanceHudLabel" class="settings-toggle-label">Mostrar FPS</span>
+          <button id="performanceHudToggle" class="toggle-btn on" aria-pressed="true" aria-label="Mostrar u ocultar FPS"></button>
+        </div>
+        <div class="settings-toggle-row">
+          <span class="settings-toggle-label">Modo desarrollador</span>
+          <button id="developerModeToggle" class="toggle-btn" aria-pressed="false" aria-label="Activar o desactivar modo desarrollador"></button>
+        </div>
+        <div class="performance-dev-row">
+          <label class="settings-toggle-label" for="targetFpsSelect">FPS objetivo</label>
+          <select id="targetFpsSelect" class="performance-fps-select" aria-label="FPS objetivo">
+            <option value="auto">Auto</option>
+            <option value="30">30 FPS</option>
+            <option value="60">60 FPS</option>
+            <option value="90">90 FPS</option>
+            <option value="120">120 FPS</option>
+          </select>
+        </div>
+        <div id="performanceMetricOptions" class="performance-metrics-grid">
+          <label class="performance-metric-option"><input type="checkbox" data-perf-metric="fps" checked/>FPS</label>
+          <label class="performance-metric-option"><input type="checkbox" data-perf-metric="frameTime" checked/>ms por frame</label>
+          <label class="performance-metric-option"><input type="checkbox" data-perf-metric="renderResolution"/>Resolución render</label>
+          <label class="performance-metric-option"><input type="checkbox" data-perf-metric="renderScale"/>Escala / DPR</label>
+          <label class="performance-metric-option"><input type="checkbox" data-perf-metric="layout"/>Layout / entrada</label>
+          <label class="performance-metric-option"><input type="checkbox" data-perf-metric="objects"/>Objetos activos</label>
+        </div>
+        <p class="settings-inline-note">Sin modo desarrollador el overlay muestra solo FPS. Actívalo para desbloquear las métricas avanzadas.</p>
+        <p id="performanceDesktopOnlyNote">Auto usa todos los frames que entregue el navegador. 30/60/90/120 establecen un límite objetivo máximo.</p>
       </div>
 
       <div class="settings-section stats-section">
@@ -292,6 +581,6 @@
   </div>
 
 </div>
-<script type="module" src="main.js?build=v143-pages-hotfix2"></script>
+<script type="module" src="main.js?build=v1431-devfps1"></script>
 </body>
 </html>

@@ -10,12 +10,12 @@
 import {
   POWER_UP_ORDER,
   canActivateStoredPowerUp,
-} from './powerups.js?build=v142-economy-r5';
-import { getPowerUpSlotAtPoint } from './powerupUi.js?build=v142-economy-r5';
+} from './powerups.js?build=v143-release';
+import { getPowerUpSlotAtPoint } from './powerupUi.js?build=v143-release';
 import {
   playSoundBowTensionStart,
   playSoundBowTensionStop,
-} from './sound.js?build=v142-economy-r5';
+} from './sound.js?build=v143-release';
 
 function getLogicalCanvasSize(canvas) {
   return {
@@ -38,19 +38,58 @@ function getLayout(canvas) {
 }
 
 function getHudControlGeometry(canvas, control) {
-  const { width } = getLogicalCanvasSize(canvas);
-  const compact = getLayout(canvas) === 'compact';
+  const { width } =
+    getLogicalCanvasSize(canvas);
+
+  const compact =
+    getLayout(canvas) === 'compact';
 
   if (compact) {
+    const compactDesktop =
+      canvas.dataset.compactDesktop === '1';
+
+    if (compactDesktop) {
+      const radius = 34;
+
+      return {
+        cx: width - 18 - radius,
+        cy:
+          control === 'shop'
+            ? 146
+            : 234,
+        r: radius + 10,
+      };
+    }
+
+    const c =
+      Math.max(
+        1,
+        Math.min(
+          1.18,
+          Number(
+            canvas.dataset.controlScale
+          ) || 1,
+        ),
+      );
+
+    const radius =
+      38 * c;
+
     return {
-      cx: width - 42,
-      cy: control === 'shop' ? 128 : 190,
-      r: 31,
+      cx: width - 18 - radius,
+      cy:
+        control === 'shop'
+          ? 192
+          : 300,
+      r: radius + 12,
     };
   }
 
   return {
-    cx: control === 'shop' ? width - 80 : width - 40,
+    cx:
+      control === 'shop'
+        ? width - 80
+        : width - 40,
     cy: 42,
     r: 20,
   };

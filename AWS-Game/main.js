@@ -2,18 +2,18 @@
  * main.js — Punto de entrada y coordinación de UI.
  */
 
-import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v142-economy-r5';
-import { createInitialState }                from './state.js?build=v142-economy-r5.8-charged-split';
+import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v143-release';
+import { createInitialState }                from './state.js?build=v143-release';
 import { captureHighScore, loadHighScore }   from './scoring.js';
-import { registerInputHandlers }             from './input.js?build=v142-economy-r5.8-charged-split';
-import { startGameLoop }                     from './gameLoop.js?build=v142-economy-r5.8-charged-split';
-import { hideGameOver }                      from './ui.js?build=v142-economy-r5';
+import { registerInputHandlers }             from './input.js?build=v143-release';
+import { startGameLoop }                     from './gameLoop.js?build=v143-release';
+import { hideGameOver }                      from './ui.js?build=v143-release';
 import {
   setSoundEnabled,
   setMusicEnabled,
   setSoundVolume,
   setMusicVolume,
-} from './sound.js?build=v142-economy-r5';
+} from './sound.js?build=v143-release';
 import { setFxEnabled }                      from './particles.js';
 import { setFeedbackFxEnabled }              from './feedback.js';
 import { setComboEnabled }                   from './combo.js';
@@ -28,7 +28,7 @@ import {
   upgradeMaxLives,
   upgradePowerUpCapacity,
   buyPowerUp,
-} from './economy.js?build=v142-economy-r5';
+} from './economy.js?build=v143-release';
 
 // ── DOM ──────────────────────────────────────────────────────────────────────
 const gameWrapper     = document.getElementById('gameWrapper');
@@ -125,18 +125,18 @@ function getViewportBox() {
 }
 
 
-function configureCanvasBackingStore(cssWidth, cssHeight, logicalH = CONFIG.CANVAS_HEIGHT) {
-  const logicalW = CONFIG.CANVAS_WIDTH;
+function configureCanvasBackingStore(
+  cssWidth,
+  cssHeight,
+  logicalW = CONFIG.CANVAS_WIDTH,
+  logicalH = CONFIG.CANVAS_HEIGHT,
+) {
   const dpr = Math.max(1, Math.min(3, Number(window.devicePixelRatio) || 1));
   const cssScale = Math.max(
     0.01,
     Math.min(cssWidth / logicalW, cssHeight / logicalH),
   );
 
-  // El backing store sigue el tamaño REAL de presentación × DPR. Antes el
-  // juego se dibujaba siempre a 600×700 y luego el navegador lo ampliaba,
-  // provocando texto/lineas borrosos. Mantener coordenadas lógicas separadas
-  // da nitidez sin tocar la física del juego.
   const renderScale = Math.min(4, Math.max(1, cssScale * dpr));
   const backingW = Math.max(1, Math.round(logicalW * renderScale));
   const backingH = Math.max(1, Math.round(logicalH * renderScale));
@@ -166,9 +166,6 @@ function configureCanvasBackingStore(cssWidth, cssHeight, logicalH = CONFIG.CANV
 function fitCanvas() {
   const viewport = getViewportBox();
 
-  // El wrapper sigue al VisualViewport completo. Esto evita que un pinch-zoom
-  // de trackpad/móvil deje el canvas desplazado o incluso fuera de pantalla.
-  // Al cambiar el offset visible, el juego vuelve a centrarse en esa ventana.
   if (gameWrapper) {
     gameWrapper.style.position = 'absolute';
     gameWrapper.style.inset = 'auto';
@@ -178,59 +175,114 @@ function fitCanvas() {
     gameWrapper.style.height = `${viewport.height}px`;
   }
 
-  const compact =
-    viewport.height >= viewport.width * 1.15 &&
-    viewport.width <= 900;
+  const availableW = Math.max(1, viewport.width);
+  const availableH = Math.max(1, viewport.height);
+  const aspect = availableW / availableH;
+  const baseAspect = CONFIG.CANVAS_WIDTH / CONFIG.CANVAS_HEIGHT;
 
-  const safePad = compact ? 0 : 8;
-  const availableW = Math.max(1, viewport.width - safePad * 2);
-  const availableH = Math.max(1, viewport.height - safePad * 2);
+  let logicalW = CONFIG.CANVAS_WIDTH;
+  let logicalH = CONFIG.CANVAS_HEIGHT;
 
-  // En móvil vertical el canvas adopta la relación REAL de la pantalla para
-  // ocupar todo el alto disponible sin estirar las figuras del juego. El mundo
-  // lógico conserva su zona clásica de 600×700; el espacio adicional se usa
-  // para distribuir HUD, gameplay y Power-Ups de forma respirada.
-  const logicalH = compact
-    ? Math.max(820, Math.min(1320, Math.round(
-        CONFIG.CANVAS_WIDTH * (availableH / availableW),
-      )))
-    : CONFIG.CANVAS_HEIGHT;
-
-  // El HUD táctil móvil ocupa una franja dedicada en la parte inferior.
-  // Desplazamos el mundo un poco menos que antes para que la flecha preparada
-  // no invada los botones circulares, incluso en pantallas verticales cortas.
-  const sceneOffsetY = compact
-    ? Math.max(40, Math.min(210, (logicalH - CONFIG.CANVAS_HEIGHT) * 0.35))
-    : 0;
-
-  canvas.dataset.layout = compact ? 'compact' : 'desktop';
-  canvas.dataset.logicalWidth = String(CONFIG.CANVAS_WIDTH);
-  canvas.dataset.logicalHeight = String(logicalH);
-  canvas.dataset.sceneOffsetY = String(sceneOffsetY);
-  document.documentElement.dataset.gameLayout = compact ? 'compact' : 'desktop';
-
-  const ratio = CONFIG.CANVAS_WIDTH / logicalH;
-
-  let w = availableW;
-  let h = w / ratio;
-  if (h > availableH) {
-    h = availableH;
-    w = h * ratio;
+  if (aspect >= baseAspect) {
+    logicalW = Math.max(
+      CONFIG.CANVAS_WIDTH,
+      Math.round(CONFIG.CANVAS_HEIGHT * aspect),
+    );
+  } else {
+    logicalH = Math.max(
+      CONFIG.CANVAS_HEIGHT,
+      Math.round(CONFIG.CANVAS_WIDTH / aspect),
+    );
   }
 
-  // Mantener medidas enteras reduce blur en Canvas al escalar.
-  w = Math.max(1, Math.floor(w));
-  h = Math.max(1, Math.floor(h));
+  const compact =
+    aspect < 0.82 &&
+    viewport.width <= 900;
+
+  const viewportMode =
+    aspect >= 1.65
+      ? 'ultrawide'
+      : aspect >= 1.30
+        ? 'wide'
+        : compact
+          ? 'compact'
+          : 'standard';
+
+  const sceneOffsetX = Math.max(
+    0,
+    (logicalW - CONFIG.CANVAS_WIDTH) / 2,
+  );
+
+  const extraH = Math.max(0, logicalH - CONFIG.CANVAS_HEIGHT);
+  const sceneOffsetY = compact
+    ? Math.max(18, Math.min(120, extraH * 0.20))
+    : Math.max(0, Math.min(34, extraH * 0.08));
+
+  const coarsePointer = Boolean(
+    window.matchMedia?.('(pointer: coarse)')?.matches ||
+    Number(navigator.maxTouchPoints) > 0
+  );
+
+  const compactDesktop = compact && !coarsePointer;
+
+  const uiScale = compact && coarsePointer
+    ? Math.max(
+        1.20,
+        Math.min(1.34, 520 / Math.max(360, availableW)),
+      )
+    : 1;
+
+  const controlScale = compact && coarsePointer
+    ? Math.max(
+        1.04,
+        Math.min(1.14, 455 / Math.max(360, availableW)),
+      )
+    : 1;
+
+  const sceneScale = compact
+    ? compactDesktop
+      ? aspect < 0.60
+        ? 1.03
+        : 1.00
+      : aspect < 0.58
+        ? 1.15
+        : aspect < 0.72
+          ? 1.12
+          : 1.09
+    : aspect < 1.05
+      ? 1.06
+      : aspect < 1.30
+        ? 1.03
+        : 1;
+
+  canvas.dataset.layout = compact ? 'compact' : 'desktop';
+  canvas.dataset.viewportMode = viewportMode;
+  canvas.dataset.logicalWidth = String(logicalW);
+  canvas.dataset.logicalHeight = String(logicalH);
+  canvas.dataset.sceneOffsetX = String(sceneOffsetX);
+  canvas.dataset.sceneOffsetY = String(sceneOffsetY);
+  canvas.dataset.sceneScale = String(sceneScale);
+  canvas.dataset.uiScale = String(uiScale);
+  canvas.dataset.controlScale = String(controlScale);
+  canvas.dataset.inputMode = coarsePointer ? 'touch' : 'pointer';
+  canvas.dataset.compactDesktop = compactDesktop ? '1' : '0';
+
+  document.documentElement.dataset.gameLayout =
+    compact ? 'compact' : 'desktop';
+  document.documentElement.dataset.viewportMode = viewportMode;
+
+  const w = Math.max(1, Math.floor(availableW));
+  const h = Math.max(1, Math.floor(availableH));
 
   canvas.style.width = `${w}px`;
   canvas.style.height = `${h}px`;
-  canvas.style.maxWidth = '100%';
-  canvas.style.maxHeight = '100%';
+  canvas.style.maxWidth = 'none';
+  canvas.style.maxHeight = 'none';
 
-  configureCanvasBackingStore(w, h, logicalH);
+  configureCanvasBackingStore(w, h, logicalW, logicalH);
 
-  const left = viewport.offsetLeft + (viewport.width - w) / 2;
-  const top = viewport.offsetTop + (viewport.height - h) / 2;
+  const left = viewport.offsetLeft;
+  const top = viewport.offsetTop;
 
   for (const el of [overlayEl, settingsOverlay, shopOverlay]) {
     el.style.left = `${left}px`;
@@ -466,12 +518,15 @@ function closeSettings(apply) {
     savePreferences({ difficulty: currentDifficulty, ...options });
 
     if (difficultyChanged) {
-      // Cambiar las reglas de dificultad sí inicia una run nueva. Las demás
-      // opciones se aplican en vivo y ya no regalan un reinicio/recarga.
-      const hs = captureHighScore(state);
-      state = createInitialState(hs, currentDifficulty, stats, economy);
-      hideGameOver(overlayEl);
-      startGame();
+      // v1.4.3: la dificultad se aplica a la run actual sin destruir progreso,
+      // score, vidas, inventario, Power Charge ni el nivel en curso.
+      // gameLoop consulta state.difficulty al calcular la progresión, por lo que
+      // el nuevo perfil entra en vigor al reanudar la partida.
+      state.difficulty = currentDifficulty;
+
+      if (state.phase === 'idle') {
+        state.phase = 'playing';
+      }
     } else if (state.phase === 'idle') {
       state.phase = 'playing';
     }

@@ -7,7 +7,7 @@
  * área jugable.
  */
 
-import { POWER_UP_ORDER } from './powerups.js?build=v142-economy-r5';
+import { POWER_UP_ORDER } from './powerups.js?build=v143-release';
 
 export const POWER_UP_DOCK = Object.freeze({
   desktop: Object.freeze({
@@ -20,13 +20,13 @@ export const POWER_UP_DOCK = Object.freeze({
     chargeHeight: 54,
   }),
   compact: Object.freeze({
-    buttonRadius: 30,
-    buttonGap: 24,
-    rowBottom: 112,
-    hitPadding: 7,
-    chargeGap: 16,
-    chargeWidth: 420,
-    chargeHeight: 44,
+    buttonRadius: 42,
+    buttonGap: 14,
+    rowBottom: 140,
+    hitPadding: 10,
+    chargeGap: 12,
+    chargeWidth: 470,
+    chargeHeight: 48,
   }),
 });
 
@@ -42,18 +42,12 @@ export function getPowerUpSlotRects(
       POWER_UP_ORDER.length * diameter +
       (POWER_UP_ORDER.length - 1) * cfg.buttonGap;
     const startCx = (canvasWidth - totalWidth) / 2 + cfg.buttonRadius;
-    const cy = Math.max(
-      cfg.buttonRadius + 12,
-      canvasHeight - cfg.rowBottom,
-    );
+    const cy = Math.max(cfg.buttonRadius + 12, canvasHeight - cfg.rowBottom);
 
     return POWER_UP_ORDER.map((type, index) => {
       const cx = startCx + index * (diameter + cfg.buttonGap);
       return {
-        type,
-        index,
-        cx,
-        cy,
+        type, index, cx, cy,
         radius: cfg.buttonRadius,
         x: cx - cfg.buttonRadius,
         y: cy - cfg.buttonRadius,
@@ -64,14 +58,19 @@ export function getPowerUpSlotRects(
   }
 
   const cfg = POWER_UP_DOCK.desktop;
-  const x = canvasWidth - cfg.right - cfg.width;
+  const wide = canvasWidth >= 1000;
+  const width = wide ? 176 : cfg.width;
+  const right = wide ? 30 : cfg.right;
+  const startY = wide ? 154 : cfg.startY;
+  const gap = wide ? 11 : cfg.gap;
+  const x = canvasWidth - right - width;
 
   return POWER_UP_ORDER.map((type, index) => ({
     type,
     index,
     x,
-    y: cfg.startY + index * (cfg.slotHeight + cfg.gap),
-    width: cfg.width,
+    y: startY + index * (cfg.slotHeight + gap),
+    width,
     height: cfg.slotHeight,
   }));
 }
@@ -89,7 +88,7 @@ export function getPowerUpChargeRect(
       x: (canvasWidth - cfg.chargeWidth) / 2,
       y: first.cy + first.radius + cfg.chargeGap,
       width: cfg.chargeWidth,
-      height: cfg.chargeHeight,
+      height: 58,
     };
   }
 
@@ -100,8 +99,8 @@ export function getPowerUpChargeRect(
   return {
     x: last.x,
     y: last.y + last.height + cfg.chargeGap,
-    width: cfg.width,
-    height: cfg.chargeHeight,
+    width: last.width,
+    height: 72,
   };
 }
 

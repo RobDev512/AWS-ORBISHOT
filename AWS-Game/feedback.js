@@ -89,7 +89,12 @@ function fitBannerText(ctx, text, maxWidth, startSize, minSize) {
 export function updateAndDrawFeedback(ctx, dt, options = {}) {
   const canvasW = Math.max(1, Number(ctx?.canvas?.dataset?.logicalWidth) || LOGICAL_WIDTH);
   const compact = ctx?.canvas?.dataset?.layout === 'compact';
+  const sceneOffsetX = Math.max(0, Number(options.sceneOffsetX) || 0);
   const sceneOffsetY = Math.max(0, Number(options.sceneOffsetY) || 0);
+  const sceneScale = Math.max(
+    0.9,
+    Math.min(1.24, Number(options.sceneScale) || 1),
+  );
 
   for (let i = texts.length - 1; i >= 0; i--) {
     const item = texts[i];
@@ -102,7 +107,12 @@ export function updateAndDrawFeedback(ctx, dt, options = {}) {
     item.y += item.vy * dt;
 
     ctx.save();
-    ctx.translate(0, sceneOffsetY);
+    ctx.translate(sceneOffsetX, sceneOffsetY);
+    if (sceneScale !== 1) {
+      ctx.translate(LOGICAL_WIDTH / 2, 350);
+      ctx.scale(sceneScale, sceneScale);
+      ctx.translate(-LOGICAL_WIDTH / 2, -350);
+    }
     ctx.globalAlpha = Math.min(1, item.life * 1.6);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -126,7 +136,12 @@ export function updateAndDrawFeedback(ctx, dt, options = {}) {
     const radius = 10 + progress * 34 * ring.strength;
 
     ctx.save();
-    ctx.translate(0, sceneOffsetY);
+    ctx.translate(sceneOffsetX, sceneOffsetY);
+    if (sceneScale !== 1) {
+      ctx.translate(LOGICAL_WIDTH / 2, 350);
+      ctx.scale(sceneScale, sceneScale);
+      ctx.translate(-LOGICAL_WIDTH / 2, -350);
+    }
     ctx.globalAlpha = Math.max(0, ring.life * 0.8);
     ctx.beginPath();
     ctx.arc(ring.x, ring.y, radius, 0, Math.PI * 2);

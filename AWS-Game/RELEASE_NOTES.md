@@ -1,5 +1,37 @@
 # AWS ORBISHOT — Release Notes
 
+## v1.4.3 — UI & Progression Polish
+
+**Enfoque:** cerrar la etapa visual/responsive de AWS ORBISHOT y hacer que dificultad, progreso y controles se lean correctamente en escritorio, pantalla completa y móvil sin alterar el gameplay base.
+
+### Dificultad y progresión
+- Fácil muestra `★☆☆`, Medio `★★☆` y Difícil `★★★`, con color propio por dificultad.
+- El RANGO se mantiene como dato independiente de progresión.
+- Cambiar dificultad desde Configuración ya no destruye la run: se conserva score, nivel, vidas, inventario y Power Charge.
+
+### Escritorio y pantalla completa
+- HUD compacto refinado para resoluciones angostas.
+- Tienda y Ajustes quedan centrados, espaciados y con feedback visual consistente.
+- Monedas, vidas, dificultad, nivel y progreso se redistribuyen para liberar el centro del campo.
+- Sobrecarga usa una barra vertical cuando el layout compacto lo requiere.
+- Boss Levels reciben una jerarquía propia de título/barra de fase y evitan duplicar Sobrecarga.
+- Pantalla completa aprovecha los laterales con una distribución más legible y consistente.
+
+### Móvil
+- Barra superior más compacta y con mejor alineación de monedas, vidas y badge de dificultad/rango.
+- Estrellas, progreso de nivel y Sobrecarga reacomodados para no competir con el área jugable.
+- Tienda y Ajustes aumentan de tamaño, quedan separados y sus hitboxes táctiles coinciden con los botones visibles.
+- Power-Ups móviles aumentan de tamaño; sus cantidades usan badges sólidos para mejorar contraste.
+- Panel Power/Core conserva el mismo tamaño pero centra mejor sus textos y agranda la instrucción contextual.
+- El rótulo flotante redundante del Power Core se elimina en móvil.
+- HUD de Boss Levels móvil evita estrellas/textos duplicados y conserva Sobrecarga vertical.
+
+### Compatibilidad
+- `collision.js` no se modifica.
+- La detección de colisión permanece exactamente en `fp.radius * 0.35`.
+- No se cambia la velocidad de proyectil, cadencia normal, audio, economía ni balance de Power-Ups.
+- Cache-buster final de la release: `v143-release`.
+
 ## v1.4.2 — Economy & Lives Update
 
 **Enfoque:** añadir una primera economía reutilizable y convertir la derrota en una estructura de vidas/continuaciones sin alterar el control principal.

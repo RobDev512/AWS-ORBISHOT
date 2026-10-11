@@ -30,7 +30,7 @@
 - `collision.js` no se modifica.
 - La detección de colisión permanece exactamente en `fp.radius * 0.35`.
 - No se cambia la velocidad de proyectil, cadencia normal, audio, economía ni balance de Power-Ups.
-- Cache-buster final de la release: `v143-release`.
+- Cache-buster final de la release: `v143-pages-hotfix1`.
 
 ## v1.4.2 — Economy & Lives Update
 

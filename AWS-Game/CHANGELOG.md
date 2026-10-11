@@ -13,7 +13,7 @@
 - Las áreas táctiles de Tienda y Ajustes quedan alineadas con su posición visual real.
 - El HUD móvil de bosses elimina elementos duplicados/encimados y conserva una única lectura clara de Boss + Sobrecarga.
 - Se elimina el rótulo flotante redundante del Power Core en móvil; la instrucción permanece en el panel inferior.
-- Cache-buster final de release: `v143-release`.
+- Cache-buster final de release: `v143-pages-hotfix1`.
 - No se cambia física, audio, economía ni balance de combate. `collision.js` conserva exactamente `fp.radius * 0.35`.
 - Versión publicada como `v1.4.3 - UI & Progression Polish`.
 

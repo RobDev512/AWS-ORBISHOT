@@ -23,7 +23,7 @@ https://robdev512.github.io/Proyectos-Taller-AWS/AWS-Game/
 - Pulido móvil completo: barra superior, monedas/vidas, progreso, controles táctiles, Power-Ups y panel Power/Core.
 - Hitboxes de Tienda/Ajustes alineadas con los botones visibles en móvil.
 - Boss HUD móvil sin elementos duplicados ni solapamientos.
-- Cache-buster final `v143-release`.
+- Cache-buster final `v143-pages-hotfix1`.
 - Sin cambios a la hitbox base: `fp.radius * 0.35`.
 
 ## Economy & Lives Update (v1.4.2)

@@ -2,18 +2,18 @@
  * main.js — Punto de entrada y coordinación de UI.
  */
 
-import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v143-release';
-import { createInitialState }                from './state.js?build=v143-release';
+import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v143-pages-hotfix1';
+import { createInitialState }                from './state.js?build=v143-pages-hotfix1';
 import { captureHighScore, loadHighScore }   from './scoring.js';
-import { registerInputHandlers }             from './input.js?build=v143-release';
-import { startGameLoop }                     from './gameLoop.js?build=v143-release';
-import { hideGameOver }                      from './ui.js?build=v143-release';
+import { registerInputHandlers }             from './input.js?build=v143-pages-hotfix1';
+import { startGameLoop }                     from './gameLoop.js?build=v143-pages-hotfix1';
+import { hideGameOver }                      from './ui.js?build=v143-pages-hotfix1';
 import {
   setSoundEnabled,
   setMusicEnabled,
   setSoundVolume,
   setMusicVolume,
-} from './sound.js?build=v143-release';
+} from './sound.js?build=v143-pages-hotfix1';
 import { setFxEnabled }                      from './particles.js';
 import { setFeedbackFxEnabled }              from './feedback.js';
 import { setComboEnabled }                   from './combo.js';
@@ -28,7 +28,7 @@ import {
   upgradeMaxLives,
   upgradePowerUpCapacity,
   buyPowerUp,
-} from './economy.js?build=v143-release';
+} from './economy.js?build=v143-pages-hotfix1';
 
 // ── DOM ──────────────────────────────────────────────────────────────────────
 const gameWrapper     = document.getElementById('gameWrapper');

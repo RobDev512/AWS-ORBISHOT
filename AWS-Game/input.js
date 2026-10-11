@@ -10,12 +10,12 @@
 import {
   POWER_UP_ORDER,
   canActivateStoredPowerUp,
-} from './powerups.js?build=v143-release';
-import { getPowerUpSlotAtPoint } from './powerupUi.js?build=v143-release';
+} from './powerups.js?build=v143-pages-hotfix1';
+import { getPowerUpSlotAtPoint } from './powerupUi.js?build=v143-pages-hotfix1';
 import {
   playSoundBowTensionStart,
   playSoundBowTensionStop,
-} from './sound.js?build=v143-release';
+} from './sound.js?build=v143-pages-hotfix1';
 
 function getLogicalCanvasSize(canvas) {
   return {

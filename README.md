@@ -36,6 +36,7 @@ Sin frameworks externos.
 - `aws-game-v1.4.0` — Boss Update + rebranding AWS ORBISHOT
 - `aws-game-v1.4.1` — Audio Update / Soundtrack Patch
 - `aws-game-v1.4.2` — Economy & Lives Update
+- `aws-game-v1.4.3` — UI & Progression Polish
 
 Las versiones anteriores se conservan mediante tags de Git en este repositorio.
 
@@ -58,4 +59,4 @@ Posteriormente el proyecto continuó desarrollándose fuera del workshop con nue
 
 La versión estable publicada actualmente es:
 
-**v1.4.2 - Economy & Lives Update**
+**v1.4.3 - UI & Progression Polish**

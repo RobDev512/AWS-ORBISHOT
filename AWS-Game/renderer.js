@@ -1,16 +1,16 @@
-import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v142-economy-r5';
-import { getLevelTarget, getLevelTheme, LEVEL_COMPLETE_DELAY } from './levels.js?build=v142-economy-r5';
+import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v143-release';
+import { getLevelTarget, getLevelTheme, LEVEL_COMPLETE_DELAY } from './levels.js?build=v143-release';
 import {
   POWER_UP_CONFIG,
   POWER_UP_ORDER,
   canActivateStoredPowerUp,
   getPowerUpInventoryCap,
-} from './powerups.js?build=v142-economy-r5';
+} from './powerups.js?build=v143-release';
 import {
   getPowerUpChargeRect,
   getPowerUpSlotRects,
-} from './powerupUi.js?build=v142-economy-r5';
-import { getPowerCorePosition } from './powercore.js?build=v142-economy-r5';
+} from './powerupUi.js?build=v143-release';
+import { getPowerCorePosition } from './powercore.js?build=v143-release';
 import {
   BOSS_CONFIG,
   getBossPhase,
@@ -19,7 +19,7 @@ import {
   getBossPhaseBreak,
   getBossOverload,
   isBossPhaseTransitionActive,
-} from './boss.js?build=v142-economy-r5';
+} from './boss.js?build=v143-release';
 import { getStability } from './stability.js';
 
 /**
@@ -50,6 +50,13 @@ const COLOR_DISC_INNER= '#1a2332';
 const LOGICAL_WIDTH = CONFIG.CANVAS_WIDTH;
 const LOGICAL_HEIGHT = CONFIG.CANVAS_HEIGHT;
 
+function getLogicalCanvasWidth(ctx) {
+  return Math.max(
+    LOGICAL_WIDTH,
+    Number(ctx?.canvas?.dataset?.logicalWidth) || LOGICAL_WIDTH,
+  );
+}
+
 function getLogicalCanvasHeight(ctx) {
   return Math.max(
     LOGICAL_HEIGHT,
@@ -57,8 +64,19 @@ function getLogicalCanvasHeight(ctx) {
   );
 }
 
+function getSceneOffsetX(ctx) {
+  return Math.max(0, Number(ctx?.canvas?.dataset?.sceneOffsetX) || 0);
+}
+
 function getSceneOffsetY(ctx) {
   return Math.max(0, Number(ctx?.canvas?.dataset?.sceneOffsetY) || 0);
+}
+
+function getSceneScale(ctx) {
+  return Math.max(
+    0.9,
+    Math.min(1.24, Number(ctx?.canvas?.dataset?.sceneScale) || 1),
+  );
 }
 
 const SERVICE_COLORS = {
@@ -234,49 +252,303 @@ function drawArrow(ctx, cx, cy, radius, angle, awsIconId, assets) {
 
 
 // ---------------------------------------------------------------------------
-// drawTierIndicator — fila de estrellas que indica el tier de progresión
+// drawDifficultyIndicator — estrellas de dificultad con significado estable
+//
+// v1.4.3:
+//   Fácil   = ★☆☆
+//   Medio   = ★★☆
+//   Difícil = ★★★
+//
+// El RANGO/Tier de progresión sigue mostrándose por separado en el badge
+// superior, evitando mezclar dificultad elegida con progresión dinámica.
 // ---------------------------------------------------------------------------
-function drawTierIndicator(ctx, canvasW, tier) {
-  const compact   = getCanvasLayout(ctx) === 'compact';
-  const maxTier   = 5;
-  const starSize  = compact ? 11 : 10;
-  const gap       = compact ? 7 : 6;
-  const totalW    = maxTier * starSize * 2 + (maxTier - 1) * gap;
-  const startX    = (canvasW - totalW) / 2 + starSize;
-  const y         = 108;  // debajo del HUD con logo
 
-  for (let i = 0; i < maxTier; i++) {
-    const cx = startX + i * (starSize * 2 + gap);
-    const filled = i < tier;
+function isR61WideHud(ctx) {
+  return (
+    getCanvasLayout(ctx) === 'desktop' &&
+    getLogicalCanvasWidth(ctx) >= 1000
+  );
+}
+
+function drawR61WideHud(ctx, state, progression) {
+  if (!isR61WideHud(ctx)) return;
+
+  const sideSpace = Math.max(230, getSceneOffsetX(ctx));
+  const w = Math.min(300, Math.max(230, sideSpace - 46));
+  const x = 24;
+  const y = 118;
+  const h = 352;
+  const cx = x + w / 2;
+  const ix = x + 24;
+  const iw = w - 48;
+
+  const diff = ({
+    easy:   { label: 'FÁCIL', n: 1, color: '#4FC3F7' },
+    medium: { label: 'MEDIO', n: 2, color: '#FF9900' },
+    hard:   { label: 'DIFÍCIL', n: 3, color: '#FF5A5F' },
+  }[state.difficulty] ?? { label: 'MEDIO', n: 2, color: '#FF9900' });
+
+  const level = Math.max(1, Number(state.level) || 1);
+  const tier = Math.max(1, Number(progression?.tier) || 1);
+
+  ctx.save();
+
+  roundedRectPath(ctx, x, y, w, h, 18);
+  ctx.fillStyle = 'rgba(13,17,23,.72)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,153,0,.34)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  ctx.font = 'bold 11px "Amazon Ember", Arial, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,.48)';
+  ctx.fillText('ESTADO DE PARTIDA', cx, y + 24);
+
+  ctx.font = 'bold 15px "Amazon Ember", Arial, sans-serif';
+  ctx.fillStyle = '#FFB24D';
+  ctx.fillText(
+    `${diff.label}  •  NIVEL ${level}  •  RANGO ${tier}`,
+    cx,
+    y + 50,
+  );
+
+  ctx.font = 'bold 12px "Amazon Ember", Arial, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,.60)';
+  ctx.fillText('DIFICULTAD', cx, y + 90);
+
+  const starR = 17;
+  const gap = 13;
+  const total = 3 * starR * 2 + 2 * gap;
+  const sx = cx - total / 2 + starR;
+
+  for (let i = 0; i < 3; i++) {
+    ctx.save();
+    ctx.translate(sx + i * (starR * 2 + gap), y + 124);
+    drawStar(
+      ctx, 0, 0,
+      starR,
+      starR * .45,
+      5,
+      i < diff.n,
+      diff.color,
+    );
+    ctx.restore();
+  }
+
+  if (state.boss?.active) {
+    const phase = getBossPhase(state);
+    const p = Math.max(0, Math.min(1, getBossPhaseProgress(state)));
+    const accent = state.boss?.accent ?? '#FFD166';
+
+    ctx.font = 'bold 13px "Amazon Ember", Arial, sans-serif';
+    ctx.fillStyle = accent;
+    ctx.fillText(
+      `JEFE • ${String(phase?.label ?? 'FASE').toUpperCase()}`,
+      cx,
+      y + 180,
+    );
+
+    roundedRectPath(ctx, ix, y + 202, iw, 12, 6);
+    ctx.fillStyle = 'rgba(255,255,255,.09)';
+    ctx.fill();
+    if (p > 0) {
+      roundedRectPath(ctx, ix, y + 202, Math.max(12, iw * p), 12, 6);
+      ctx.fillStyle = accent;
+      ctx.fill();
+    }
+
+    const bossOverload = getBossOverload(state);
+    const ov = bossOverload.value;
+    const ovR = bossOverload.ratio;
+    const ovC = ovR >= .75 ? '#FF4D4D' : ovR >= .40 ? '#FFD166' : '#72C66B';
+
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 12px "Amazon Ember", Arial, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,.62)';
+    ctx.fillText('SOBRECARGA', ix, y + 257);
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = ovC;
+    ctx.fillText(`${Math.round(ov)}%`, ix + iw, y + 257);
+
+    roundedRectPath(ctx, ix, y + 278, iw, 11, 5.5);
+    ctx.fillStyle = 'rgba(255,255,255,.09)';
+    ctx.fill();
+    if (ovR > 0) {
+      roundedRectPath(ctx, ix, y + 278, Math.max(11, iw * ovR), 11, 5.5);
+      ctx.fillStyle = ovC;
+      ctx.fill();
+    }
+  } else {
+    const target = getLevelTarget(level);
+    const hits = Math.min(target, Math.max(0, Number(state.levelHits) || 0));
+    const p = target > 0 ? hits / target : 0;
+    const theme = getLevelTheme(level);
+
+    ctx.font = 'bold 13px "Amazon Ember", Arial, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,.72)';
+    ctx.fillText(`PROGRESO • ${hits}/${target} FLECHAS`, cx, y + 180);
+
+    roundedRectPath(ctx, ix, y + 202, iw, 12, 6);
+    ctx.fillStyle = 'rgba(255,255,255,.09)';
+    ctx.fill();
+    if (p > 0) {
+      roundedRectPath(ctx, ix, y + 202, Math.max(12, iw * p), 12, 6);
+      ctx.fillStyle = theme.ring;
+      ctx.fill();
+    }
+
+    const st = getStability(state);
+    const ov = Math.max(0, st.max - st.value);
+    const ovR = st.max > 0 ? ov / st.max : 0;
+    const ovC = ovR >= .75 ? '#FF4D4D' : ovR >= .40 ? '#FFD166' : '#72C66B';
+
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 12px "Amazon Ember", Arial, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,.62)';
+    ctx.fillText('SOBRECARGA', ix, y + 257);
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = ovC;
+    ctx.fillText(`${Math.round(ov)}%`, ix + iw, y + 257);
+
+    roundedRectPath(ctx, ix, y + 278, iw, 11, 5.5);
+    ctx.fillStyle = 'rgba(255,255,255,.09)';
+    ctx.fill();
+    if (ovR > 0) {
+      roundedRectPath(ctx, ix, y + 278, Math.max(11, iw * ovR), 11, 5.5);
+      ctx.fillStyle = ovC;
+      ctx.fill();
+    }
+  }
+
+  ctx.textAlign = 'center';
+  ctx.font = '10px "Amazon Ember", Arial, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,.34)';
+  ctx.fillText('HUD ADAPTATIVO', cx, y + 327);
+
+  ctx.restore();
+}
+
+function drawDifficultyIndicator(
+  ctx,
+  canvasW,
+  difficultyKey,
+) {
+  const compact =
+    getCanvasLayout(ctx) === 'compact';
+
+  const compactDesktop =
+    compact && isCompactDesktop(ctx);
+
+  const u =
+    compact && !compactDesktop
+      ? getUiScale(ctx)
+      : 1;
+
+  const maxStars = 3;
+
+  const starSize =
+    compactDesktop ? 14 :
+    compact ? 14.4 * u :
+    11;
+
+  const gap =
+    compactDesktop ? 10 :
+    compact ? 9.5 * u :
+    8;
+
+  const visual = ({
+    easy: {
+      filled: 1,
+      color: '#4FC3F7',
+    },
+    medium: {
+      filled: 2,
+      color: '#FF9900',
+    },
+    hard: {
+      filled: 3,
+      color: '#FF5A5F',
+    },
+  }[difficultyKey] ?? {
+    filled: 2,
+    color: '#FF9900',
+  });
+
+  const totalW =
+    maxStars * starSize * 2 +
+    (maxStars - 1) * gap;
+
+  const startX =
+    (canvasW - totalW) / 2 + starSize;
+
+  const y =
+    compactDesktop ? 132 :
+    compact ? 160 :
+    108;
+
+  for (let i = 0; i < maxStars; i++) {
+    const cx =
+      startX + i * (starSize * 2 + gap);
+
     ctx.save();
     ctx.translate(cx, y);
-    drawStar(ctx, 0, 0, starSize, starSize * 0.45, 5, filled);
+
+    drawStar(
+      ctx,
+      0,
+      0,
+      starSize,
+      starSize * .45,
+      5,
+      i < visual.filled,
+      visual.color,
+    );
+
     ctx.restore();
   }
 }
 
-function drawStar(ctx, cx, cy, outerR, innerR, points, filled) {
+function drawStar(
+  ctx,
+  cx,
+  cy,
+  outerR,
+  innerR,
+  points,
+  filled,
+  color = '#FF9900',
+) {
   ctx.beginPath();
   for (let i = 0; i < points * 2; i++) {
-    const r   = i % 2 === 0 ? outerR : innerR;
-    const a   = (i * Math.PI) / points - Math.PI / 2;
-    const x   = cx + r * Math.cos(a);
-    const y_  = cy + r * Math.sin(a);
+    const r = i % 2 === 0 ? outerR : innerR;
+    const a = (i * Math.PI) / points - Math.PI / 2;
+    const x = cx + r * Math.cos(a);
+    const y_ = cy + r * Math.sin(a);
     i === 0 ? ctx.moveTo(x, y_) : ctx.lineTo(x, y_);
   }
   ctx.closePath();
+
   if (filled) {
-    ctx.fillStyle   = '#FF9900';
-    ctx.shadowColor = '#FF9900';
-    ctx.shadowBlur  = 6;
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 6;
     ctx.fill();
     ctx.shadowBlur = 0;
   } else {
-    ctx.strokeStyle = 'rgba(255,153,0,0.3)';
-    ctx.lineWidth   = 1;
+    ctx.save();
+    ctx.globalAlpha = 0.28;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.2;
     ctx.stroke();
+    ctx.restore();
   }
 }
+
 // ---------------------------------------------------------------------------
 // HUD — score, récord, dificultad y acceso a configuración
 // Todo se dibuja dentro del canvas para que escale junto con el juego.
@@ -297,15 +569,38 @@ function roundedRectPath(ctx, x, y, w, h, r) {
 }
 
 function drawHudValue(ctx, label, value, x, align = 'left') {
+  const compact = getCanvasLayout(ctx) === 'compact';
+  const compactDesktop = compact && isCompactDesktop(ctx);
+  const u = compact && !compactDesktop ? getUiScale(ctx) : 1;
+
   ctx.textAlign = align;
   ctx.textBaseline = 'middle';
-  ctx.font = 'bold 10px "Amazon Ember", Arial, sans-serif';
-  ctx.fillStyle = 'rgba(255,153,0,.88)';
-  ctx.fillText(label, x, 29);
 
-  ctx.font = 'bold 25px "Amazon Ember", Arial, sans-serif';
+  ctx.font = `bold ${
+    compactDesktop ? 11.2 :
+    compact ? 12.2 * u :
+    10
+  }px "Amazon Ember", Arial, sans-serif`;
+
+  ctx.fillStyle = 'rgba(255,153,0,.94)';
+  ctx.fillText(
+    label,
+    x,
+    compactDesktop ? 30 : compact ? 31 : 29,
+  );
+
+  ctx.font = `bold ${
+    compactDesktop ? 28 :
+    compact ? 28.5 * Math.min(u, 1.22) :
+    25
+  }px "Amazon Ember", Arial, sans-serif`;
+
   ctx.fillStyle = '#FFFFFF';
-  ctx.fillText(String(value), x, 49);
+  ctx.fillText(
+    String(value),
+    x,
+    compactDesktop ? 52 : compact ? 56 : 49,
+  );
 }
 
 function drawHeartPath(ctx, cx, cy, size) {
@@ -337,67 +632,148 @@ function drawHeartPath(ctx, cx, cy, size) {
 
 function drawEconomyStatus(ctx, state, canvasW) {
   const compact = getCanvasLayout(ctx) === 'compact';
-  const coins = Math.max(0, Math.floor(Number(state.economy?.coins) || 0));
-  const maxLives = Math.max(3, Math.floor(Number(state.economy?.maxLives) || 3));
-  const currentLives = Math.max(0, Math.min(maxLives, Math.floor(Number(state.currentLives) || 0)));
+  const compactDesktop = compact && isCompactDesktop(ctx);
+  const u = compact && !compactDesktop ? getUiScale(ctx) : 1;
+
+  const coins = Math.max(
+    0,
+    Math.floor(Number(state.economy?.coins) || 0),
+  );
+
+  const maxLives = Math.max(
+    3,
+    Math.floor(Number(state.economy?.maxLives) || 3),
+  );
+
+  const currentLives = Math.max(
+    0,
+    Math.min(
+      maxLives,
+      Math.floor(Number(state.currentLives) || 0),
+    ),
+  );
+
+  const y =
+    compactDesktop ? 77 :
+    compact ? 84 :
+    73;
+
+  const coinX =
+    compactDesktop ? 42 :
+    compact ? 42 :
+    34;
+
+  const coinR =
+    compactDesktop ? 8.8 :
+    compact ? 8.6 * u :
+    5.2;
 
   ctx.save();
   ctx.textBaseline = 'middle';
 
-  // Monedas: indicador discreto dentro del HUD superior.
   ctx.beginPath();
-  ctx.arc(34, 73, 5.2, 0, Math.PI * 2);
+  ctx.arc(coinX, y, coinR, 0, Math.PI * 2);
   ctx.fillStyle = '#FFD166';
   ctx.shadowColor = '#FF9900';
-  ctx.shadowBlur = 5;
+  ctx.shadowBlur = compact ? 7 : 5;
   ctx.fill();
   ctx.shadowBlur = 0;
+
   ctx.beginPath();
-  ctx.arc(34, 73, 2.3, 0, Math.PI * 2);
+  ctx.arc(
+    coinX,
+    y,
+    compactDesktop ? 3.2 : compact ? 3.6 * u : 2.3,
+    0,
+    Math.PI * 2,
+  );
   ctx.strokeStyle = 'rgba(121,77,0,.72)';
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 1.1;
   ctx.stroke();
 
-  ctx.font = 'bold 9px "Amazon Ember", Arial, sans-serif';
+  ctx.font = `bold ${
+    compactDesktop ? 14 :
+    compact ? 14.0 * u :
+    9
+  }px "Amazon Ember", Arial, sans-serif`;
+
   ctx.fillStyle = '#FFD166';
   ctx.textAlign = 'left';
-  ctx.fillText(String(coins), 44, 73.5);
+  ctx.fillText(
+    String(coins),
+    coinX + (
+      compactDesktop ? 15 :
+      compact ? 15.5 * u :
+      10
+    ),
+    y + .5,
+  );
 
-  // Hasta cinco vidas se leen como corazones individuales. Si una expansión
-  // futura supera ese valor, se compacta automáticamente a ♥ ×N.
-  const heartY = 73;
   if (maxLives <= 5) {
-    const size = 9;
-    const gap = 3;
+    const size =
+      compactDesktop ? 15.5 :
+      compact ? 14.4 * u :
+      9;
+
+    const gap =
+      compactDesktop ? 5.2 :
+      compact ? 4.8 * u :
+      3;
+
     const slotW = size + gap;
     const totalW = maxLives * slotW - gap;
-    let x = (compact ? canvasW - 34 : canvasW - 120) - totalW;
+
+    let x =
+      (compact ? canvasW - 42 : canvasW - 120) -
+      totalW;
+
+    if (compactDesktop) x += 13;
 
     for (let i = 0; i < maxLives; i++) {
       const cx = x + size / 2;
-      drawHeartPath(ctx, cx, heartY, size);
+      drawHeartPath(ctx, cx, y, size);
+
       if (i < currentLives) {
         ctx.fillStyle = '#FF6688';
         ctx.shadowColor = '#FF4D73';
-        ctx.shadowBlur = 5;
+        ctx.shadowBlur = 6;
         ctx.fill();
         ctx.shadowBlur = 0;
       } else {
-        ctx.strokeStyle = 'rgba(255,102,136,.34)';
-        ctx.lineWidth = 1.1;
+        ctx.strokeStyle = 'rgba(255,102,136,.36)';
+        ctx.lineWidth = 1.2;
         ctx.stroke();
       }
+
       x += slotW;
     }
   } else {
-    const cx = compact ? canvasW - 66 : canvasW - 154;
-    drawHeartPath(ctx, cx, heartY, 10);
-    ctx.fillStyle = currentLives > 0 ? '#FF6688' : 'rgba(255,102,136,.28)';
+    const cx =
+      compact ? canvasW - 72 : canvasW - 154;
+
+    const size =
+      compactDesktop ? 13 :
+      compact ? 11 * u :
+      10;
+
+    drawHeartPath(ctx, cx, y, size);
+
+    ctx.fillStyle =
+      currentLives > 0
+        ? '#FF6688'
+        : 'rgba(255,102,136,.28)';
+
     ctx.fill();
-    ctx.font = 'bold 10px "Amazon Ember", Arial, sans-serif';
+
+    ctx.font = `bold ${
+      compactDesktop ? 12.2 :
+      compact ? 10.5 * u :
+      10
+    }px "Amazon Ember", Arial, sans-serif`;
+
     ctx.textAlign = 'left';
     ctx.fillStyle = '#FF9AB0';
-    ctx.fillText(`×${currentLives}`, cx + 9, heartY + 0.5);
+    ctx.fillText(`×${currentLives}`, cx + 11, y + .5);
   }
 
   ctx.restore();
@@ -414,10 +790,24 @@ function getHudControlGeometry(ctx, control, canvasW) {
   const compact = getCanvasLayout(ctx) === 'compact';
 
   if (compact) {
+    if (isCompactDesktop(ctx)) {
+      const radius = 34;
+
+      return {
+        x: canvasW - 18 - radius,
+        y: control === 'shop' ? 146 : 234,
+        radius,
+        compact: true,
+      };
+    }
+
+    const c = getControlScale(ctx);
+    const radius = 38 * c;
+
     return {
-      x: canvasW - 42,
-      y: control === 'shop' ? 128 : 190,
-      radius: 26,
+      x: canvasW - 18 - radius,
+      y: control === 'shop' ? 192 : 300,
+      radius,
       compact: true,
     };
   }
@@ -431,284 +821,448 @@ function getHudControlGeometry(ctx, control, canvasW) {
 }
 
 function drawSettingsIcon(ctx, canvasW, assets) {
-  const geometry = getHudControlGeometry(ctx, 'settings', canvasW);
+  const geometry =
+    getHudControlGeometry(ctx, 'settings', canvasW);
+
   const { x, y, compact } = geometry;
-  const { hovered, pressed } = getHudControlState(ctx, 'settings');
+  const compactDesktop =
+    compact && isCompactDesktop(ctx);
+
+  const u =
+    compact && !compactDesktop
+      ? getUiScale(ctx)
+      : 1;
+
+  const c =
+    compact && !compactDesktop
+      ? getControlScale(ctx)
+      : 1;
+
+  const { hovered, pressed } =
+    getHudControlState(ctx, 'settings');
+
   const baseR = geometry.radius;
-  const r = pressed ? baseR - 1 : (hovered ? baseR + 1.5 : baseR);
+  const r =
+    pressed
+      ? baseR - 1
+      : hovered
+        ? baseR + 1.5
+        : baseR;
 
   ctx.save();
+
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fillStyle = pressed
-    ? 'rgba(255,153,0,.25)'
-    : hovered
-      ? 'rgba(255,153,0,.16)'
-      : compact
-        ? 'rgba(13,17,23,.88)'
-        : 'rgba(255,255,255,.06)';
-  ctx.shadowColor = '#FF9900';
-  ctx.shadowBlur = pressed ? 20 : (hovered ? 14 : compact ? 5 : 0);
+
+  ctx.fillStyle =
+    compactDesktop && pressed
+      ? 'rgba(255,153,0,.28)'
+      : compactDesktop && hovered
+        ? 'rgba(255,153,0,.18)'
+        : compact
+          ? 'rgba(13,17,23,.92)'
+          : 'rgba(255,255,255,.06)';
+
+  if (compactDesktop && (hovered || pressed)) {
+    ctx.shadowColor = '#FF9900';
+    ctx.shadowBlur = pressed ? 22 : 14;
+  }
   ctx.fill();
-  ctx.strokeStyle = pressed
-    ? '#FFD166'
-    : hovered
+  ctx.shadowBlur = 0;
+
+  ctx.strokeStyle =
+    pressed || hovered
       ? '#FFB24D'
       : compact
-        ? 'rgba(255,153,0,.72)'
+        ? 'rgba(255,153,0,.78)'
         : 'rgba(255,153,0,.45)';
-  ctx.lineWidth = hovered || pressed ? 2 : compact ? 1.6 : 1.2;
+
+  ctx.lineWidth =
+    compactDesktop ? 2.0 :
+    compact ? 1.7 :
+    1.2;
+
+  if (compactDesktop && (hovered || pressed)) {
+    ctx.shadowColor = '#FFB24D';
+    ctx.shadowBlur = pressed ? 18 : 11;
+  }
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  const settingsIcon = assets?.hudIcons?.settings;
-  const iconY = compact ? y - 5 : y;
-  const iconSize = compact ? 23 : 20;
-  if (isImageReady(settingsIcon)) {
-    ctx.save();
-    ctx.globalAlpha = pressed ? 1 : hovered ? .98 : .90;
+  const icon = assets?.hudIcons?.settings;
+  const iconY = y;
+
+  const iconSize =
+    compactDesktop ? 31 :
+    compact ? 31 * c :
+    20;
+
+  if (isImageReady(icon)) {
     ctx.drawImage(
-      settingsIcon,
+      icon,
       x - iconSize / 2,
       iconY - iconSize / 2,
       iconSize,
       iconSize,
     );
-    ctx.restore();
-  } else {
-    // Fallback geométrico mientras termina de cargar el SVG.
-    const halfW = compact ? 10 : 8;
-    const spacing = compact ? 5.5 : 6;
-    ctx.strokeStyle = pressed || hovered ? '#FFFFFF' : 'rgba(255,255,255,.9)';
-    ctx.lineWidth = compact ? 2.1 : 1.8;
-    ctx.lineCap = 'round';
-    const ys = [iconY - spacing, iconY, iconY + spacing];
-    const knobs = [x + 4, x - 5, x + 2];
-    for (let i = 0; i < ys.length; i++) {
-      ctx.beginPath();
-      ctx.moveTo(x - halfW, ys[i]);
-      ctx.lineTo(x + halfW, ys[i]);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(knobs[i], ys[i], compact ? 2.5 : 2.1, 0, Math.PI * 2);
-      ctx.fillStyle = pressed ? '#FFF0B3' : '#FF9900';
-      ctx.fill();
-    }
   }
 
-  if (compact) {
-    ctx.fillStyle = pressed || hovered ? '#FFFFFF' : 'rgba(255,255,255,.72)';
-    ctx.font = 'bold 6px "Amazon Ember", Arial, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('AJUSTES', x, y + 16);
-  }
+
   ctx.restore();
 }
 
 function drawShopIcon(ctx, canvasW, assets) {
-  const geometry = getHudControlGeometry(ctx, 'shop', canvasW);
+  const geometry =
+    getHudControlGeometry(ctx, 'shop', canvasW);
+
   const { x, y, compact } = geometry;
-  const { hovered, pressed } = getHudControlState(ctx, 'shop');
+  const compactDesktop =
+    compact && isCompactDesktop(ctx);
+
+  const u =
+    compact && !compactDesktop
+      ? getUiScale(ctx)
+      : 1;
+
+  const c =
+    compact && !compactDesktop
+      ? getControlScale(ctx)
+      : 1;
+
+  const { hovered, pressed } =
+    getHudControlState(ctx, 'shop');
+
   const baseR = geometry.radius;
-  const r = pressed ? baseR - 1 : (hovered ? baseR + 1.5 : baseR);
+  const r =
+    pressed
+      ? baseR - 1
+      : hovered
+        ? baseR + 1.5
+        : baseR;
 
   ctx.save();
+
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fillStyle = pressed
-    ? 'rgba(255,209,102,.26)'
-    : hovered
-      ? 'rgba(255,209,102,.17)'
-      : compact
-        ? 'rgba(13,17,23,.88)'
-        : 'rgba(255,209,102,.075)';
-  ctx.shadowColor = '#FFD166';
-  ctx.shadowBlur = pressed ? 20 : (hovered ? 14 : compact ? 5 : 0);
+
+  ctx.fillStyle =
+    compactDesktop && pressed
+      ? 'rgba(255,209,102,.28)'
+      : compactDesktop && hovered
+        ? 'rgba(255,209,102,.18)'
+        : compact
+          ? 'rgba(13,17,23,.92)'
+          : 'rgba(255,209,102,.075)';
+
+  if (compactDesktop && (hovered || pressed)) {
+    ctx.shadowColor = '#FFD166';
+    ctx.shadowBlur = pressed ? 22 : 14;
+  }
   ctx.fill();
-  ctx.strokeStyle = pressed
-    ? '#FFF0B3'
-    : hovered
-      ? '#FFD166'
+  ctx.shadowBlur = 0;
+
+  ctx.strokeStyle =
+    pressed || hovered
+      ? '#FFF0B3'
       : compact
-        ? 'rgba(255,209,102,.76)'
+        ? 'rgba(255,209,102,.82)'
         : 'rgba(255,209,102,.52)';
-  ctx.lineWidth = hovered || pressed ? 2 : compact ? 1.6 : 1.2;
+
+  ctx.lineWidth =
+    compactDesktop ? 2.0 :
+    compact ? 1.7 :
+    1.2;
+
+  if (compactDesktop && (hovered || pressed)) {
+    ctx.shadowColor = '#FFD166';
+    ctx.shadowBlur = pressed ? 18 : 11;
+  }
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  const shopIcon = assets?.hudIcons?.shop;
-  const iconY = compact ? y - 5 : y - 1;
-  const iconSize = compact ? 24 : 19;
-  if (isImageReady(shopIcon)) {
-    ctx.save();
-    ctx.globalAlpha = pressed ? 1 : hovered ? .98 : .92;
+  const icon = assets?.hudIcons?.shop;
+  const iconY = compact ? y : y - 1;
+
+  const iconSize =
+    compactDesktop ? 32 :
+    compact ? 32 * c :
+    19;
+
+  if (isImageReady(icon)) {
     ctx.drawImage(
-      shopIcon,
+      icon,
       x - iconSize / 2,
       iconY - iconSize / 2,
       iconSize,
       iconSize,
     );
-    ctx.restore();
-  } else {
-    // Fallback de moneda si el SVG aún no está disponible.
-    ctx.beginPath();
-    ctx.arc(x, iconY, compact ? 9.5 : 7.5, 0, Math.PI * 2);
-    ctx.fillStyle = pressed ? 'rgba(255,209,102,.34)' : 'rgba(255,153,0,.18)';
-    ctx.fill();
-    ctx.strokeStyle = pressed || hovered ? '#FFF0B3' : '#FFD166';
-    ctx.lineWidth = compact ? 1.9 : 1.6;
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(x, iconY, compact ? 5.5 : 4.3, 0, Math.PI * 2);
-    ctx.strokeStyle = pressed || hovered ? '#FFD166' : 'rgba(255,209,102,.62)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
   }
 
-  ctx.fillStyle = pressed || hovered ? '#FFFFFF' : 'rgba(255,255,255,.72)';
-  ctx.font = `bold ${compact ? 6 : 5.5}px "Amazon Ember", Arial, sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('TIENDA', x, compact ? y + 16 : y + 10.5);
+  if (!compact) {
+    ctx.fillStyle = 'rgba(255,255,255,.86)';
+
+    ctx.font = `bold ${
+      compactDesktop ? 10.0 :
+      compact ? 8.8 * u :
+      5.5
+    }px "Amazon Ember", Arial, sans-serif`;
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    ctx.fillText(
+      'TIENDA',
+      x,
+      compact
+        ? y + (
+            compactDesktop ? 25 :
+            17 * c
+          )
+        : y + 10.5,
+    );
+  }
+
   ctx.restore();
 }
 
 function drawHUD(ctx, state, progression, canvasW, assets) {
   ctx.save();
-  const compact = getCanvasLayout(ctx) === 'compact';
 
-  roundedRectPath(ctx, 18, 10, canvasW - 36, 78, 12);
-  ctx.fillStyle = 'rgba(13,17,23,.46)';
+  const compact =
+    getCanvasLayout(ctx) === 'compact';
+
+  const compactDesktop =
+    compact && isCompactDesktop(ctx);
+
+  const u =
+    compact && !compactDesktop
+      ? getUiScale(ctx)
+      : 1;
+
+  const panelH =
+    compactDesktop ? 82 :
+    compact ? 104 :
+    78;
+
+  roundedRectPath(
+    ctx,
+    18,
+    10,
+    canvasW - 36,
+    panelH,
+    12,
+  );
+
+  ctx.fillStyle = 'rgba(13,17,23,.48)';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255,153,0,.20)';
+
+  ctx.strokeStyle = 'rgba(255,153,0,.22)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  drawHudValue(ctx, 'PUNTAJE', state.score, 34, 'left');
-  drawHudValue(ctx, 'RÉCORD', state.highScore, compact ? canvasW - 34 : canvasW - 120, 'right');
+  drawHudValue(
+    ctx,
+    'PUNTAJE',
+    state.score,
+    compactDesktop ? 38 :
+    compact ? 40 :
+    34,
+    'left',
+  );
+
+  drawHudValue(
+    ctx,
+    'RÉCORD',
+    state.highScore,
+    compact
+      ? canvasW - 40
+      : canvasW - 120,
+    'right',
+  );
 
   const logo = assets?.brandLogo;
+
   if (isImageReady(logo)) {
-    const maxW = 92;
-    const maxH = 48;
-    const ratio = logo.naturalWidth / logo.naturalHeight;
+    const maxW =
+      compactDesktop ? 98 :
+      compact ? 108 :
+      92;
+
+    const maxH =
+      compactDesktop ? 49 :
+      compact ? 54 :
+      48;
+
+    const ratio =
+      logo.naturalWidth / logo.naturalHeight;
+
     let w = maxW;
     let h = w / ratio;
+
     if (h > maxH) {
       h = maxH;
       w = h * ratio;
     }
 
-    ctx.save();
-    ctx.shadowColor = 'rgba(54,197,240,.28)';
-    ctx.shadowBlur = 7;
     ctx.drawImage(
       logo,
       canvasW / 2 - w / 2,
-      13,
+      compact ? 12 : 13,
       w,
       h,
     );
-    ctx.restore();
-  } else {
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font = 'bold 13px "Amazon Ember", Arial, sans-serif';
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillText(APP_NAME, canvasW / 2, 31);
   }
 
-  const difficulty = ({ easy: 'FÁCIL', medium: 'MEDIO', hard: 'DIFÍCIL' }[state.difficulty] ?? 'MEDIO');
+  const difficulty = ({
+    easy: 'FÁCIL',
+    medium: 'MEDIO',
+    hard: 'DIFÍCIL',
+  }[state.difficulty] ?? 'MEDIO');
+
   const tier = progression?.tier ?? 1;
   const level = Math.max(1, state.level ?? 1);
-  const badgeText = `${difficulty}  •  NV ${level}  •  RANGO ${tier}`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = `bold ${compact ? 10 : 8}px "Amazon Ember", Arial, sans-serif`;
-  const tw = ctx.measureText(badgeText).width;
-  roundedRectPath(ctx, canvasW / 2 - tw / 2 - 8, 66, tw + 16, 16, 8);
-  ctx.fillStyle = 'rgba(255,153,0,.13)';
-  ctx.fill();
-  ctx.fillStyle = '#FFB24D';
-  ctx.fillText(badgeText, canvasW / 2, 74);
+
+  const badgeText =
+    `${difficulty}  •  NV ${level}  •  RANGO ${tier}`;
+
+  const wide =
+    typeof isR61WideHud === 'function' &&
+    isR61WideHud(ctx);
+
+  if (!wide) {
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    ctx.font = `bold ${
+      compactDesktop ? 12.8 :
+      compact ? 12.5 * u :
+      8
+    }px "Amazon Ember", Arial, sans-serif`;
+
+    const tw = ctx.measureText(badgeText).width;
+
+    const badgeH =
+      compactDesktop ? 24 :
+      compact ? 20 * Math.min(u, 1.18) :
+      16;
+
+    const badgeY =
+      compactDesktop ? 56 :
+      compact ? 76 :
+      66;
+
+    roundedRectPath(
+      ctx,
+      canvasW / 2 - tw / 2 - 10,
+      badgeY,
+      tw + 20,
+      badgeH,
+      badgeH / 2,
+    );
+
+    ctx.fillStyle = 'rgba(255,153,0,.16)';
+    ctx.fill();
+
+    ctx.fillStyle = '#FFB24D';
+
+    ctx.fillText(
+      badgeText,
+      canvasW / 2,
+      badgeY + badgeH / 2 + .5,
+    );
+  }
 
   drawSettingsIcon(ctx, canvasW, assets);
   drawShopIcon(ctx, canvasW, assets);
+
   ctx.restore();
 }
 
 function drawLevelProgress(ctx, state, canvasW) {
   if (state.boss?.active) return;
 
-  const level = Math.max(1, state.level ?? 1);
-  const target = getLevelTarget(level);
-  const hits = Math.min(target, Math.max(0, state.levelHits ?? 0));
-  const ratio = target > 0 ? hits / target : 0;
-  const theme = getLevelTheme(level);
+  const level =
+    Math.max(1, state.level ?? 1);
 
-  const compact = getCanvasLayout(ctx) === 'compact';
-  const barW = compact ? 220 : 190;
-  const barH = compact ? 9 : 8;
-  const x = (canvasW - barW) / 2;
-  const y = compact ? 143 : 145;
+  const target =
+    getLevelTarget(level);
+
+  const hits =
+    Math.min(
+      target,
+      Math.max(0, state.levelHits ?? 0),
+    );
+
+  const ratio =
+    target > 0
+      ? hits / target
+      : 0;
+
+  const theme =
+    getLevelTheme(level);
+
+  const compact =
+    getCanvasLayout(ctx) === 'compact';
+
+  const compactDesktop =
+    compact && isCompactDesktop(ctx);
+
+  const u =
+    compact && !compactDesktop
+      ? getUiScale(ctx)
+      : 1;
+
+  const barW =
+    compactDesktop ? 238 :
+    compact ? 272 :
+    190;
+
+  const barH =
+    compactDesktop ? 10 :
+    compact ? 9.5 * Math.min(u, 1.20) :
+    8;
+
+  const x =
+    (canvasW - barW) / 2;
+
+  const y =
+    compactDesktop ? 176 :
+    compact ? 205 :
+    145;
 
   ctx.save();
+
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = `bold ${compact ? 11 : 9}px "Amazon Ember", Arial, sans-serif`;
-  ctx.fillStyle = 'rgba(255,255,255,.68)';
-  ctx.fillText(`NIVEL ${level}  •  ${hits}/${target} FLECHAS`, canvasW / 2, y - 13);
 
-  roundedRectPath(ctx, x, y, barW, barH, barH / 2);
-  ctx.fillStyle = 'rgba(255,255,255,.08)';
-  ctx.fill();
+  ctx.font = `bold ${
+    compactDesktop ? 10.8 :
+    compact ? 11.7 * u :
+    9
+  }px "Amazon Ember", Arial, sans-serif`;
 
-  if (ratio > 0) {
-    roundedRectPath(ctx, x, y, Math.max(barH, barW * ratio), barH, barH / 2);
-    ctx.fillStyle = theme.ring;
-    ctx.shadowColor = theme.ring;
-    ctx.shadowBlur = 7;
-    ctx.fill();
-    ctx.shadowBlur = 0;
-  }
-  ctx.restore();
-}
+  ctx.fillStyle = 'rgba(255,255,255,.78)';
 
-function drawStability(ctx, state, canvasW) {
-  if (state.boss?.active || state.phase === 'bossintro') return;
+  ctx.fillText(
+    `NIVEL ${level}  •  ${hits}/${target} FLECHAS`,
+    canvasW / 2,
+    y - (
+      compactDesktop ? 15 :
+      compact ? 16 :
+      13
+    ),
+  );
 
-  // Se mantiene internamente el valor de STABILITY por compatibilidad, pero
-  // al jugador se le presenta como OVERLOAD: empieza en 0%, sube con errores
-  // y al llegar a 100% termina la partida. Es el mismo lenguaje visual de los
-  // Boss Levels y evita tener dos medidores que se comportan al revés.
-  const stability = getStability(state);
-  const overloadValue = Math.max(0, stability.max - stability.value);
-  const ratio = stability.max > 0 ? overloadValue / stability.max : 0;
-  const compact = getCanvasLayout(ctx) === 'compact';
-  const barW = compact ? 180 : 128;
-  const barH = compact ? 7 : 5;
-  const x = (canvasW - barW) / 2;
-  const y = compact ? 174 : 166;
-  const color = ratio >= 0.75
-    ? '#FF4D4D'
-    : ratio >= 0.4
-      ? '#FFD166'
-      : '#72C66B';
+  roundedRectPath(
+    ctx,
+    x,
+    y,
+    barW,
+    barH,
+    barH / 2,
+  );
 
-  ctx.save();
-  ctx.textBaseline = 'middle';
-  ctx.font = `bold ${compact ? 9 : 7}px "Amazon Ember", Arial, sans-serif`;
-  ctx.fillStyle = 'rgba(255,255,255,.56)';
-  ctx.textAlign = 'left';
-  ctx.fillText('SOBRECARGA', x, y - (compact ? 10 : 7));
-  ctx.textAlign = 'right';
-  ctx.fillStyle = color;
-  ctx.fillText(`${Math.round(overloadValue)}%`, x + barW, y - (compact ? 10 : 7));
-
-  roundedRectPath(ctx, x, y, barW, barH, barH / 2);
-  ctx.fillStyle = 'rgba(255,255,255,.08)';
+  ctx.fillStyle = 'rgba(255,255,255,.10)';
   ctx.fill();
 
   if (ratio > 0) {
@@ -720,15 +1274,198 @@ function drawStability(ctx, state, canvasW) {
       barH,
       barH / 2,
     );
-    ctx.fillStyle = color;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = ratio >= 0.75 ? 8 : 4;
+
+    ctx.fillStyle = theme.ring;
+    ctx.shadowColor = theme.ring;
+    ctx.shadowBlur = 7;
     ctx.fill();
+    ctx.shadowBlur = 0;
   }
 
   ctx.restore();
 }
 
+function drawStability(ctx, state, canvasW) {
+  if (state.phase === 'bossintro') return;
+
+  const compact =
+    getCanvasLayout(ctx) === 'compact';
+
+  const compactDesktop =
+    compact && isCompactDesktop(ctx);
+
+  const bossActive = Boolean(
+    state.boss?.active && !state.boss?.defeated,
+  );
+
+  let overloadValue = 0;
+  let ratio = 0;
+
+  if (bossActive) {
+    // En boss, la sobrecarga viene del sistema propio del jefe.
+    // En móvil y escritorio angosto la dibujamos como barra vertical
+    // separada del centro para no competir con la rueda.
+    if (!(compactDesktop || compact)) return;
+
+    const bossOverload = getBossOverload(state);
+    overloadValue = bossOverload.value;
+    ratio = bossOverload.ratio;
+  } else {
+    const stability =
+      getStability(state);
+
+    overloadValue =
+      Math.max(
+        0,
+        stability.max - stability.value,
+      );
+
+    ratio =
+      stability.max > 0
+        ? overloadValue / stability.max
+        : 0;
+  }
+
+  const u =
+    compact && !compactDesktop
+      ? getUiScale(ctx)
+      : 1;
+
+  const color =
+    ratio >= .75
+      ? '#FF4D4D'
+      : ratio >= .4
+        ? '#FFD166'
+        : '#72C66B';
+
+  // Escritorio angosto y móvil: Sobrecarga vertical a la izquierda para
+  // liberar el carril central del HUD y evitar choques con la rueda.
+  if (compact) {
+    const barX = compactDesktop ? 30 : 28;
+    const barY = compactDesktop ? 180 : 208;
+    const barW = compactDesktop ? 10 : 11;
+    const barH = compactDesktop ? 132 : 126;
+
+    ctx.save();
+
+    roundedRectPath(
+      ctx,
+      barX,
+      barY,
+      barW,
+      barH,
+      barW / 2,
+    );
+
+    ctx.fillStyle = 'rgba(255,255,255,.10)';
+    ctx.fill();
+
+    if (ratio > 0) {
+      const fillH = Math.max(barW, barH * ratio);
+
+      roundedRectPath(
+        ctx,
+        barX,
+        barY + barH - fillH,
+        barW,
+        fillH,
+        barW / 2,
+      );
+
+      ctx.fillStyle = color;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = ratio >= .75 ? 8 : 4;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    ctx.save();
+    ctx.translate(barX - (compactDesktop ? 11 : 13), barY + barH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = compactDesktop
+      ? 'bold 9.8px "Amazon Ember", Arial, sans-serif'
+      : `bold ${11.2 * u}px "Amazon Ember", Arial, sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,.72)';
+    ctx.fillText('SOBRECARGA', 0, 0);
+    ctx.restore();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = compactDesktop
+      ? 'bold 10.2px "Amazon Ember", Arial, sans-serif'
+      : `bold ${11.8 * u}px "Amazon Ember", Arial, sans-serif`;
+    ctx.fillStyle = color;
+    ctx.fillText(
+      `${Math.round(overloadValue)}%`,
+      barX + barW / 2,
+      barY + barH + (compactDesktop ? 15 : 18),
+    );
+
+    ctx.restore();
+    return;
+  }
+
+  const barW = 128;
+  const barH = 5;
+  const x = (canvasW - barW) / 2;
+  const y = 166;
+
+  ctx.save();
+  ctx.textBaseline = 'middle';
+
+  ctx.font = 'bold 7px "Amazon Ember", Arial, sans-serif';
+
+  ctx.fillStyle = 'rgba(255,255,255,.68)';
+  ctx.textAlign = 'left';
+
+  ctx.fillText(
+    'SOBRECARGA',
+    x,
+    y - 7,
+  );
+
+  ctx.textAlign = 'right';
+  ctx.fillStyle = color;
+
+  ctx.fillText(
+    `${Math.round(overloadValue)}%`,
+    x + barW,
+    y - 7,
+  );
+
+  roundedRectPath(
+    ctx,
+    x,
+    y,
+    barW,
+    barH,
+    barH / 2,
+  );
+
+  ctx.fillStyle = 'rgba(255,255,255,.10)';
+  ctx.fill();
+
+  if (ratio > 0) {
+    roundedRectPath(
+      ctx,
+      x,
+      y,
+      Math.max(barH, barW * ratio),
+      barH,
+      barH / 2,
+    );
+
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = ratio >= .75 ? 8 : 4;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  ctx.restore();
+}
 function getActiveStatus(state, type) {
   const active = state.activePowerUps ?? {};
 
@@ -758,6 +1495,27 @@ function getActiveStatus(state, type) {
 
 function getCanvasLayout(ctx) {
   return ctx.canvas.dataset.layout === 'compact' ? 'compact' : 'desktop';
+}
+
+function getUiScale(ctx) {
+  return Math.max(
+    1,
+    Math.min(1.40, Number(ctx?.canvas?.dataset?.uiScale) || 1),
+  );
+}
+
+function getControlScale(ctx) {
+  return Math.max(
+    1,
+    Math.min(1.18, Number(ctx?.canvas?.dataset?.controlScale) || 1),
+  );
+}
+
+function isCompactDesktop(ctx) {
+  return (
+    getCanvasLayout(ctx) === 'compact' &&
+    ctx?.canvas?.dataset?.compactDesktop === '1'
+  );
 }
 
 function getCompactActionHint(state) {
@@ -836,9 +1594,14 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
 
   const layout = getCanvasLayout(ctx);
   const compact = layout === 'compact';
+  const compactDesktop = compact && isCompactDesktop(ctx);
+  const uiScale = compact && !compactDesktop ? getUiScale(ctx) : 1;
   const slots = getPowerUpSlotRects(canvasW, layout, canvasH);
   const inventory = state.powerUpInventory ?? {};
-  const chargeRect = getPowerUpChargeRect(canvasW, layout, canvasH);
+  const baseChargeRect = getPowerUpChargeRect(canvasW, layout, canvasH);
+  const chargeRect = compactDesktop
+    ? { ...baseChargeRect, height: 52 }
+    : baseChargeRect;
   const hovered = state.hoveredPowerUpSlot ?? null;
 
   ctx.save();
@@ -846,7 +1609,7 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
 
   if (!compact) {
     ctx.textAlign = 'center';
-    ctx.font = 'bold 9px "Amazon Ember", Arial, sans-serif';
+    ctx.font = `bold ${compactDesktop ? 10.4 : 10.2 * uiScale}px "Amazon Ember", Arial, sans-serif`;
     ctx.fillStyle = 'rgba(255,255,255,.52)';
     ctx.fillText(
       'POTENCIADORES • CLIC / 1–4',
@@ -940,18 +1703,18 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
       ctx.beginPath();
       ctx.arc(cx, cy, radius - 5, 0, Math.PI * 2);
       ctx.strokeStyle = occupied ? `${color}35` : 'rgba(255,255,255,.055)';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = compactDesktop ? 1.25 : 1;
       ctx.stroke();
 
       // Número de atajo: pequeña burbuja arriba a la izquierda.
-      const badgeR = 10;
+      const badgeR = compactDesktop ? 14.5 : 14;
       const shortcutX = cx - radius * 0.66;
       const badgeY = cy - radius * 0.66;
       ctx.beginPath();
       ctx.arc(shortcutX, badgeY, badgeR, 0, Math.PI * 2);
       ctx.fillStyle = occupied ? color : 'rgba(255,255,255,.13)';
       ctx.fill();
-      ctx.font = 'bold 9px "Amazon Ember", Arial, sans-serif';
+      ctx.font = 'bold 10px "Amazon Ember", Arial, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = occupied ? '#0D1117' : 'rgba(255,255,255,.50)';
       ctx.fillText(shortcut, shortcutX, badgeY + 0.5);
@@ -960,32 +1723,38 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
       const countX = cx + radius * 0.66;
       ctx.beginPath();
       ctx.arc(countX, badgeY, badgeR, 0, Math.PI * 2);
-      ctx.fillStyle = count > 0 ? `${color}33` : 'rgba(255,255,255,.07)';
+      ctx.fillStyle = count > 0
+        ? 'rgba(7,11,18,.96)'
+        : 'rgba(14,18,26,.94)';
       ctx.fill();
-      ctx.strokeStyle = count > 0 ? `${color}AA` : 'rgba(255,255,255,.10)';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = count > 0
+        ? '#FFFFFF'
+        : 'rgba(255,255,255,.16)';
+      ctx.lineWidth = compactDesktop ? 1.35 : 1.25;
       ctx.stroke();
-      ctx.font = 'bold 6.2px "Amazon Ember", Arial, sans-serif';
+      ctx.font = compactDesktop
+        ? 'bold 8.0px "Amazon Ember", Arial, sans-serif'
+        : 'bold 8.4px "Amazon Ember", Arial, sans-serif';
       ctx.fillStyle = count > 0 ? '#FFFFFF' : 'rgba(255,255,255,.32)';
       ctx.fillText(`${count}/${capacity}`, countX, badgeY + 0.5);
 
       // Centro: icono SVG propio del potenciador.
       ctx.save();
       ctx.globalAlpha *= occupied ? 1 : .62;
-      drawPowerUpIconImage(ctx, assets, type, cx, cy - 5, 29);
+      drawPowerUpIconImage(ctx, assets, type, cx, cy - 7.5, 40);
       ctx.restore();
 
       let mobileStatus = status;
       if (!mobileStatus) {
         mobileStatus = count > 0 ? 'LISTO' : 'VACÍO';
       }
-      ctx.font = 'bold 9px "Amazon Ember", Arial, sans-serif';
+      ctx.font = 'bold 10.8px "Amazon Ember", Arial, sans-serif';
       ctx.fillStyle = status
         ? color
         : count > 0
           ? 'rgba(255,255,255,.72)'
           : 'rgba(255,255,255,.30)';
-      ctx.fillText(mobileStatus, cx, cy + 15);
+      ctx.fillText(mobileStatus, cx, cy + 18);
     } else {
       roundedRectPath(ctx, slot.x, slot.y, slot.width, slot.height, 12);
       ctx.fillStyle = isPressed
@@ -1035,7 +1804,7 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
       }
       if (!subtitle) subtitle = 'VACÍO';
 
-      ctx.font = 'bold 7.5px "Amazon Ember", Arial, sans-serif';
+      ctx.font = `bold ${compactDesktop ? 10.2 : 9.6 * uiScale}px "Amazon Ember", Arial, sans-serif`;
       ctx.fillStyle = status ? color : 'rgba(255,255,255,.54)';
       ctx.fillText(subtitle, slot.x + 35, slot.y + 43);
 
@@ -1089,11 +1858,11 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
     // HUD móvil: texto arriba y barra abajo. Nunca dibujamos texto encima de
     // la pista vacía para evitar recortes en el estado activo.
     const pad = 12;
-    const topY = chargeRect.y + 10;
-    const hintY = chargeRect.y + 22;
+    const topY = compactDesktop ? chargeRect.y + 11 : chargeRect.y + 10;
+    const hintY = compactDesktop ? chargeRect.y + 27 : chargeRect.y + 29;
     const barX = chargeRect.x + pad;
     const barW = chargeRect.width - pad * 2;
-    const barY = chargeRect.y + chargeRect.height - 12;
+    const barY = compactDesktop ? chargeRect.y + 40 : chargeRect.y + chargeRect.height - 12;
     const barH = 7;
     const coreName = coreType ? (POWER_UP_CONFIG.names[coreType] ?? 'PODER') : '';
 
@@ -1103,7 +1872,7 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
 
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'left';
-    ctx.font = 'bold 11px "Amazon Ember", Arial, sans-serif';
+    ctx.font = `bold ${compactDesktop ? 13.2 : 12.6 * uiScale}px "Amazon Ember", Arial, sans-serif`;
     ctx.fillStyle = coreActive ? coreColor : '#FFB24D';
     ctx.fillText(
       state.level < POWER_UP_CONFIG.minLevel
@@ -1143,7 +1912,11 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
     // La instrucción contextual vive DENTRO del panel, entre etiqueta y barra.
     // Así nunca compite con el borde inferior del canvas ni queda bajo la pista.
     ctx.textAlign = 'center';
-    ctx.font = 'bold 7.5px "Amazon Ember", Arial, sans-serif';
+    if (compactDesktop) {
+      ctx.font = 'bold 12.4px "Amazon Ember", Arial, sans-serif';
+    } else {
+      ctx.font = 'bold 13px "Amazon Ember", Arial, sans-serif';
+    }
     ctx.fillStyle = coreActive ? `${coreColor}C8` : 'rgba(255,255,255,.52)';
     ctx.fillText(
       getCompactActionHint(state),
@@ -1170,7 +1943,7 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
     ctx.fillText('CARGA DE PODER', chargeRect.x + 9, chargeRect.y + 15);
 
     ctx.textAlign = 'right';
-    ctx.font = 'bold 8px "Amazon Ember", Arial, sans-serif';
+    ctx.font = `bold ${compactDesktop ? 9.2 : 9.2 * uiScale}px "Amazon Ember", Arial, sans-serif`;
     ctx.fillStyle = 'rgba(255,255,255,.66)';
     ctx.fillText(
       state.level < POWER_UP_CONFIG.minLevel
@@ -1198,7 +1971,7 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
     }
 
     ctx.textAlign = 'left';
-    ctx.font = 'bold 7px "Amazon Ember", Arial, sans-serif';
+    ctx.font = `bold ${compactDesktop ? 8.0 : 9.2 * uiScale}px "Amazon Ember", Arial, sans-serif`;
     ctx.fillStyle = coreActive ? coreColor : 'rgba(255,255,255,.54)';
     ctx.save();
     roundedRectPath(ctx, chargeRect.x + 7, chargeRect.y + 38, chargeRect.width - 14, 13, 5);
@@ -1220,34 +1993,140 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
   ctx.restore();
 }
 
-function drawComboBadge(ctx, state) {
-  const combo = state.comboLevel ?? 1;
-  if (combo <= 1 || state.phase !== 'playing') return;
 
-  const text = `COMBO ×${combo}`;
-  const x = 22;
-  const y = 104;
+function drawR61PowerChargeFix(ctx, state, canvasW, canvasH) {
+  if (state.phase !== 'playing') return;
+  if (getCanvasLayout(ctx) === 'compact') return;
+
+  const r = getPowerUpChargeRect(canvasW, 'desktop', canvasH);
+  const charge = Math.min(
+    POWER_UP_CONFIG.chargeMax,
+    Math.max(0, Number(state.powerUpCharge) || 0),
+  );
+  const ratio = charge / POWER_UP_CONFIG.chargeMax;
 
   ctx.save();
-  ctx.font = 'bold 10px "Amazon Ember", Arial, sans-serif';
 
-  const tw = ctx.measureText(text).width;
-  const w = Math.max(84, tw + 22);
-
-  roundedRectPath(ctx, x, y, w, 24, 12);
-  ctx.fillStyle = 'rgba(255,153,0,.13)';
+  roundedRectPath(ctx, r.x, r.y, r.width, r.height, 12);
+  ctx.fillStyle = 'rgba(13,17,23,.995)';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255,153,0,.48)';
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(255,153,0,.44)';
+  ctx.lineWidth = 1.3;
   ctx.stroke();
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+
+  ctx.font = 'bold 9.5px "Amazon Ember", Arial, sans-serif';
   ctx.fillStyle = '#FFB24D';
-  ctx.fillText(text, x + w / 2, y + 12.5);
+  ctx.fillText('CARGA DE PODER', r.x + r.width / 2, r.y + 14);
+
+  ctx.font = 'bold 10px "Amazon Ember", Arial, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,.84)';
+  ctx.fillText(
+    state.level < POWER_UP_CONFIG.minLevel
+      ? `LV ${POWER_UP_CONFIG.minLevel}`
+      : `${Math.round(charge)}%`,
+    r.x + r.width / 2,
+    r.y + 31,
+  );
+
+  const pad = 10;
+  const bx = r.x + pad;
+  const by = r.y + 43;
+  const bw = r.width - pad * 2;
+  const bh = 9;
+
+  roundedRectPath(ctx, bx, by, bw, bh, 4.5);
+  ctx.fillStyle = 'rgba(255,255,255,.09)';
+  ctx.fill();
+
+  if (ratio > 0) {
+    roundedRectPath(ctx, bx, by, Math.max(bh, bw * ratio), bh, 4.5);
+    ctx.fillStyle = '#FF9900';
+    ctx.shadowColor = '#FF9900';
+    ctx.shadowBlur = ratio >= 1 ? 9 : 5;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  ctx.font = 'bold 7.5px "Amazon Ember", Arial, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,.55)';
+  ctx.fillText(
+    charge >= POWER_UP_CONFIG.chargeMax
+      ? 'ESPERANDO ESPACIO'
+      : 'JUEGA BIEN PARA CARGAR',
+    r.x + r.width / 2,
+    r.y + r.height - 9,
+  );
 
   ctx.restore();
 }
+
+function drawComboBadge(ctx, state, canvasW) {
+  if (!state?.combo || state.combo < 2) return;
+
+  const compact = getCanvasLayout(ctx) === 'compact';
+  const compactDesktop = compact && isCompactDesktop(ctx);
+  const u = compact && !compactDesktop ? getUiScale(ctx) : 1;
+
+  const label = `COMBO ×${state.combo}`;
+
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  ctx.font = `bold ${
+    compactDesktop ? 10.2 :
+    compact ? 10.4 * u :
+    9
+  }px "Amazon Ember", Arial, sans-serif`;
+
+  const textW = ctx.measureText(label).width;
+
+  const badgeH =
+    compactDesktop ? 20 :
+    compact ? 19 * u :
+    16;
+
+  const badgeW = textW + (
+    compactDesktop ? 18 :
+    compact ? 18 * u :
+    16
+  );
+
+  const x =
+    compactDesktop ? 92 :
+    compact ? 90 * u :
+    74;
+
+  const y =
+    compactDesktop ? 142 :
+    compact ? 118 :
+    93;
+
+  roundedRectPath(
+    ctx,
+    x - badgeW / 2,
+    y - badgeH / 2,
+    badgeW,
+    badgeH,
+    badgeH / 2,
+  );
+
+  ctx.fillStyle = 'rgba(36,30,18,.92)';
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(255,153,0,.58)';
+  ctx.lineWidth = 1.1;
+  ctx.stroke();
+
+  ctx.fillStyle = '#FFB24D';
+  ctx.fillText(label, x, y + .5);
+
+  ctx.restore();
+}
+
 
 function getFooterLayout(ctx, canvasH) {
   const compact = getCanvasLayout(ctx) === 'compact';
@@ -1307,20 +2186,52 @@ function drawBottomHint(ctx, state, canvasW, canvasH) {
 }
 
 function drawVersion(ctx, canvasW, canvasH) {
-  const footer = getFooterLayout(ctx, canvasH);
-  const compact = footer.compact;
+  const footer =
+    getFooterLayout(ctx, canvasH);
+
+  const compact =
+    footer.compact;
+
+  const compactDesktop =
+    compact && isCompactDesktop(ctx);
+
+  const u =
+    compact && !compactDesktop
+      ? getUiScale(ctx)
+      : 1;
+
   ctx.save();
   ctx.textBaseline = 'middle';
-  ctx.font = `${compact ? 7.2 : 8.7}px "Amazon Ember", Arial, sans-serif`;
-  ctx.fillStyle = compact ? 'rgba(255,255,255,.30)' : 'rgba(255,255,255,.28)';
+
+  ctx.font = `${
+    compactDesktop ? 8.8 :
+    compact ? 10.2 * u :
+    8.7
+  }px "Amazon Ember", Arial, sans-serif`;
+
+  ctx.fillStyle =
+    compact && !compactDesktop
+      ? 'rgba(255,255,255,.48)'
+      : 'rgba(255,255,255,.34)';
 
   if (compact) {
     ctx.textAlign = 'center';
-    ctx.fillText(`v${APP_VERSION} - ${APP_CODENAME}`, canvasW / 2, footer.versionY);
+
+    ctx.fillText(
+      `v${APP_VERSION} - ${APP_CODENAME}`,
+      canvasW / 2,
+      footer.versionY,
+    );
   } else {
     ctx.textAlign = 'left';
-    ctx.fillText(`v${APP_VERSION} - ${APP_CODENAME}`, footer.versionX, footer.versionY);
+
+    ctx.fillText(
+      `v${APP_VERSION} - ${APP_CODENAME}`,
+      footer.versionX,
+      footer.versionY,
+    );
   }
+
   ctx.restore();
 }
 
@@ -1329,13 +2240,140 @@ export function drawGameOverFlash(ctx, flashTimer) {
   const alpha = Math.min(0.22, flashTimer * 0.88);
   ctx.save();
   ctx.fillStyle = `rgba(255,70,70,${alpha})`;
-  ctx.fillRect(0, 0, LOGICAL_WIDTH, getLogicalCanvasHeight(ctx));
+  ctx.fillRect(0, 0, getLogicalCanvasWidth(ctx), getLogicalCanvasHeight(ctx));
   ctx.restore();
 }
 
 // ---------------------------------------------------------------------------
 // Power Core — recompensa orbitante que debe atravesarse con un tiro válido.
 // ---------------------------------------------------------------------------
+function drawCompactCoreReadableLabel(ctx, state) {
+  if (
+    getCanvasLayout(ctx) !== 'compact' ||
+    isCompactDesktop(ctx) ||
+    !state?.powerCore?.active
+  ) {
+    return;
+  }
+
+  // En móvil ya mostramos esta información en el panel inferior;
+  // evitamos duplicarla arriba del núcleo para que no parpadee.
+  return;
+
+  const position =
+    getPowerCorePosition(state);
+
+  const ce =
+    state.centralElement;
+
+  if (!position || !ce) return;
+
+  const u =
+    getUiScale(ctx);
+
+  const type =
+    position.type;
+
+  const color =
+    POWER_UP_CONFIG.colors[type] ??
+    '#FF9900';
+
+  const name =
+    POWER_UP_CONFIG.names[type] ??
+    'PODER';
+
+  const title =
+    `NÚCLEO • ${name}`;
+
+  const hint =
+    'CRUZA EL NÚCLEO • Y ANCLA';
+
+  const cx = ce.x;
+
+  const y =
+    ce.y - ce.radius - 64;
+
+  ctx.save();
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const titleSize =
+    10.5 * u;
+
+  const hintSize =
+    8.6 * u;
+
+  ctx.font =
+    `bold ${titleSize}px "Amazon Ember", Arial, sans-serif`;
+
+  const titleW =
+    ctx.measureText(title).width;
+
+  ctx.font =
+    `bold ${hintSize}px "Amazon Ember", Arial, sans-serif`;
+
+  const hintW =
+    ctx.measureText(hint).width;
+
+  const w =
+    Math.min(
+      350,
+      Math.max(titleW, hintW) + 22 * u,
+    );
+
+  const h =
+    36 * u;
+
+  const x =
+    cx - w / 2;
+
+  roundedRectPath(
+    ctx,
+    x,
+    y,
+    w,
+    h,
+    12,
+  );
+
+  ctx.fillStyle =
+    'rgba(8,13,20,.93)';
+
+  ctx.fill();
+
+  ctx.strokeStyle =
+    `${color}B8`;
+
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  ctx.font =
+    `bold ${titleSize}px "Amazon Ember", Arial, sans-serif`;
+
+  ctx.fillStyle = color;
+
+  ctx.fillText(
+    title,
+    cx,
+    y + 11.5 * u,
+  );
+
+  ctx.font =
+    `bold ${hintSize}px "Amazon Ember", Arial, sans-serif`;
+
+  ctx.fillStyle =
+    'rgba(255,255,255,.78)';
+
+  ctx.fillText(
+    hint,
+    cx,
+    y + 27 * u,
+  );
+
+  ctx.restore();
+}
+
 function drawPowerCore(ctx, state, assets) {
   const position = getPowerCorePosition(state);
   if (!position) return;
@@ -1421,15 +2459,7 @@ function drawPowerCore(ctx, state, assets) {
   );
   ctx.restore();
 
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = 'bold 7px "Amazon Ember", Arial, sans-serif';
-  ctx.fillStyle = color;
-  ctx.fillText(
-    position.bossPickupMode ? `${name} • PICKUP` : name,
-    position.x,
-    position.y + position.radius + 16,
-  );
+
 
   ctx.restore();
 }
@@ -1470,20 +2500,27 @@ function drawBossProgress(ctx, state, canvasW) {
   const progress = getBossPhaseProgress(state);
   const max = Math.max(1, boss.maxHealth || 1);
   const healthRatio = Math.max(0, Math.min(1, (boss.health ?? max) / max));
-  const barW = 220;
-  const barH = 9;
+  const compact = getCanvasLayout(ctx) === 'compact';
+  const compactDesktop = compact && isCompactDesktop(ctx);
+  const mobileCompact = compact && !compactDesktop;
+  const barW = compactDesktop ? 244 : mobileCompact ? 252 : 220;
+  const barH = compactDesktop ? 10 : mobileCompact ? 10 : 9;
   const x = (canvasW - barW) / 2;
-  const y = 145;
+  const y = compactDesktop ? 176 : mobileCompact ? 176 : 145;
 
   ctx.save();
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = 'bold 9px "Amazon Ember", Arial, sans-serif';
+  ctx.font = compactDesktop
+    ? 'bold 11px "Amazon Ember", Arial, sans-serif'
+    : mobileCompact
+      ? 'bold 10.5px "Amazon Ember", Arial, sans-serif'
+      : 'bold 9px "Amazon Ember", Arial, sans-serif';
   ctx.fillStyle = boss.accent ?? '#FFD166';
   ctx.fillText(
     `${boss.name} • CAPA ${boss.phaseIndex + 1}/3 • ${phase?.label ?? 'FASE'} ${progress.hits}/${progress.target}`,
     canvasW / 2,
-    y - 13,
+    compactDesktop ? (y - 18) : mobileCompact ? (y - 17) : (y - 13),
   );
 
   roundedRectPath(ctx, x, y, barW, barH, barH / 2);
@@ -1499,8 +2536,15 @@ function drawBossProgress(ctx, state, canvasW) {
     ctx.shadowBlur = 0;
   }
 
-  // Condición de derrota propia de los bosses. Los errores cargan OVERLOAD
-  // en vez de provocar un Game Over instantáneo por tocar una flecha vieja.
+  // La Sobrecarga ya tiene un lugar dedicado según el layout:
+  // - compacto escritorio: barra vertical izquierda
+  // - HUD ancho/fullscreen: panel lateral
+  // Evitamos una segunda barra horizontal duplicada.
+  if (compact || isR61WideHud(ctx)) {
+    ctx.restore();
+    return;
+  }
+
   const overload = getBossOverload(state);
   const overloadY = y + 24;
   const overloadH = 5;
@@ -1928,7 +2972,7 @@ function drawBossPhaseBreakOverlay(ctx, state) {
     ctx.save();
     ctx.globalAlpha = flashAlpha * 0.24;
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, LOGICAL_WIDTH, getLogicalCanvasHeight(ctx));
+    ctx.fillRect(-getSceneOffsetX(ctx), 0, getLogicalCanvasWidth(ctx), getLogicalCanvasHeight(ctx));
     ctx.restore();
   }
 
@@ -1976,7 +3020,7 @@ function drawBossIntroOverlay(ctx, state) {
   ctx.save();
   ctx.fillStyle = 'rgba(5,8,13,.72)';
   const screenH = getLogicalCanvasHeight(ctx);
-  ctx.fillRect(0, 0, LOGICAL_WIDTH, screenH);
+  ctx.fillRect(-getSceneOffsetX(ctx), 0, getLogicalCanvasWidth(ctx), screenH);
 
   const w = 410;
   const h = 190;
@@ -2031,7 +3075,7 @@ function drawBossCompleteOverlay(ctx, state) {
   ctx.globalAlpha = Math.max(0.15, alpha);
   ctx.fillStyle = 'rgba(5,8,13,.68)';
   const screenH = getLogicalCanvasHeight(ctx);
-  ctx.fillRect(0, 0, LOGICAL_WIDTH, screenH);
+  ctx.fillRect(-getSceneOffsetX(ctx), 0, getLogicalCanvasWidth(ctx), screenH);
 
   const w = 420;
   const h = 252;
@@ -2458,7 +3502,7 @@ function drawLevelCompleteOverlay(ctx, state) {
   ctx.globalAlpha = Math.max(0.15, alpha);
   ctx.fillStyle = 'rgba(8,12,18,.58)';
   const screenH = getLogicalCanvasHeight(ctx);
-  ctx.fillRect(0, 0, LOGICAL_WIDTH, screenH);
+  ctx.fillRect(-getSceneOffsetX(ctx), 0, getLogicalCanvasWidth(ctx), screenH);
 
   const cardW = 360;
   const cardH = 172;
@@ -2508,7 +3552,7 @@ function drawLifeLostOverlay(ctx, state) {
 
   ctx.save();
   ctx.fillStyle = 'rgba(8,12,18,.62)';
-  ctx.fillRect(0, 0, LOGICAL_WIDTH, screenH);
+  ctx.fillRect(-getSceneOffsetX(ctx), 0, getLogicalCanvasWidth(ctx), screenH);
 
   const w = 330;
   const h = 138;
@@ -2557,14 +3601,14 @@ export function render(ctx, state, assets, progression = null) {
   const { centralElement: ce, anchoredProjectiles, flyingProjectile } = state;
   const { canvas } = ctx;
 
+  const screenW = getLogicalCanvasWidth(ctx);
   const screenH = getLogicalCanvasHeight(ctx);
+  const sceneOffsetX = getSceneOffsetX(ctx);
   const sceneOffsetY = getSceneOffsetY(ctx);
+  const sceneScale = getSceneScale(ctx);
 
-  // Reafirmar la matriz lógica cada frame evita desplazamientos acumulados si
-  // algún efecto externo dejó una transformación activa. También mantiene las
-  // notificaciones perfectamente centradas tras resize/orientationchange.
   ctx.setTransform(
-    canvas.width / LOGICAL_WIDTH,
+    canvas.width / screenW,
     0,
     0,
     canvas.height / screenH,
@@ -2572,38 +3616,48 @@ export function render(ctx, state, assets, progression = null) {
     0,
   );
 
-  // Fondo fijo: evita descubrir bordes durante el shake y llena por completo
-  // el canvas vertical de móvil.
-  ctx.clearRect(0, 0, LOGICAL_WIDTH, screenH);
+  ctx.clearRect(0, 0, screenW, screenH);
   ctx.fillStyle = COLOR_BG;
-  ctx.fillRect(0, 0, LOGICAL_WIDTH, screenH);
+  ctx.fillRect(0, 0, screenW, screenH);
 
   const shake = getBossShakeOffset(state);
   ctx.save();
   ctx.translate(shake.x, shake.y);
 
-  // HUD dentro del canvas (evita que se desalineé al escalar responsivamente)
-  drawHUD(ctx, state, progression, LOGICAL_WIDTH, assets);
-  drawEconomyStatus(ctx, state, LOGICAL_WIDTH);
+  drawHUD(ctx, state, progression, screenW, assets);
+  drawEconomyStatus(ctx, state, screenW);
 
-  if (progression && progression.tier > 0) {
-    drawTierIndicator(ctx, LOGICAL_WIDTH, progression.tier);
+  if (isR61WideHud(ctx)) {
+    drawR61WideHud(ctx, state, progression);
+  } else {
+    const mobileBossHud =
+      getCanvasLayout(ctx) === 'compact' &&
+      !isCompactDesktop(ctx) &&
+      Boolean(state.boss?.active && !state.boss?.defeated);
+
+    if (!mobileBossHud) {
+      drawDifficultyIndicator(ctx, screenW, state.difficulty);
+    }
+
+    drawLevelProgress(ctx, state, screenW);
+    drawStability(ctx, state, screenW);
+    drawBossProgress(ctx, state, screenW);
   }
 
-  drawLevelProgress(ctx, state, LOGICAL_WIDTH);
-  drawStability(ctx, state, LOGICAL_WIDTH);
-  drawBossProgress(ctx, state, LOGICAL_WIDTH);
   drawComboBadge(ctx, state);
 
-  // El gameplay conserva las coordenadas físicas 600×700 y se desplaza dentro
-  // del canvas alto de móvil. Esto llena la pantalla sin deformar hitboxes.
   ctx.save();
-  ctx.translate(0, sceneOffsetY);
+  ctx.translate(sceneOffsetX, sceneOffsetY);
+
+  if (sceneScale !== 1) {
+    ctx.translate(LOGICAL_WIDTH / 2, LOGICAL_HEIGHT / 2);
+    ctx.scale(sceneScale, sceneScale);
+    ctx.translate(-LOGICAL_WIDTH / 2, -LOGICAL_HEIGHT / 2);
+  }
 
   if (state.boss?.active) drawBoss(ctx, state, progression);
   else drawDisc(ctx, ce, progression, state.level);
 
-  // Flechas ancladas de la fase ACTUAL.
   for (const ap of anchoredProjectiles) {
     const renderDistance = Number.isFinite(ap.renderDistance)
       ? ap.renderDistance
@@ -2614,22 +3668,16 @@ export function render(ctx, state, assets, progression = null) {
     drawArrow(ctx, apX, apY, ap.radius, arrowAngle, ap.awsIconId, assets);
   }
 
-  // Volvemos a dibujar la superficie del jefe encima de las puntas.
-  // Así la punta queda parcialmente oculta y se siente realmente clavada.
   if (state.boss?.active && anchoredProjectiles.length > 0) {
     drawEmbeddedArrowMasks(ctx, state, progression);
   }
 
-  // Al romper una fase, los pedazos de la capa y las flechas antiguas dejan
-  // de ser gameplay y continúan cayendo como restos físicos independientes.
   drawBossDetachedDebris(ctx, state);
   drawBossDetachedArrows(ctx, state, assets);
   drawSplitArrowFragments(ctx, state);
-
   drawPowerCore(ctx, state, assets);
+  drawCompactCoreReadableLabel(ctx, state);
 
-  // Lanzador visual: permanece en la base durante el vuelo y hace un snap
-  // breve al disparar. No interviene en la posición lógica del proyectil.
   drawBowLauncher(ctx, state, LOGICAL_WIDTH);
 
   if (flyingProjectile) {
@@ -2642,21 +3690,24 @@ export function render(ctx, state, assets, progression = null) {
   drawReadyArrow(ctx, state, assets, LOGICAL_WIDTH, LOGICAL_HEIGHT);
   ctx.restore();
 
-  // El Dock se dibuja DESPUÉS del gameplay. Esto lo convierte en una capa UI
-  // real: flechas, Power Cores y efectos pueden pasar por detrás, pero nunca
-  // tapar botones, cantidades ni textos.
-  drawPowerUpDock(ctx, state, LOGICAL_WIDTH, screenH, assets);
+  drawPowerUpDock(ctx, state, screenW, screenH, assets);
+  drawR61PowerChargeFix(ctx, state, screenW, screenH);
+  drawBottomHint(ctx, state, screenW, screenH);
 
-  drawBottomHint(ctx, state, LOGICAL_WIDTH, screenH);
+  ctx.save();
+  ctx.translate(sceneOffsetX, 0);
   drawBossIntroOverlay(ctx, state);
   drawLifeLostOverlay(ctx, state);
   if (!drawBossCompleteOverlay(ctx, state)) {
     drawLevelCompleteOverlay(ctx, state);
   }
-  drawVersion(ctx, LOGICAL_WIDTH, screenH);
-
   ctx.restore();
 
-  // El texto de ruptura y el flash permanecen estables mientras el mundo tiembla.
+  drawVersion(ctx, screenW, screenH);
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(sceneOffsetX, 0);
   drawBossPhaseBreakOverlay(ctx, state);
+  ctx.restore();
 }

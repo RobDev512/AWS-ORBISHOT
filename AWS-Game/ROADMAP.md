@@ -47,6 +47,8 @@ Objetivo: crear una primera economía persistente y un sistema de vidas reutiliz
 
 ## v1.4.3 — UI & Progression Polish
 
+**Estado:** completada.
+
 - Redefinir las estrellas de dificultad para que comuniquen información útil.
 - Mejorar interfaz y legibilidad en móvil.
 - Mejorar distribución responsive en escritorio y pantalla completa.

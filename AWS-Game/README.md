@@ -9,9 +9,22 @@ https://robdev512.github.io/Proyectos-Taller-AWS/AWS-Game/
 
 ## Versión actual
 
-**v1.4.2 - Economy & Lives Update**
+**v1.4.3 - UI & Progression Polish**
 
 
+
+## UI & Progression Polish (v1.4.3)
+
+- Estrellas de dificultad con significado fijo: Fácil `★☆☆`, Medio `★★☆`, Difícil `★★★`.
+- RANGO separado de la dificultad para comunicar mejor la progresión.
+- Cambio de dificultad aplicado en vivo sin reiniciar la run actual.
+- HUD refinado para escritorio angosto y pantalla completa.
+- Sobrecarga vertical en layouts compactos y tratamiento específico para Boss Levels.
+- Pulido móvil completo: barra superior, monedas/vidas, progreso, controles táctiles, Power-Ups y panel Power/Core.
+- Hitboxes de Tienda/Ajustes alineadas con los botones visibles en móvil.
+- Boss HUD móvil sin elementos duplicados ni solapamientos.
+- Cache-buster final `v143-release`.
+- Sin cambios a la hitbox base: `fp.radius * 0.35`.
 
 ## Economy & Lives Update (v1.4.2)
 

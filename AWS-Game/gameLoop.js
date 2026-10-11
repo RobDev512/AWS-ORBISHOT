@@ -7,11 +7,11 @@ import {
   launchProjectile,
   advanceProjectile,
   anchorProjectile,
-} from './projectile.js?build=v142-economy-r5';
+} from './projectile.js?build=v143-release';
 import { checkCollision } from './collision.js';
-import { render, drawGameOverFlash } from './renderer.js?build=v142-economy-r5.8-charged-split';
+import { render, drawGameOverFlash } from './renderer.js?build=v143-release';
 import { showGameOver } from './ui.js';
-import { getProgression } from './config.js?build=v142-economy-r5';
+import { getProgression } from './config.js?build=v143-release';
 import {
   playSoundLaunch,
   playSoundAnchor,
@@ -34,7 +34,7 @@ import {
   playSoundOverload,
   playSoundTransition,
   updateMusicSystem,
-} from './sound.js?build=v142-economy-r5';
+} from './sound.js?build=v143-release';
 import {
   emitImpact,
   updateAndDraw,
@@ -70,7 +70,7 @@ import {
   isLevelComplete,
   beginLevelComplete,
   advanceToNextLevel,
-} from './levels.js?build=v142-economy-r5';
+} from './levels.js?build=v143-release';
 import {
   activateStoredPowerUp,
   addPowerUpCharge,
@@ -83,14 +83,14 @@ import {
   POWER_UP_TYPES,
   resetPowerUps,
   updatePowerUps,
-} from './powerups.js?build=v142-economy-r5';
+} from './powerups.js?build=v143-release';
 import {
   checkPowerCoreCrossing,
   completePowerCoreCapture,
   resetPowerCore,
   trySpawnPowerCore,
   updatePowerCore,
-} from './powercore.js?build=v142-economy-r5';
+} from './powercore.js?build=v143-release';
 import {
   damageStability,
   recoverStability,
@@ -113,12 +113,12 @@ import {
   updateBossPhaseTransition,
   updateBoss,
   updateBossIntro,
-} from './boss.js?build=v142-economy-r5';
+} from './boss.js?build=v143-release';
 import {
   awardCoins,
   getNormalLevelCoinReward,
   getBossCoinReward,
-} from './economy.js?build=v142-economy-r5';
+} from './economy.js?build=v143-release';
 
 let rafId = null;
 let overlayShown = false;
@@ -694,9 +694,17 @@ export function startGameLoop(ctx, state, assets, config, overlayEl) {
       config.CANVAS_HEIGHT,
       Number(ctx.canvas.dataset.logicalHeight) || config.CANVAS_HEIGHT,
     );
+    const sceneOffsetX = Math.max(
+      0,
+      Number(ctx.canvas.dataset.sceneOffsetX) || 0,
+    );
     const sceneOffsetY = Math.max(
       0,
       Number(ctx.canvas.dataset.sceneOffsetY) || 0,
+    );
+    const sceneScale = Math.max(
+      0.9,
+      Math.min(1.24, Number(ctx.canvas.dataset.sceneScale) || 1),
     );
     state.uiLogicalHeight = logicalHeight;
     state.uiSceneOffsetY = sceneOffsetY;
@@ -1354,11 +1362,20 @@ export function startGameLoop(ctx, state, assets, config, overlayEl) {
     // Partículas y textos de impacto pertenecen al mundo 600×700; en móvil
     // vertical siguen el mismo desplazamiento visual que disco/flechas.
     ctx.save();
-    ctx.translate(0, sceneOffsetY);
+    ctx.translate(sceneOffsetX, sceneOffsetY);
+    if (sceneScale !== 1) {
+      ctx.translate(config.CANVAS_WIDTH / 2, config.CANVAS_HEIGHT / 2);
+      ctx.scale(sceneScale, sceneScale);
+      ctx.translate(-config.CANVAS_WIDTH / 2, -config.CANVAS_HEIGHT / 2);
+    }
     updateAndDraw(ctx, deltaTime);
     ctx.restore();
 
-    updateAndDrawFeedback(ctx, deltaTime, { sceneOffsetY });
+    updateAndDrawFeedback(ctx, deltaTime, {
+      sceneOffsetX,
+      sceneOffsetY,
+      sceneScale,
+    });
     drawGameOverFlash(ctx, flashTimer);
 
     rafId = requestAnimationFrame(tick);

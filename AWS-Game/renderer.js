@@ -1,4 +1,4 @@
-import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v143-pages-hotfix2';
+import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v1431-perf-r1';
 import { getLevelTarget, getLevelTheme, LEVEL_COMPLETE_DELAY } from './levels.js?build=v143-pages-hotfix2';
 import {
   POWER_UP_CONFIG,
@@ -655,7 +655,7 @@ function drawEconomyStatus(ctx, state, canvasW) {
 
   const y =
     compactDesktop ? 77 :
-    compact ? 84 :
+    compact ? 93 :
     73;
 
   const coinX =
@@ -1872,7 +1872,7 @@ function drawPowerUpDock(ctx, state, canvasW, canvasH, assets) {
     // la pista vacía para evitar recortes en el estado activo.
     const pad = 12;
     const topY = compactDesktop ? chargeRect.y + 11 : chargeRect.y + 10;
-    const hintY = compactDesktop ? chargeRect.y + 27 : chargeRect.y + 29;
+    const hintY = compactDesktop ? chargeRect.y + 27 : chargeRect.y + 33;
     const barX = chargeRect.x + pad;
     const barW = chargeRect.width - pad * 2;
     const barY = compactDesktop ? chargeRect.y + 40 : chargeRect.y + chargeRect.height - 12;

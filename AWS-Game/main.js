@@ -2,11 +2,11 @@
  * main.js — Punto de entrada y coordinación de UI.
  */
 
-import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v143-pages-hotfix2';
+import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v1431-perf-r1';
 import { createInitialState }                from './state.js?build=v143-pages-hotfix2';
 import { captureHighScore, loadHighScore }   from './scoring.js';
 import { registerInputHandlers }             from './input.js?build=v143-pages-hotfix2';
-import { startGameLoop }                     from './gameLoop.js?build=v143-pages-hotfix2';
+import { startGameLoop, setTargetFps }       from './gameLoop.js?build=v1431-devfps1';
 import { hideGameOver }                      from './ui.js?build=v143-pages-hotfix2';
 import {
   setSoundEnabled,
@@ -14,10 +14,11 @@ import {
   setSoundVolume,
   setMusicVolume,
 } from './sound.js?build=v143-pages-hotfix2';
-import { setFxEnabled }                      from './particles.js';
+import { setFxEnabled }                      from './particles.js?build=v1431-devfps1';
 import { setFeedbackFxEnabled }              from './feedback.js';
 import { setComboEnabled }                   from './combo.js';
-import { loadPreferences, savePreferences }  from './preferences.js';
+import { loadPreferences, savePreferences }  from './preferences.js?build=v1431-devfps1';
+import { configurePerformanceMonitor }       from './performanceMonitor.js?build=v1431-devfps1';
 import { loadStats, getAccuracy }            from './stats.js';
 import {
   ECONOMY_CONFIG,
@@ -49,6 +50,12 @@ const soundVolumeValue= document.getElementById('soundVolumeValue');
 const musicVolumeValue= document.getElementById('musicVolumeValue');
 const comboToggle     = document.getElementById('comboToggle');
 const fxToggle        = document.getElementById('fxToggle');
+const performanceHudToggle = document.getElementById('performanceHudToggle');
+const performanceHudLabel = document.getElementById('performanceHudLabel');
+const developerModeToggle = document.getElementById('developerModeToggle');
+const targetFpsSelect = document.getElementById('targetFpsSelect');
+const performanceMetricOptions = document.getElementById('performanceMetricOptions');
+const performanceMetricInputs = document.querySelectorAll('[data-perf-metric]');
 const versionLabel    = document.getElementById('versionLabel');
 const gamesPlayedStat = document.getElementById('gamesPlayedStat');
 const accuracyStat    = document.getElementById('accuracyStat');
@@ -137,7 +144,17 @@ function configureCanvasBackingStore(
     Math.min(cssWidth / logicalW, cssHeight / logicalH),
   );
 
-  const renderScale = Math.min(4, Math.max(1, cssScale * dpr));
+  // v1.4.3.1: en dispositivos táctiles de alta densidad el canvas podía
+  // terminar procesando varios millones de píxeles por frame aunque el tamaño
+  // CSS fuera pequeño. El límite conserva las coordenadas lógicas y el diseño,
+  // pero reduce trabajo de rasterizado en móvil. Escritorio conserva el cap
+  // anterior para no alterar su nitidez.
+  const touchLayout = canvas.dataset.inputMode === 'touch';
+  const renderScaleCap = touchLayout ? 1.75 : 4;
+  const renderScale = Math.min(
+    renderScaleCap,
+    Math.max(1, cssScale * dpr),
+  );
   const backingW = Math.max(1, Math.round(logicalW * renderScale));
   const backingH = Math.max(1, Math.round(logicalH * renderScale));
 
@@ -163,8 +180,24 @@ function configureCanvasBackingStore(
   if ('textRendering' in ctx) ctx.textRendering = 'optimizeLegibility';
 }
 
+let fitCanvasRaf = null;
+let lastFitSignature = '';
+
 function fitCanvas() {
   const viewport = getViewportBox();
+
+  // Evita reconstruir backing store/estilos por eventos repetidos del mismo
+  // frame (VisualViewport puede emitir resize + scroll en ráfaga en móvil).
+  const fitSignature = [
+    Math.round(viewport.width * 10) / 10,
+    Math.round(viewport.height * 10) / 10,
+    Math.round(viewport.offsetLeft * 10) / 10,
+    Math.round(viewport.offsetTop * 10) / 10,
+    Math.round((Number(window.devicePixelRatio) || 1) * 100) / 100,
+  ].join('|');
+
+  if (fitSignature === lastFitSignature) return;
+  lastFitSignature = fitSignature;
 
   if (gameWrapper) {
     gameWrapper.style.position = 'absolute';
@@ -270,6 +303,8 @@ function fitCanvas() {
   document.documentElement.dataset.gameLayout =
     compact ? 'compact' : 'desktop';
   document.documentElement.dataset.viewportMode = viewportMode;
+  document.documentElement.dataset.inputMode =
+    coarsePointer ? 'touch' : 'pointer';
 
   const w = Math.max(1, Math.floor(availableW));
   const h = Math.max(1, Math.floor(availableH));
@@ -292,11 +327,19 @@ function fitCanvas() {
   }
 }
 
+function scheduleFitCanvas() {
+  if (fitCanvasRaf !== null) return;
+  fitCanvasRaf = requestAnimationFrame(() => {
+    fitCanvasRaf = null;
+    fitCanvas();
+  });
+}
+
 fitCanvas();
-window.addEventListener('resize', fitCanvas, { passive: true });
-window.addEventListener('orientationchange', fitCanvas, { passive: true });
-window.visualViewport?.addEventListener('resize', fitCanvas, { passive: true });
-window.visualViewport?.addEventListener('scroll', fitCanvas, { passive: true });
+window.addEventListener('resize', scheduleFitCanvas, { passive: true });
+window.addEventListener('orientationchange', scheduleFitCanvas, { passive: true });
+window.visualViewport?.addEventListener('resize', scheduleFitCanvas, { passive: true });
+window.visualViewport?.addEventListener('scroll', scheduleFitCanvas, { passive: true });
 
 // Chromium expone el pinch del trackpad como wheel+ctrlKey. Como toda la
 // página es un canvas de juego, permitir ese zoom crea un viewport desplazable
@@ -326,6 +369,10 @@ const options = {
   musicVolume: preferences.musicVolume,
   combo: preferences.combo,
   fx: preferences.fx,
+  performanceHud: preferences.performanceHud,
+  developerMode: preferences.developerMode,
+  targetFps: preferences.targetFps,
+  performanceMetrics: { ...preferences.performanceMetrics },
 };
 
 function applyOptions() {
@@ -336,6 +383,12 @@ function applyOptions() {
   setComboEnabled(options.combo);
   setFxEnabled(options.fx);
   setFeedbackFxEnabled(options.fx);
+  configurePerformanceMonitor({
+    enabled: options.performanceHud,
+    developerMode: options.developerMode,
+    metrics: options.performanceMetrics,
+  });
+  setTargetFps(options.targetFps);
 }
 applyOptions();
 
@@ -488,6 +541,29 @@ function syncVolumeControl(input, label, value) {
   label.textContent = `${pct}%`;
 }
 
+function syncPerformanceMetricControls() {
+  const monitorEnabled =
+    performanceHudToggle.classList.contains('on');
+  const developerEnabled =
+    developerModeToggle.classList.contains('on');
+
+  performanceHudToggle.disabled = false;
+  if (performanceHudLabel) {
+    performanceHudLabel.textContent = developerEnabled
+      ? 'Mostrar monitor'
+      : 'Mostrar FPS';
+  }
+  performanceMetricOptions.hidden = !developerEnabled;
+  performanceMetricOptions?.classList.toggle(
+    'disabled',
+    !monitorEnabled || !developerEnabled,
+  );
+
+  performanceMetricInputs.forEach(input => {
+    input.disabled = !monitorEnabled || !developerEnabled;
+  });
+}
+
 function openSettings() {
   if (state.phase === 'playing') state.phase = 'idle';
   selectedDiff = currentDifficulty;
@@ -498,6 +574,13 @@ function openSettings() {
   syncVolumeControl(musicVolume, musicVolumeValue, options.musicVolume);
   syncToggle(comboToggle, options.combo);
   syncToggle(fxToggle, options.fx);
+  syncToggle(performanceHudToggle, options.performanceHud);
+  syncToggle(developerModeToggle, options.developerMode);
+  targetFpsSelect.value = String(options.targetFps ?? 'auto');
+  performanceMetricInputs.forEach(input => {
+    input.checked = options.performanceMetrics?.[input.dataset.perfMetric] === true;
+  });
+  syncPerformanceMetricControls();
   updateStatsPanel();
   settingsOverlay.classList.add('visible');
 }
@@ -514,6 +597,15 @@ function closeSettings(apply) {
     options.musicVolume = normalizeVolumeInput(musicVolume.value);
     options.combo = comboToggle.classList.contains('on');
     options.fx = fxToggle.classList.contains('on');
+    options.performanceHud = performanceHudToggle.classList.contains('on');
+    options.developerMode = developerModeToggle.classList.contains('on');
+    options.targetFps = ['auto', '30', '60', '90', '120'].includes(targetFpsSelect.value)
+      ? targetFpsSelect.value
+      : 'auto';
+    options.performanceMetrics = {};
+    performanceMetricInputs.forEach(input => {
+      options.performanceMetrics[input.dataset.perfMetric] = input.checked;
+    });
     applyOptions();
     savePreferences({ difficulty: currentDifficulty, ...options });
 
@@ -636,9 +728,10 @@ shopCapacityBtns.forEach(btn => btn.addEventListener('click', () => {
   updateShopPanel();
 }));
 
-[soundToggle, musicToggle, comboToggle, fxToggle].forEach(btn => {
+[soundToggle, musicToggle, comboToggle, fxToggle, performanceHudToggle, developerModeToggle].forEach(btn => {
   btn.addEventListener('click', () => {
     const on = btn.classList.toggle('on');
     btn.setAttribute('aria-pressed', String(on));
+    if (btn === performanceHudToggle || btn === developerModeToggle) syncPerformanceMetricControls();
   });
 });

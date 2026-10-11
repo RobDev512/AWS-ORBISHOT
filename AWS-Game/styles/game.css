@@ -1,4 +1,10 @@
 /* ============================================================
+   AWS ORBISHOT — CSS principal
+   Movido desde /AWS-Game/style.css en v1.4.3.2 Structure Stage 1.
+   El orden original de reglas se conserva.
+   ============================================================ */
+
+/* ============================================================
    style.css — AWS Arcade Game — Responsive limpio
    ============================================================ */
 
@@ -571,7 +577,7 @@ html, body {
   width: 13px;
   height: 13px;
   flex: 0 0 13px;
-  background: center / contain no-repeat url("assets/ui/coin.svg");
+  background: center / contain no-repeat url("../assets/ui/coin.svg");
 }
 .shop-item-cost:not(.maxed)::before {
   width: 11px;

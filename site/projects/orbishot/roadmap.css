@@ -1,0 +1,212 @@
+.roadmap-live-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.roadmap-filter {
+  min-height: 36px;
+  padding: 0 13px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  background: rgba(255,255,255,.025);
+  color: #9aa8b8;
+  font: 800 11px "Amazon Ember", Inter, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.roadmap-filter:hover,
+.roadmap-filter.active {
+  border-color: rgba(255,153,0,.55);
+  color: #fff;
+}
+
+.roadmap-filter.active {
+  background: rgba(255,153,0,.10);
+  color: #ffb347;
+}
+
+.roadmap-load-status {
+  margin: 14px 0 0;
+  color: #718092;
+  font-size: 11px;
+}
+
+.roadmap-load-status a { color: #ffb347; }
+
+.roadmap-live-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.roadmap-live-card {
+  min-height: 235px;
+  padding: 22px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 16px;
+  background: rgba(18,25,34,.78);
+  color: #fff;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform .15s ease, border-color .15s ease, background .15s ease;
+}
+
+.roadmap-live-card:hover,
+.roadmap-live-card.selected {
+  transform: translateY(-2px);
+  border-color: rgba(255,153,0,.42);
+  background:
+    linear-gradient(150deg, rgba(255,153,0,.07), transparent 55%),
+    rgba(18,25,34,.96);
+}
+
+.roadmap-live-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.roadmap-live-version {
+  color: #ffb347;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.roadmap-status {
+  display: inline-flex;
+  padding: 5px 8px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.roadmap-status-published {
+  color: #5fe1ae;
+  border-color: rgba(95,225,174,.22);
+  background: rgba(95,225,174,.06);
+}
+
+.roadmap-status-next {
+  color: #ffb347;
+  border-color: rgba(255,153,0,.28);
+  background: rgba(255,153,0,.07);
+}
+
+.roadmap-status-planned {
+  color: #72dcf6;
+  border-color: rgba(54,197,240,.24);
+  background: rgba(54,197,240,.06);
+}
+
+.roadmap-status-future {
+  color: #b7a8ff;
+  border-color: rgba(183,168,255,.22);
+  background: rgba(183,168,255,.05);
+}
+
+.roadmap-live-card h3 {
+  margin: 30px 0 10px;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.roadmap-live-card p {
+  margin: 0;
+  color: #9aa8b8;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.roadmap-open {
+  display: inline-block;
+  margin-top: 18px;
+  color: #ffb347;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.roadmap-detail {
+  margin-top: 18px;
+  padding: 30px;
+  border: 1px solid rgba(255,153,0,.24);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(54,197,240,.05), transparent 38%),
+    #121922;
+}
+
+.roadmap-detail[hidden] { display: none; }
+
+.roadmap-detail-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.roadmap-detail-header h3 {
+  margin: 8px 0 0;
+  font-size: clamp(24px, 3vw, 34px);
+  letter-spacing: -.025em;
+}
+
+.roadmap-detail-body {
+  max-width: 850px;
+  padding-top: 22px;
+  color: #aeb9c5;
+  line-height: 1.7;
+}
+
+.roadmap-detail-body h4 {
+  margin: 28px 0 8px;
+  color: #fff;
+  font-size: 16px;
+}
+
+.roadmap-detail-body p { margin: 10px 0; }
+.roadmap-detail-body ul { margin: 8px 0 20px; padding-left: 20px; }
+.roadmap-detail-body li { margin: 6px 0; }
+.roadmap-detail-body code { color: #ffb347; }
+
+.roadmap-detail-close {
+  margin-top: 18px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 9px;
+  background: rgba(255,255,255,.035);
+  color: #d6dde5;
+  font: 800 11px "Amazon Ember", Inter, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.roadmap-empty {
+  grid-column: 1 / -1;
+  padding: 28px;
+  border: 1px dashed rgba(255,255,255,.12);
+  border-radius: 14px;
+  color: #788797;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .roadmap-live-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 620px) {
+  .roadmap-live-grid { grid-template-columns: 1fr; }
+  .roadmap-live-card { min-height: 205px; }
+  .roadmap-detail { padding: 22px 18px; }
+  .roadmap-detail-header { flex-direction: column; }
+}

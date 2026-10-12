@@ -54,6 +54,18 @@ La próxima versión planeada es **v1.4.4 — Boss Presentation & Life Flow Poli
 La instalación como aplicación web para PC y móvil queda reservada para
 **v1.4.6 — PWA & Platform Experience**.
 
+## Portal web
+
+La raíz de GitHub Pages funciona como **hub general de proyectos**:
+
+- Portal: https://robdev512.github.io/Proyectos-Taller-AWS/
+- Página de AWS ORBISHOT: https://robdev512.github.io/Proyectos-Taller-AWS/projects/orbishot/
+- Juego: https://robdev512.github.io/Proyectos-Taller-AWS/AWS-Game/
+
+La página propia de AWS ORBISHOT incluye un explorador dinámico que lee
+`AWS-Game/docs/ROADMAP.md` directamente desde el mismo sitio. Esto permite
+consultar versiones, estados y detalles sin salir a GitHub.
+
 ## Estructura del repositorio
 
 - `AWS-Game/` — Juego arcade desarrollado durante el workshop.

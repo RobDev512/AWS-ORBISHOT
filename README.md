@@ -15,7 +15,7 @@ El historial completo desde v1.0.0 se conserva mediante Git y sus tags.
 ## Enlaces
 
 - Jugar: https://robdev512.github.io/AWS-ORBISHOT/AWS-Game/
-- Página de AWS ORBISHOT: https://robdev512.github.io/AWS-ORBISHOT/projects/orbishot/
+- Página de AWS ORBISHOT: https://robdev512.github.io/AWS-ORBISHOT/
 - Repositorio: https://github.com/RobDev512/AWS-ORBISHOT
 - Roadmap: AWS-Game/docs/ROADMAP.md
 - Changelog: AWS-Game/docs/CHANGELOG.md

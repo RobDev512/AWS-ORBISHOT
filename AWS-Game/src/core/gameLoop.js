@@ -2,16 +2,16 @@
  * gameLoop.js — Bucle principal.
  */
 
-import { updateRotation, triggerReverse } from './centralElement.js?build=v1431-devfps1';
+import { updateRotation, triggerReverse } from '../rendering/centralElement.js?build=v1431-devfps1';
 import {
   launchProjectile,
   advanceProjectile,
   anchorProjectile,
-} from './projectile.js?build=v143-pages-hotfix2';
-import { checkCollision } from './collision.js';
-import { render, drawGameOverFlash } from './renderer.js?build=v1432-boss-hud1';
-import { recordPerformanceFrame, resetPerformanceMonitor } from './performanceMonitor.js?build=v1431-devfps1';
-import { showGameOver } from './ui.js';
+} from '../gameplay/projectile.js?build=v143-pages-hotfix2';
+import { checkCollision } from '../gameplay/collision.js';
+import { render, drawGameOverFlash } from '../rendering/renderer.js?build=v1432-boss-hud1';
+import { recordPerformanceFrame, resetPerformanceMonitor } from '../ui/performanceMonitor.js?build=v1431-devfps1';
+import { showGameOver } from '../ui/ui.js';
 import { getProgression } from './config.js?build=v1431-perf-r1';
 import {
   playSoundLaunch,
@@ -35,25 +35,25 @@ import {
   playSoundOverload,
   playSoundTransition,
   updateMusicSystem,
-} from './sound.js?build=v143-pages-hotfix2';
+} from '../audio/sound.js?build=v143-pages-hotfix2';
 import {
   emitImpact,
   updateAndDraw,
   clearParticles,
-} from './particles.js';
-import { registerAnchor, resetCombo } from './combo.js';
-import { updateHighScore } from './scoring.js';
+} from '../rendering/particles.js';
+import { registerAnchor, resetCombo } from '../gameplay/combo.js';
+import { updateHighScore } from '../gameplay/scoring.js';
 import {
   evaluatePerfectShot,
   PERFECT_BONUS,
-} from './precision.js';
+} from '../gameplay/precision.js';
 import {
   emitFloatingText,
   emitRing,
   emitBanner,
   updateAndDrawFeedback,
   clearFeedback,
-} from './feedback.js';
+} from '../ui/feedback.js';
 import {
   recordHit,
   recordPerfect,
@@ -63,7 +63,7 @@ import {
   recordPowerUp,
   recordShieldSave,
   recordBossDefeat,
-} from './stats.js';
+} from '../ui/stats.js';
 import {
   ensureLevelState,
   getLevelTarget,
@@ -71,7 +71,7 @@ import {
   isLevelComplete,
   beginLevelComplete,
   advanceToNextLevel,
-} from './levels.js?build=v143-pages-hotfix2';
+} from '../systems/progression/levels.js?build=v143-pages-hotfix2';
 import {
   activateStoredPowerUp,
   addPowerUpCharge,
@@ -84,20 +84,20 @@ import {
   POWER_UP_TYPES,
   resetPowerUps,
   updatePowerUps,
-} from './powerups.js?build=v143-pages-hotfix2';
+} from '../systems/powerups/powerups.js?build=v143-pages-hotfix2';
 import {
   checkPowerCoreCrossing,
   completePowerCoreCapture,
   resetPowerCore,
   trySpawnPowerCore,
   updatePowerCore,
-} from './powercore.js?build=v143-pages-hotfix2';
+} from '../systems/powerups/powercore.js?build=v143-pages-hotfix2';
 import {
   damageStability,
   recoverStability,
   restoreStability,
   STABILITY_CONFIG,
-} from './stability.js';
+} from '../systems/progression/stability.js';
 import {
   checkBossLayerCrossing,
   ensureBossState,
@@ -114,12 +114,12 @@ import {
   updateBossPhaseTransition,
   updateBoss,
   updateBossIntro,
-} from './boss.js?build=v143-pages-hotfix2';
+} from '../systems/boss/boss.js?build=v143-pages-hotfix2';
 import {
   awardCoins,
   getNormalLevelCoinReward,
   getBossCoinReward,
-} from './economy.js?build=v143-pages-hotfix2';
+} from '../systems/economy/economy.js?build=v143-pages-hotfix2';
 
 let rafId = null;
 let overlayShown = false;

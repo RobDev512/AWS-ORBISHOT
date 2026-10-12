@@ -5,7 +5,7 @@ Juego arcade de timing y precisión con temática AWS, desarrollado originalment
 - Normal Stability: fuera de Boss Levels, las colisiones no son instakill. STABILITY empieza en 100%, las colisiones restan 40%, los aciertos recuperan 8% y completar un nivel recupera 30%. Desde v1.4.2, llegar a 0% consume una vida; la run termina al quedarse sin corazones.
 
 🎮 **Jugar ahora:**
-https://robdev512.github.io/Proyectos-Taller-AWS/AWS-Game/
+https://robdev512.github.io/AWS-ORBISHOT/AWS-Game/
 
 ## Versión actual
 
@@ -313,7 +313,7 @@ Primera actualización mayor bajo la identidad **AWS ORBISHOT**:
 
 La versión estable del juego se publica mediante GitHub Pages:
 
-https://robdev512.github.io/Proyectos-Taller-AWS/AWS-Game/
+https://robdev512.github.io/AWS-ORBISHOT/AWS-Game/
 
 Este repositorio público funciona también como versión desplegable del proyecto.
 

@@ -87,26 +87,29 @@ Base del sistema moderno de bosses de AWS ORBISHOT.
 
 ## v1.4.3.1 — Performance & Infrastructure Patch
 
-**Estado:** planeado.
+**Estado:** publicado.
 
-Parche exclusivamente técnico. No debe cambiar diseño, balance, físicas ni gameplay visible.
+Parche técnico cerrado sin cambios intencionales de diseño, balance, físicas ni gameplay visible.
 
-### Objetivos
-- Reducir tirones y micro-stutter, especialmente en celular.
-- Revisar el render loop y eliminar trabajo innecesario por frame.
-- Reducir asignaciones temporales y cálculos redundantes.
-- Revisar escalado de resolución, DPR y costo de dibujo en móviles.
-- Mejorar carga, reutilización y caché de assets.
-- Revisar listeners e input para evitar trabajo duplicado.
-- Revisar audio y comportamiento cuando la pestaña pierde visibilidad.
-- Evaluar cache de capas/elementos estáticos y calidad adaptativa cuando ayude.
-- Añadir medición básica de rendimiento si resulta útil para validar mejoras.
+- Reducción del costo de render en móvil/touch.
+- Mejor control de resize/Canvas y visibilidad de pestaña.
+- Normalización con `deltaTime` de cálculos seleccionados.
+- Monitor de rendimiento y Modo desarrollador.
+- Selector de objetivo de FPS.
+- Colisión base y mezcla de audio aprobada conservadas.
 
-### Restricciones
-- Mantener intacto el aspecto aprobado de v1.4.3.
-- Mantener hitboxes, físicas, puntuación y dificultad.
-- Mantener la colisión base actual.
-- No introducir diferencias perceptibles en timing o respuesta del juego.
+## v1.4.3.2 — Structure & Boss HUD Hotfix
+
+**Estado:** cierre técnico de la línea v1.4.3.
+
+- Hotfix del HUD transitorio al derrotar un boss.
+- Separación definitiva de HTML y CSS.
+- JavaScript organizado bajo `src/` por responsabilidad.
+- CSS dividido en capas manteniendo orden de cascada.
+- Documentación consolidada en `docs/`.
+- Specs históricos archivados en `docs/specs/`.
+- Assets revisados y conservados en su organización existente.
+- Preparación de la base para continuar con v1.4.4 sin arrastrar deuda estructural.
 
 ---
 

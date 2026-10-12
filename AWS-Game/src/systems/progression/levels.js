@@ -5,12 +5,12 @@
  * convierte en Boss Level y usa el objetivo total definido por boss.js.
  */
 
-import { DIFFICULTIES } from './config.js';
+import { DIFFICULTIES } from '../../core/config.js';
 import {
   getBossTarget,
   isBossLevel,
   prepareBossForLevel,
-} from './boss.js';
+} from '../boss/boss.js';
 
 export const LEVEL_COMPLETE_DELAY = 1.85;
 

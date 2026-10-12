@@ -3,8 +3,8 @@
  */
 
 import { incrementScore } from './scoring.js';
-import { randomIcon } from './state.js';
-import { recordShot } from './stats.js';
+import { randomIcon } from '../core/state.js';
+import { recordShot } from '../ui/stats.js';
 
 /**
  * @typedef {Object} FlyingProjectile

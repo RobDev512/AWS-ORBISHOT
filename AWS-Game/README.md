@@ -9,7 +9,28 @@ https://robdev512.github.io/Proyectos-Taller-AWS/AWS-Game/
 
 ## Versión actual
 
-**v1.4.3 - UI & Progression Polish**
+**v1.4.3.2 - Structure & Boss HUD Hotfix**
+
+## Structure & Boss HUD Hotfix (v1.4.3.2)
+
+- Hotfix del HUD durante la transición `JEFE DERROTADO`.
+- Código JavaScript reorganizado bajo `src/` por responsabilidad.
+- HTML y CSS separados; estilos organizados en cuatro capas.
+- Documentación consolidada bajo `docs/`.
+- Specs históricos de Kiro archivados en `docs/specs/`.
+- Assets conservados en `branding/`, `icons/` y `ui/`.
+- Sin cambios intencionales a física, balance, economía o audio.
+- Hitbox base conservada en `fp.radius * 0.35`.
+
+## Performance & Infrastructure Patch (v1.4.3.1)
+
+- Optimización de render móvil/touch y manejo de Canvas.
+- Pausa del loop cuando la pestaña no está visible.
+- Normalización de cálculos seleccionados con `deltaTime`.
+- Monitor FPS/performance opcional.
+- Modo desarrollador con métricas avanzadas y objetivo de FPS configurable.
+- Sin cambios intencionales de gameplay, hitbox o balance.
+
 
 
 
@@ -119,6 +140,42 @@ Los efectos siguen siendo:
 - Configuración de sonido, efectos, combos y dificultad.
 - Iconografía inspirada en servicios de AWS.
 - Game Over y opción para volver a jugar.
+
+## Estructura del proyecto
+
+```text
+AWS-Game/
+├── index.html
+├── README.md
+├── src/
+│   ├── main.js
+│   ├── core/
+│   ├── gameplay/
+│   ├── systems/
+│   ├── rendering/
+│   ├── ui/
+│   ├── input/
+│   └── audio/
+├── styles/
+│   ├── base.css
+│   ├── responsive.css
+│   ├── layout.css
+│   └── performance.css
+├── assets/
+│   ├── branding/
+│   ├── icons/
+│   └── ui/
+└── docs/
+    ├── CHANGELOG.md
+    ├── RELEASE_NOTES.md
+    ├── ROADMAP.md
+    └── specs/
+```
+
+Documentación principal:
+- `docs/CHANGELOG.md`
+- `docs/RELEASE_NOTES.md`
+- `docs/ROADMAP.md`
 
 ## Tecnologías
 
@@ -260,7 +317,6 @@ En móviles verticales el Dock de Power-Ups cambia a cuatro botones circulares t
 
 ## Próximos parches planificados
 
-- **v1.4.3 — UI & Progression Polish:** redefinir las estrellas de dificultad, mejorar legibilidad móvil, fullscreen/escritorio y comportamiento de configuración/dificultad.
 - **v1.4.4 — Boss Presentation & FX Polish:** grietas progresivas en capas, fragmentos/anillos físicos y primeras presentaciones de entrada para bosses.
 
-El detalle de estas ideas está en `ROADMAP.md` y puede ajustarse durante su implementación.
+El detalle de estas ideas está en `docs/ROADMAP.md` y puede ajustarse durante su implementación.

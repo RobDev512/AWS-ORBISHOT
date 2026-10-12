@@ -1,16 +1,16 @@
-import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './config.js?build=v1431-perf-r1';
-import { getLevelTarget, getLevelTheme, LEVEL_COMPLETE_DELAY } from './levels.js?build=v143-pages-hotfix2';
+import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from '../core/config.js?build=v1432-structure-final1';
+import { getLevelTarget, getLevelTheme, LEVEL_COMPLETE_DELAY } from '../systems/progression/levels.js?build=v1432-structure-final1';
 import {
   POWER_UP_CONFIG,
   POWER_UP_ORDER,
   canActivateStoredPowerUp,
   getPowerUpInventoryCap,
-} from './powerups.js?build=v143-pages-hotfix2';
+} from '../systems/powerups/powerups.js?build=v1432-structure-final1';
 import {
   getPowerUpChargeRect,
   getPowerUpSlotRects,
-} from './powerupUi.js?build=v143-pages-hotfix2';
-import { getPowerCorePosition } from './powercore.js?build=v143-pages-hotfix2';
+} from '../systems/powerups/powerupUi.js?build=v1432-structure-final1';
+import { getPowerCorePosition } from '../systems/powerups/powercore.js?build=v1432-structure-final1';
 import {
   BOSS_CONFIG,
   getBossPhase,
@@ -19,8 +19,8 @@ import {
   getBossPhaseBreak,
   getBossOverload,
   isBossPhaseTransitionActive,
-} from './boss.js?build=v143-pages-hotfix2';
-import { getStability } from './stability.js';
+} from '../systems/boss/boss.js?build=v1432-structure-final1';
+import { getStability } from '../systems/progression/stability.js';
 
 /**
  * renderer.js — AWS ORBISHOT
@@ -3642,9 +3642,16 @@ export function render(ctx, state, assets, progression = null) {
   drawHUD(ctx, state, progression, screenW, assets);
   drawEconomyStatus(ctx, state, screenW);
 
+  const bossCompleteHudActive = Boolean(
+    state.phase === 'levelcomplete' &&
+    state.boss?.active &&
+    state.boss?.defeated &&
+    state.boss?.result
+  );
+
   if (isR61WideHud(ctx)) {
     drawR61WideHud(ctx, state, progression);
-  } else {
+  } else if (!bossCompleteHudActive) {
     const mobileBossHud =
       getCanvasLayout(ctx) === 'compact' &&
       !isCompactDesktop(ctx) &&

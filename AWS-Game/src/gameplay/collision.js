@@ -19,7 +19,7 @@ function getTipPosition(fp) {
 }
 
 /**
- * @param {import('./state.js').GameState} state
+ * @param {import('../core/state.js').GameState} state
  * @returns {'none'|'anchor'|'collision'}
  */
 export function checkCollision(state) {

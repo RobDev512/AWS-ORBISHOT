@@ -61,11 +61,12 @@ Sin frameworks externos.
 
 - AWS-Game/ contiene el juego, código fuente, assets y documentación.
 - AWS-Game/docs/ROADMAP.md es la fuente de verdad del roadmap.
-- site/projects/orbishot/ contiene la landing específica de AWS ORBISHOT.
-- site/index.html todavía contiene temporalmente el hub general heredado.
+- site/index.html contiene la landing pública principal de AWS ORBISHOT.
+- site/roadmap.css y site/roadmap.js implementan el explorador dinámico del roadmap.
+- site/projects/orbishot/index.html conserva una redirección compatible hacia la nueva raíz.
 - .github/workflows/pages.yml realiza el despliegue mediante GitHub Pages.
 
-El hub general será separado posteriormente a su propio repositorio para que AWS ORBISHOT quede completamente independiente.
+El hub general vive de forma independiente en https://github.com/RobDev512/RobDev512.github.io y enlaza hacia AWS ORBISHOT sin compartir su repositorio.
 
 ## Historial de versiones
 

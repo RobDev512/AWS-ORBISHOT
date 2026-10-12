@@ -1,5 +1,35 @@
 # AWS ORBISHOT — Changelog
 
+## v1.4.3.2 — Structure & Boss HUD Hotfix
+
+- Corregido el estado transitorio posterior a derrotar un boss: durante `JEFE DERROTADO` ya no reaparecen detrás de la tarjeta las estrellas/barras del HUD normal en layouts no-wide.
+- La presentación frontal de Boss Defeated, economía, score, combo y mecánicas del boss permanecen intactas.
+- HTML y CSS quedan separados: `index.html` ya no contiene un bloque `<style>` inline.
+- JavaScript reorganizado bajo `src/` por responsabilidad: `core`, `gameplay`, `systems`, `rendering`, `ui`, `input` y `audio`.
+- CSS reorganizado en `styles/base.css`, `styles/responsive.css`, `styles/layout.css` y `styles/performance.css`, conservando el mismo orden de cascada aprobado.
+- Documentación técnica movida a `docs/`; los specs históricos de Kiro quedan archivados bajo `docs/specs/`.
+- `assets/` fue revisado y ya estaba correctamente separado en `branding/`, `icons/` y `ui/`, por lo que no se introducen movimientos innecesarios.
+- Cache-busters de módulos y estilos normalizados al build `v1432-structure-final1`.
+- Sin cambios intencionales de gameplay, balance, economía o física.
+- La colisión base permanece exactamente en `fp.radius * 0.35`.
+- Se conservan los valores de mezcla/SFX congelados de v1.4.3.1.
+- Versión preparada como `v1.4.3.2 - Structure & Boss HUD Hotfix`.
+
+## v1.4.3.1 — Performance & Infrastructure Patch
+
+- Parche técnico publicado sobre la base visual de v1.4.3.
+- Render backing de móvil/touch limitado para reducir costo de Canvas en DPR altos.
+- Ajuste/dimensionado de Canvas consolidado para evitar trabajo redundante.
+- El game loop se pausa cuando `document.hidden` y reinicia su timestamp al volver, evitando saltos innecesarios.
+- Progresión y cálculos repetitivos reciben caché donde corresponde.
+- Dos comportamientos dependientes de frames se normalizan con `deltaTime` para conservar intención entre distintas tasas de refresco.
+- Monitor de rendimiento opcional con FPS, ms/frame, resolución de render, escala/DPR, layout/input y objetos.
+- Modo desarrollador y selector de objetivo `Auto/30/60/90/120`.
+- El modo normal puede mostrar solo FPS sin exponer las métricas avanzadas.
+- Sin cambios intencionales de gameplay, hitboxes, scoring, economía, balance ni mezcla de audio.
+- La colisión se mantiene exactamente en `fp.radius * 0.35`.
+- Versión publicada/taggeada como `aws-game-v1.4.3.1`.
+
 ## v1.4.3 — UI & Progression Polish
 
 - Las estrellas del HUD ahora representan explícitamente la dificultad elegida: Fácil `★☆☆` en azul/cian, Medio `★★☆` en naranja y Difícil `★★★` en rojo.

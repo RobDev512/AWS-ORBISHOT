@@ -37,6 +37,7 @@ Sin frameworks externos.
 - `aws-game-v1.4.1` — Audio Update / Soundtrack Patch
 - `aws-game-v1.4.2` — Economy & Lives Update
 - `aws-game-v1.4.3` — UI & Progression Polish
+- `aws-game-v1.4.3.1` — Performance & Infrastructure Patch
 
 Las versiones anteriores se conservan mediante tags de Git en este repositorio.
 
@@ -59,4 +60,4 @@ Posteriormente el proyecto continuó desarrollándose fuera del workshop con nue
 
 La versión estable publicada actualmente es:
 
-**v1.4.3 - UI & Progression Polish**
+**v1.4.3.2 - Structure & Boss HUD Hotfix**

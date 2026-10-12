@@ -2,23 +2,23 @@
  * main.js — Punto de entrada y coordinación de UI.
  */
 
-import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './core/config.js?build=v1431-perf-r1';
-import { createInitialState }                from './core/state.js?build=v143-pages-hotfix2';
+import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from './core/config.js?build=v1432-structure-final1';
+import { createInitialState }                from './core/state.js?build=v1432-structure-final1';
 import { captureHighScore, loadHighScore }   from './gameplay/scoring.js';
-import { registerInputHandlers }             from './input/input.js?build=v143-pages-hotfix2';
-import { startGameLoop, setTargetFps }       from './core/gameLoop.js?build=v1431-devfps1';
-import { hideGameOver }                      from './ui/ui.js?build=v143-pages-hotfix2';
+import { registerInputHandlers }             from './input/input.js?build=v1432-structure-final1';
+import { startGameLoop, setTargetFps }       from './core/gameLoop.js?build=v1432-structure-final1';
+import { hideGameOver }                      from './ui/ui.js?build=v1432-structure-final1';
 import {
   setSoundEnabled,
   setMusicEnabled,
   setSoundVolume,
   setMusicVolume,
-} from './audio/sound.js?build=v143-pages-hotfix2';
-import { setFxEnabled }                      from './rendering/particles.js?build=v1431-devfps1';
+} from './audio/sound.js?build=v1432-structure-final1';
+import { setFxEnabled }                      from './rendering/particles.js?build=v1432-structure-final1';
 import { setFeedbackFxEnabled }              from './ui/feedback.js';
 import { setComboEnabled }                   from './gameplay/combo.js';
-import { loadPreferences, savePreferences }  from './ui/preferences.js?build=v1431-devfps1';
-import { configurePerformanceMonitor }       from './ui/performanceMonitor.js?build=v1431-devfps1';
+import { loadPreferences, savePreferences }  from './ui/preferences.js?build=v1432-structure-final1';
+import { configurePerformanceMonitor }       from './ui/performanceMonitor.js?build=v1432-structure-final1';
 import { loadStats, getAccuracy }            from './ui/stats.js';
 import {
   ECONOMY_CONFIG,
@@ -29,7 +29,7 @@ import {
   upgradeMaxLives,
   upgradePowerUpCapacity,
   buyPowerUp,
-} from './systems/economy/economy.js?build=v143-pages-hotfix2';
+} from './systems/economy/economy.js?build=v1432-structure-final1';
 
 // ── DOM ──────────────────────────────────────────────────────────────────────
 const gameWrapper     = document.getElementById('gameWrapper');

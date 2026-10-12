@@ -1,0 +1,70 @@
+/* AWS ORBISHOT — Viewport, safe-area y ajustes de layout DOM. */
+/* Extraído del antiguo overrides.css sin reordenar reglas. */
+
+/* ============================================================
+   AWS ORBISHOT — Overrides / Performance / Responsive
+   Extraído del antiguo <style> inline de index.html.
+   El orden original de reglas se conserva.
+   ============================================================ */
+
+html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+      background: #232F3E;
+    }
+    #gameWrapper {
+      overflow: hidden;
+      touch-action: none;
+      background: #232F3E;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right)
+               env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .gameover-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: -10px;
+      color: rgba(255,255,255,.58);
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: .1em;
+    }
+    .gameover-brand img { width: 54px; height: 42px; object-fit: contain; }
+    .settings-volume-row {
+      display: grid;
+      grid-template-columns: minmax(128px, 1fr) minmax(120px, 1.25fr) 44px;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+    }
+    .settings-volume-label {
+      color: rgba(255,255,255,.86);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .settings-volume-value {
+      color: #FFB347;
+      font-size: 12px;
+      font-weight: 800;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .settings-volume-row input[type="range"] {
+      width: 100%;
+      accent-color: #FF9900;
+      cursor: pointer;
+    }
+    @media (max-width: 520px), (max-height: 700px) {
+      .settings-volume-row {
+        grid-template-columns: 1fr 1.1fr 40px;
+        gap: 8px;
+      }
+    }
+    @media (max-width: 520px), (max-height: 700px) {
+      #gameOverCard, #settingsCard, #shopCard {
+        max-height: calc(100% - 16px);
+        overflow-y: auto;
+      }
+    }

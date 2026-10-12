@@ -1,5 +1,49 @@
 # AWS ORBISHOT — Release Notes
 
+## v1.4.3.2 — Structure & Boss HUD Hotfix
+
+**Enfoque:** cerrar la línea técnica posterior a v1.4.3 con una estructura de proyecto mantenible y corregir el HUD transitorio de victoria del boss sin alterar el juego aprobado.
+
+### Boss HUD hotfix
+- Durante el estado `levelcomplete + boss defeated + result`, el HUD normal de fondo permanece oculto en layouts no-wide.
+- Se evita que estrellas, progreso, Stability y barras de boss reaparezcan desordenadas detrás de la tarjeta `JEFE DERROTADO`.
+- Al terminar la transición, el HUD normal vuelve de forma habitual.
+
+### Estructura
+- `index.html` conserva la entrada pública de GitHub Pages y queda sin CSS inline.
+- Todo JavaScript vive bajo `src/`, organizado por dominio.
+- Los estilos quedan separados en cuatro capas con orden de cascada preservado.
+- `docs/` concentra Changelog, Release Notes, Roadmap y el archivo histórico de specs.
+- `README.md` permanece en la raíz del juego para navegación en GitHub.
+- `assets/` conserva sus carpetas existentes porque ya estaban correctamente organizadas.
+
+### Compatibilidad
+- No se cambian física, hitboxes, balance, puntuación, economía ni mecánicas del boss.
+- La colisión continúa exactamente en `fp.radius * 0.35`.
+- Se conservan los valores de audio aprobados en v1.4.3.1.
+- Build final de caché: `v1432-structure-final1`.
+
+## v1.4.3.1 — Performance & Infrastructure Patch
+
+**Enfoque:** reducir trabajo por frame y añadir infraestructura de medición sin modificar el aspecto ni el gameplay aprobado de v1.4.3.
+
+### Rendimiento
+- Backing render móvil/touch limitado para controlar el costo en pantallas de DPR alto.
+- Ajuste de Canvas consolidado y reducción de cálculos redundantes.
+- Pausa automática del loop cuando la pestaña/documento no está visible.
+- Cálculos seleccionados normalizados con `deltaTime` para mantener comportamiento equivalente entre distintas tasas de refresco.
+
+### Herramientas
+- Monitor técnico opcional de rendimiento.
+- FPS-only disponible en uso normal.
+- Métricas avanzadas bajo Modo desarrollador.
+- Objetivo de FPS configurable entre Auto, 30, 60, 90 y 120.
+
+### Compatibilidad
+- Sin cambios intencionales de física, hitboxes, score, economía o balance.
+- `collision.js` conserva `fp.radius * 0.35`.
+- Mezcla y perfil de audio aprobados permanecen intactos.
+
 ## v1.4.3 — UI & Progression Polish
 
 **Enfoque:** cerrar la etapa visual/responsive de AWS ORBISHOT y hacer que dificultad, progreso y controles se lean correctamente en escritorio, pantalla completa y móvil sin alterar el gameplay base.

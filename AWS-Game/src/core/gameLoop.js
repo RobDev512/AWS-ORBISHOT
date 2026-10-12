@@ -2,17 +2,17 @@
  * gameLoop.js — Bucle principal.
  */
 
-import { updateRotation, triggerReverse } from '../rendering/centralElement.js?build=v1431-devfps1';
+import { updateRotation, triggerReverse } from '../rendering/centralElement.js?build=v1432-structure-final1';
 import {
   launchProjectile,
   advanceProjectile,
   anchorProjectile,
-} from '../gameplay/projectile.js?build=v143-pages-hotfix2';
+} from '../gameplay/projectile.js?build=v1432-structure-final1';
 import { checkCollision } from '../gameplay/collision.js';
-import { render, drawGameOverFlash } from '../rendering/renderer.js?build=v1432-boss-hud1';
-import { recordPerformanceFrame, resetPerformanceMonitor } from '../ui/performanceMonitor.js?build=v1431-devfps1';
+import { render, drawGameOverFlash } from '../rendering/renderer.js?build=v1432-structure-final1';
+import { recordPerformanceFrame, resetPerformanceMonitor } from '../ui/performanceMonitor.js?build=v1432-structure-final1';
 import { showGameOver } from '../ui/ui.js';
-import { getProgression } from './config.js?build=v1431-perf-r1';
+import { getProgression } from './config.js?build=v1432-structure-final1';
 import {
   playSoundLaunch,
   playSoundAnchor,
@@ -35,7 +35,7 @@ import {
   playSoundOverload,
   playSoundTransition,
   updateMusicSystem,
-} from '../audio/sound.js?build=v143-pages-hotfix2';
+} from '../audio/sound.js?build=v1432-structure-final1';
 import {
   emitImpact,
   updateAndDraw,
@@ -71,7 +71,7 @@ import {
   isLevelComplete,
   beginLevelComplete,
   advanceToNextLevel,
-} from '../systems/progression/levels.js?build=v143-pages-hotfix2';
+} from '../systems/progression/levels.js?build=v1432-structure-final1';
 import {
   activateStoredPowerUp,
   addPowerUpCharge,
@@ -84,14 +84,14 @@ import {
   POWER_UP_TYPES,
   resetPowerUps,
   updatePowerUps,
-} from '../systems/powerups/powerups.js?build=v143-pages-hotfix2';
+} from '../systems/powerups/powerups.js?build=v1432-structure-final1';
 import {
   checkPowerCoreCrossing,
   completePowerCoreCapture,
   resetPowerCore,
   trySpawnPowerCore,
   updatePowerCore,
-} from '../systems/powerups/powercore.js?build=v143-pages-hotfix2';
+} from '../systems/powerups/powercore.js?build=v1432-structure-final1';
 import {
   damageStability,
   recoverStability,
@@ -114,12 +114,12 @@ import {
   updateBossPhaseTransition,
   updateBoss,
   updateBossIntro,
-} from '../systems/boss/boss.js?build=v143-pages-hotfix2';
+} from '../systems/boss/boss.js?build=v1432-structure-final1';
 import {
   awardCoins,
   getNormalLevelCoinReward,
   getBossCoinReward,
-} from '../systems/economy/economy.js?build=v143-pages-hotfix2';
+} from '../systems/economy/economy.js?build=v1432-structure-final1';
 
 let rafId = null;
 let overlayShown = false;

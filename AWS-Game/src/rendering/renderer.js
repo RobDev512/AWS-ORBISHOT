@@ -1,16 +1,16 @@
-import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from '../core/config.js?build=v1431-perf-r1';
-import { getLevelTarget, getLevelTheme, LEVEL_COMPLETE_DELAY } from '../systems/progression/levels.js?build=v143-pages-hotfix2';
+import { CONFIG, APP_VERSION, APP_CODENAME, APP_NAME } from '../core/config.js?build=v1432-structure-final1';
+import { getLevelTarget, getLevelTheme, LEVEL_COMPLETE_DELAY } from '../systems/progression/levels.js?build=v1432-structure-final1';
 import {
   POWER_UP_CONFIG,
   POWER_UP_ORDER,
   canActivateStoredPowerUp,
   getPowerUpInventoryCap,
-} from '../systems/powerups/powerups.js?build=v143-pages-hotfix2';
+} from '../systems/powerups/powerups.js?build=v1432-structure-final1';
 import {
   getPowerUpChargeRect,
   getPowerUpSlotRects,
-} from '../systems/powerups/powerupUi.js?build=v143-pages-hotfix2';
-import { getPowerCorePosition } from '../systems/powerups/powercore.js?build=v143-pages-hotfix2';
+} from '../systems/powerups/powerupUi.js?build=v1432-structure-final1';
+import { getPowerCorePosition } from '../systems/powerups/powercore.js?build=v1432-structure-final1';
 import {
   BOSS_CONFIG,
   getBossPhase,
@@ -19,7 +19,7 @@ import {
   getBossPhaseBreak,
   getBossOverload,
   isBossPhaseTransitionActive,
-} from '../systems/boss/boss.js?build=v143-pages-hotfix2';
+} from '../systems/boss/boss.js?build=v1432-structure-final1';
 import { getStability } from '../systems/progression/stability.js';
 
 /**

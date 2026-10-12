@@ -6,11 +6,11 @@ import { CONFIG, DIFFICULTIES } from './config.js';
 import {
   createActivePowerUps,
   createPowerUpInventory,
-} from '../systems/powerups/powerups.js?build=v142-economy-r5';
-import { createPowerCoreState } from '../systems/powerups/powercore.js?build=v142-economy-r5';
+} from '../systems/powerups/powerups.js?build=v1432-structure-final1';
+import { createPowerCoreState } from '../systems/powerups/powercore.js?build=v1432-structure-final1';
 import { createInactiveBossState } from '../systems/boss/boss.js';
 import { STABILITY_CONFIG } from '../systems/progression/stability.js';
-import { ECONOMY_CONFIG } from '../systems/economy/economy.js?build=v142-economy-r5';
+import { ECONOMY_CONFIG } from '../systems/economy/economy.js?build=v1432-structure-final1';
 
 function randomIcon() {
   return CONFIG.AWS_ICONS[

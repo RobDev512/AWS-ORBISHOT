@@ -13,7 +13,7 @@ import {
   collectPowerUp,
   getStorablePowerUps,
   isPowerUpType,
-} from './powerups.js?build=v142-economy-r5';
+} from './powerups.js?build=v1432-structure-final1';
 
 export const POWER_CORE_CONFIG = Object.freeze({
   radius: 15,

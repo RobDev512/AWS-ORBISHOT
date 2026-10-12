@@ -1,265 +1,364 @@
 # AWS ORBISHOT — Roadmap general
 
-Este documento reúne el estado actual de **AWS ORBISHOT**, los parches de mantenimiento y la dirección de las próximas versiones. La prioridad es evolucionar el juego por capas sin romper lo que ya está aprobado: gameplay base, físicas, hitboxes, balance, HUD responsive y compatibilidad entre escritorio y móvil.
+Este documento define el estado actual y la dirección planeada de **AWS ORBISHOT**. Las versiones publicadas permanecen congeladas mediante tags; las versiones futuras pueden ajustar su alcance o numeración si el desarrollo lo requiere.
+
+La prioridad general es evolucionar el juego sin romper sus pilares aprobados: control simple, precisión, rendimiento razonable en móvil, hitboxes consistentes, progresión clara y compatibilidad entre escritorio y touch.
 
 ---
 
-## Principios de evolución
+# Principios de evolución
 
-- Cada actualización debe conservar una ruta estable para escritorio y móvil.
-- Los parches técnicos pueden mejorar rendimiento, arquitectura, carga o mantenimiento sin alterar el diseño ni el gameplay visible.
-- Los cambios visuales grandes deben poder degradarse con elegancia en equipos modestos.
-- Los sistemas nuevos deben reutilizar la economía, vidas, Power-Ups, bosses y progresión ya existentes siempre que tenga sentido.
-- Las versiones publicadas no se reescriben: los cambios posteriores se documentan como parches o nuevas versiones.
+- Las versiones publicadas no se reescriben.
+- Los cambios posteriores a una release se documentan como parche o versión nueva.
+- Los sistemas nuevos deben reutilizar economía, vidas, Power-Ups, bosses y progresión cuando tenga sentido.
+- La experiencia base debe seguir siendo jugable en equipos modestos.
+- Los efectos visuales nunca deben modificar de forma oculta hitboxes, física o timing.
+- Cada versión importante debe cerrar con pruebas en escritorio y móvil antes de etiquetarse.
 
 ---
 
 # Estado publicado
 
+## v1.0.0 — Workshop Build
+**Estado:** publicado.
+
+Versión original del arcade creada durante el workshop.
+
+## v1.1.0 — Progression Update
+**Estado:** publicado.
+
+High Score, preferencias persistentes, Perfect Shots, feedback, estadísticas y mejoras generales.
+
+## v1.2.0 — Level Update
+**Estado:** publicado.
+
+Sistema formal de niveles, objetivos crecientes, Level Complete, bonus y progresión de dificultad.
+
+## v1.2.1 — HUD Fix
+**Estado:** publicado.
+
+Corrección de jerarquía y espaciado del HUD superior.
+
+## v1.3.0 — Power-Ups Update
+**Estado:** publicado.
+
+Freeze, Shield, Double Score y Cleanup.
+
+## v1.3.1 — Interactive Power-Ups Patch
+**Estado:** publicado.
+
+Power-Up Dock interactivo, activación manual y primera versión de Power Charge.
+
+## v1.3.2 — Power Core Update
+**Estado:** publicado.
+
+Power Charge + Power Core convierten la adquisición de Power-Ups en una recompensa basada en timing.
+
 ## v1.4.0 — Boss Update
-
 **Estado:** publicado.
 
-Base del sistema moderno de bosses de AWS ORBISHOT.
+Rebranding oficial a AWS ORBISHOT, Boss Levels, Armor/Exposed/Core, Overload, rankings y nuevas familias visuales.
 
-- Boss Levels integrados a la progresión.
-- Capas/anillos de jefe con fases diferenciadas.
-- Sistema de Boss Overload.
-- Power Core y ventanas especiales durante enfrentamientos.
-- Base para futuras familias de bosses y presentaciones propias.
-
-## v1.4.1 — Audio Update / Soundtrack Patch
-
+## v1.4.1 — Audio Update
 **Estado:** publicado.
 
-- Música procedural dinámica para niveles normales y Boss Levels.
-- SFX para impactos, Perfect Shots, Power-Ups, Power Core, Overload, Level Complete, bosses y transiciones.
-- Control independiente de música y efectos.
-- Identidad sonora ampliada sin reescribir el gameplay.
+Música procedural para niveles y bosses, SFX ampliados y controles de audio independientes.
 
 ## v1.4.2 — Economy & Lives Update
-
 **Estado:** publicado.
 
-### Monedas
-- Saldo persistente localmente.
-- Recompensas por niveles, bosses, Perfect Shots y combos.
-- Base económica preparada para mejoras, cosméticos y desbloqueables futuros.
-
-### Vidas
-- Cada run comienza con 3 vidas.
-- Agotar Stability o alcanzar 100 % de Boss Overload consume un corazón.
-- Reintento del nivel actual mientras queden vidas.
-- Protección contra farming al restaurar el score al inicio del nivel.
-- Capacidad máxima persistente y ampliable 3 → 4 → 5.
-- HUD preparado para representar más de cinco vidas mediante `♥ ×N` en sistemas futuros.
-
-### Tienda inicial
-- Recuperar corazones para la run actual.
-- Mejorar permanentemente la capacidad de vidas.
-- Comprar cargas de Freeze, Shield, Double o Cleanup.
-
-### Arco y disparo
-- Arco visible como lanzador base.
-- Carga visual opcional.
-- Split Shot como recompensa de precisión.
-- Refinamiento de SFX de flecha/arco.
+Monedas persistentes, vidas por run, tienda, mejoras de capacidad, arco visible y Split Shot.
 
 ## v1.4.3 — UI & Progression Polish
-
 **Estado:** publicado.
 
-- Estrellas redefinidas como indicador real de dificultad:
-  - Fácil = ★☆☆
-  - Medio = ★★☆
-  - Difícil = ★★★
-- Rango separado de dificultad.
-- Cambio de dificultad en vivo con menos reinicios bruscos.
-- Reestructuración responsive de escritorio, pantalla completa y móvil.
-- HUD de bosses refinado.
-- Sobrecarga adaptada a móvil, escritorio de media pantalla y HUD ancho/fullscreen.
-- Mejoras de legibilidad para economía, vidas, progreso, Tienda, Ajustes y Power-Ups.
-- Controles táctiles y áreas presionables ajustados para móvil.
-
----
-
-# Mantenimiento posterior a v1.4.3
+Refinamiento responsive, jerarquía de dificultad/progreso, HUD de bosses y controles móviles.
 
 ## v1.4.3.1 — Performance & Infrastructure Patch
-
 **Estado:** publicado.
 
-Parche técnico cerrado sin cambios intencionales de diseño, balance, físicas ni gameplay visible.
-
-- Reducción del costo de render en móvil/touch.
-- Mejor control de resize/Canvas y visibilidad de pestaña.
-- Normalización con `deltaTime` de cálculos seleccionados.
-- Monitor de rendimiento y Modo desarrollador.
-- Selector de objetivo de FPS.
-- Colisión base y mezcla de audio aprobada conservadas.
+Optimización técnica, normalización con `deltaTime`, monitor FPS/performance y Modo desarrollador.
 
 ## v1.4.3.2 — Structure & Boss HUD Hotfix
+**Estado:** publicado y congelado.
 
-**Estado:** cierre técnico de la línea v1.4.3.
-
-- Hotfix del HUD transitorio al derrotar un boss.
-- Separación definitiva de HTML y CSS.
-- JavaScript organizado bajo `src/` por responsabilidad.
-- CSS dividido en capas manteniendo orden de cascada.
+- Hotfix del HUD durante `JEFE DERROTADO`.
+- JavaScript organizado bajo `src/`.
+- CSS separado por responsabilidad.
 - Documentación consolidada en `docs/`.
-- Specs históricos archivados en `docs/specs/`.
-- Assets revisados y conservados en su organización existente.
-- Preparación de la base para continuar con v1.4.4 sin arrastrar deuda estructural.
+- Specs históricos archivados.
+- Base preparada para continuar con v1.4.4.
+
+Tag estable: `aws-game-v1.4.3.2`.
 
 ---
 
-# Próximas versiones 1.4.x
+# Línea v1.4.x — Pulido y expansión de la base actual
 
-## v1.4.4 — Boss Presentation & FX Polish
+## v1.4.4 — Boss Presentation & Life Flow Polish
+**Estado:** próxima versión.
 
-**Estado:** próxima versión de contenido/pulido.
+**Objetivo:** hacer que los momentos de mayor tensión —entrada de boss, daño, derrota y pérdida de vidas— tengan una presentación dinámica y coherente, sin rehacer las mecánicas principales.
 
-Objetivo: hacer que los bosses comuniquen mejor el daño recibido y tengan presentaciones más memorables sin rehacer sus mecánicas base.
+### Presentación de bosses
+- Cinemática o animación breve de entrada antes de iniciar cada Boss Level.
+- Presentación adaptable a móvil para no bloquear demasiado tiempo al jugador.
+- Identidad visual distinta según la familia del boss.
+- Transición clara entre gameplay normal y encuentro de boss.
 
-- Grietas progresivas según el daño de cada capa.
-- Cambios visuales conforme una capa se acerca a romperse.
-- Caída física del anillo y/o fragmentos al destruirlo.
-- Más impacto visual en transiciones de fase.
-- Pulido de efectos de ruptura y derrota.
-- Explorar entradas cinemáticas o mini-presentaciones propias para cada familia de boss.
-- Mantener legibilidad y rendimiento razonable en móvil.
+### Daño progresivo
+- Grietas, desgaste, pulsos o señales de daño conforme una capa pierde integridad.
+- Mayor intensidad visual cuando Armor/Exposed/Core están cerca de romperse.
+- Rupturas de fase más dinámicas.
+- Fragmentos, anillos y debris con mejor continuidad visual.
+
+### Derrota del boss
+- Animación/cinemática de muerte o colapso del boss.
+- Secuencia breve entre el impacto final y la tarjeta `JEFE DERROTADO`.
+- Desintegración, ruptura, implosión, caída o comportamiento equivalente según familia.
+- Mantener ranking y recompensa actual sin hacer esperar demasiado al jugador.
+
+### Geometría fiel por familia
+Las familias visuales deben respetar su silueta en todas las capas importantes.
+
+- Firewall / círculo: núcleo y capas circulares.
+- Triad / triángulo: núcleo y capas coherentes con el triángulo.
+- Dynamo / cuadrado: geometría cuadrada.
+- Prism / estrella: núcleo y capas basadas en estrella.
+- Pentacore / pentágono: geometría pentagonal.
+- Core Nexus / hexágono: geometría hexagonal.
+
+La forma visual no debe endurecer accidentalmente la hitbox física si no se decide explícitamente cambiar balance.
+
+### Pérdida de vida
+- Reemplazar el aviso seco actual por una transición clara de daño/derrota.
+- Animación del corazón perdido.
+- Feedback visual y sonoro antes de reiniciar el nivel.
+- Diferenciar perder una vida de un Game Over definitivo.
+- Mantener un ritmo rápido para que la animación no se vuelva molesta tras varias derrotas.
+
+### Compra de emergencia
+Si el jugador pierde su última vida y tiene suficientes monedas:
+
+- mostrar una decisión antes del Game Over definitivo;
+- texto base sugerido: **“¿Deseas comprar una vida y continuar?”**;
+- mostrar claramente el costo;
+- opciones **Comprar vida** / **Terminar partida**;
+- si compra, descontar monedas y reanudar desde el nivel actual usando la lógica de continuación existente;
+- evitar duplicar recompensas o permitir farming mediante el reintento.
+
+El costo exacto se definirá durante implementación y pruebas de balance.
+
+---
 
 ## v1.4.5 — Power-Up Loadout Expansion
-
 **Estado:** planeado.
 
-Objetivo: ampliar el sistema de Power-Ups sin convertirlo todavía en un árbol completo de progresión.
+**Objetivo:** ampliar la profundidad táctica de los Power-Ups sin convertir todavía el juego en un sistema de builds complejo.
 
-- Más variedad de Power-Ups o variantes de los existentes.
-- Mayor profundidad en el loadout previo/durante la run.
-- Mejor integración con Tienda y economía.
-- Reglas claras de capacidad, disponibilidad y activación.
-- Mantener el control principal simple y legible en móvil.
-- Preparar el sistema para Challenge y Mastery.
+- Nuevos Power-Ups o variantes de los existentes.
+- Mejor selección/loadout para una run.
+- Integración más profunda con tienda y economía.
+- Revisión de capacidad y disponibilidad.
+- Nuevas sinergias manteniendo controles simples.
+- Preparación de hooks para Challenge y Mastery.
+
+---
+
+## v1.4.6 — PWA & Platform Experience
+**Estado:** planeado.
+
+**Objetivo:** convertir AWS ORBISHOT en una aplicación web instalable sin mantener dos bases de código distintas.
+
+### Instalación
+- `manifest.webmanifest`.
+- Iconos propios para instalación.
+- `display: standalone`.
+- Nombre, colores y splash coherentes con AWS ORBISHOT.
+- Instalación desde navegador compatible en PC y móvil.
+
+### Experiencia de aplicación
+- Apertura en ventana propia en escritorio.
+- Acceso desde pantalla de inicio/app launcher en móvil.
+- Detectar cuando el juego ya corre en modo standalone.
+- Botón o ayuda contextual para instalar cuando el navegador lo permita.
+
+### Offline y caché
+- Service Worker controlado.
+- Cachear shell y recursos esenciales.
+- Permitir arranque offline después de una primera carga válida cuando sea razonable.
+- Estrategia explícita para invalidar cachés entre releases.
+- Evitar que un Service Worker viejo bloquee módulos nuevos.
+
+### Actualizaciones
+- Detección de nueva versión.
+- Aviso no intrusivo de actualización disponible.
+- Flujo claro para recargar y activar una nueva versión.
+- Mantener compatibilidad con GitHub Pages.
 
 ---
 
 # v1.5 — Challenge Update
-
 **Estado:** planeado.
 
-Primera expansión grande posterior a la línea 1.4.x.
-
-Dirección prevista:
+Primera expansión importante posterior a la línea 1.4.x.
 
 - Retos con reglas especiales.
 - Modificadores de partida.
-- Objetivos alternativos al simple avance de nivel.
-- Recompensas ligadas a desempeño y dificultad.
-- Reutilización de bosses, Power-Ups, economía y vidas bajo condiciones distintas.
-- Base para modos con mayor rejugabilidad.
-
-El alcance exacto se definirá después de cerrar los parches 1.4.x.
+- Objetivos alternativos al avance normal.
+- Recompensas ligadas a dificultad y desempeño.
+- Desafíos de precisión, combo, tiempo, Power-Ups y bosses.
+- Reutilización de economía y vidas bajo reglas distintas.
+- Base para runs con mayor rejugabilidad.
 
 ---
 
 # v1.6 — Mastery & Weapon Progression
+**Estado:** planeado.
 
-**Estado:** planeado / diseño reservado.
-
-Objetivo: convertir la precisión y el dominio del jugador en progresión de largo plazo.
+**Objetivo:** convertir precisión y dominio mecánico en progresión de largo plazo.
 
 ### Mastery
-- Progresión vinculada al uso y desempeño.
-- Metas de precisión, Perfect Shots, combos, bosses y desafíos.
-- Desbloqueos que premien dominio sin volver obligatorio el grinding.
+- Experiencia/progreso por desempeño.
+- Metas de Perfect Shots, combos, bosses y Challenges.
+- Hitos y desbloqueos.
+- Evitar que el sistema obligue a grind excesivo.
 
-### Progresión de armas
+### Familias de armas
+- Arco largo: precisión y recompensa por tiros limpios.
+- Arco compuesto: carga estable y afinidad con Split Shot.
+- Ballesta: tiro pesado/controlado con identidad propia.
+- Arco pesado: especialización contra objetivos resistentes.
+- Arco técnico: ventanas de precisión y Perfect Shots.
+- Arco energético/experimental: contenido avanzado.
 
-El arco base puede evolucionar hacia variantes con identidad propia sin abandonar el control principal de una sola acción.
-
-- **Arco largo:** precisión y recompensa por tiros limpios.
-- **Arco compuesto:** carga estable y especialización en Split Shot.
-- **Ballesta:** disparo pesado/controlado con identidad propia de recarga.
-- **Arco pesado:** orientación a ruptura/daño contra objetivos resistentes.
-- **Arco técnico:** ventanas de precisión y Perfect Shots.
-- **Arco energético/experimental:** opción tardía o de contenido avanzado.
-
-La economía creada en v1.4.2 debe servir como una de las bases para estos sistemas.
+La economía de v1.4.2 puede servir como una de las bases para desbloqueos, siempre que no convierta progresión en simple compra.
 
 ---
 
-# v1.7 — Visual FX & Shader System (provisional)
+# v1.7 — Visual FX & Shader System
+**Estado:** planeado / sujeto a pruebas de rendimiento.
 
-**Estado:** idea reservada; numeración provisional.
+**Objetivo:** añadir una capa visual opcional de mayor calidad.
 
-Objetivo: añadir una capa visual opcional de mayor calidad sin obligar a todos los dispositivos a renderizarla.
-
-### Sistema previsto
-- Efectos activables/desactivables desde Configuración.
-- Presets tentativos: **Desactivado / Bajo / Alto**.
-- Ruta ligera para celular y equipos modestos.
-- Fallback seguro si WebGL/WebGPU o ciertos efectos no están disponibles.
-- Medición de rendimiento antes y después.
-
-### Efectos candidatos
-- Bloom/glow avanzado.
-- Vignette y tratamiento de color sutil.
-- Pulsos o distorsiones para Perfect Shots, Overload, bosses y Power Core.
-- Materiales/shaders especiales para bosses o escenarios futuros.
+- Presets de calidad: Desactivado / Bajo / Alto.
+- Ruta ligera para móviles/equipos modestos.
+- Bloom y glow avanzado.
+- Vignette y color grading sutil.
+- Distorsiones/pulsos para Perfect Shots, Power Core, Overload y bosses.
+- Materiales o shaders especiales para bosses.
 - Postprocesado configurable.
+- Fallback si una técnica gráfica no está disponible.
 
-### Regla principal
-Los shaders y FX nunca deben cambiar hitboxes, física, timing ni legibilidad del gameplay. La experiencia base debe seguir funcionando completamente con todos los efectos desactivados.
+**Regla:** los FX nunca cambian hitboxes, física, timing ni legibilidad del gameplay.
 
 ---
 
-# Roadmap mayor
+# v1.8 — Cosmetics & Customization
+**Estado:** planeado.
 
-Después de Challenge y Mastery, el proyecto puede seguir creciendo en varias líneas. El orden exacto puede cambiar según lo que resulte más divertido o útil durante el desarrollo.
+**Objetivo:** crear progresión visual sin introducir ventaja competitiva.
 
-## Modes
-- Modos alternativos de juego.
-- Reglas especiales y runs con identidad propia.
-- Posible reutilización de Challenge como base técnica.
+- Skins para arco y flecha.
+- Variantes visuales del launcher.
+- Trails y efectos cosméticos.
+- Temas de UI.
+- Recompensas cosméticas por Challenge/Mastery.
+- Integración opcional con economía.
+- Preservar claridad visual de proyectiles y objetivos.
 
-## Visual / Cosmetics
-- Skins, estilos de arco/flecha y personalización visual.
-- Recompensas que no alteren balance.
-- Integración con economía cuando tenga sentido.
+---
 
-## Events
-- Eventos temporales o rotativos.
-- Retos y recompensas especiales.
-- Variantes de reglas, bosses o temas visuales.
+# v1.9 — Modes & Events Foundation
+**Estado:** planeado.
 
-## Campaign
-- Progresión estructurada por mapa o capítulos.
-- Uso más profundo del sistema de vidas y capacidad máxima.
-- Desbloqueos progresivos de sistemas, armas y contenido.
-- Posible narrativa ligera/contextual alrededor de servicios y entornos de AWS ORBISHOT.
+**Objetivo:** construir infraestructura para contenido rotativo y modos alternativos.
+
+### Modes
+- Reglas de run diferentes.
+- Modos centrados en precisión, supervivencia, bosses o velocidad.
+- Variantes reutilizando sistemas ya existentes.
+
+### Events
+- Retos temporales o rotativos.
+- Recompensas especiales.
+- Modificadores temáticos.
+- Variantes de bosses o condiciones especiales.
+- Evitar dependencia obligatoria de servicios online mientras el juego siga siendo principalmente cliente/local.
+
+Esta versión debe preparar la infraestructura que v2.0 pueda reutilizar.
+
+---
+
+# v2.0 — Campaign Update / Major Expansion
+**Estado:** visión de largo plazo.
+
+**Objetivo:** convertir los sistemas acumulados en una experiencia estructurada de mayor escala.
+
+### Campaña
+- Mapa o capítulos.
+- Progresión secuencial.
+- Encuentros de boss con contexto propio.
+- Desbloqueo gradual de sistemas.
+- Dificultad/progresión diseñada por tramos.
+- Uso más profundo de vidas, economía, Power-Ups y armas.
+- Eventos o desafíos integrados al avance.
+- Narrativa ligera/contextual alrededor del universo de AWS ORBISHOT.
+
+### Integración de sistemas
+La campaña podrá reutilizar:
+
+- Boss Presentation de v1.4.4.
+- Loadouts de v1.4.5.
+- instalación/PWA de v1.4.6.
+- Challenges de v1.5.
+- Mastery y armas de v1.6.
+- FX de v1.7.
+- Cosmetics de v1.8.
+- infraestructura de Modes/Events de v1.9.
+
+v2.0 no debe comenzar hasta que esos sistemas tengan una base suficientemente estable.
+
+---
+
+# Portal y presencia web
+
+El portal principal del repositorio no necesita incrementar `APP_VERSION` del juego para recibir mejoras.
+
+Objetivos permanentes:
+
+- mostrar la versión estable real;
+- enlazar juego, roadmap, código y documentación;
+- anunciar la siguiente versión;
+- explicar las líneas futuras sin saturar la interfaz;
+- incorporar acceso de instalación cuando llegue v1.4.6;
+- mantener una presentación responsive coherente con AWS ORBISHOT.
 
 ---
 
 # Backlog técnico permanente
 
-Estos puntos pueden entrar como parches cuando sean necesarios y no requieren una actualización visual grande:
+Puede resolverse mediante parches cuando sea necesario:
 
-- Rendimiento móvil.
-- Reducción de stutter.
-- Gestión de memoria y assets.
-- Carga/caché de módulos y recursos.
-- Compatibilidad entre navegadores.
-- Escalado responsive y DPR.
-- Accesibilidad y opciones de calidad cuando sean necesarias.
-- Métricas internas de rendimiento para pruebas locales.
+- rendimiento móvil;
+- stutter y estabilidad de frame pacing;
+- memoria y ciclo de vida de assets;
+- carga/caché de módulos;
+- compatibilidad de navegadores;
+- responsive, DPR y safe areas;
+- accesibilidad;
+- input mouse/teclado/touch;
+- métricas internas para pruebas;
+- pruebas de instalación/offline después de v1.4.6.
 
 ---
 
 # Política de versiones
 
-- **vX.Y.Z**: versión funcional o de contenido/pulido claramente identificable.
-- **vX.Y.Z.1**: parche técnico o de infraestructura que conserva comportamiento y diseño de la versión base.
-- Hotfixes de publicación/caché pueden aplicarse sin cambiar `APP_VERSION` cuando no representan una nueva experiencia jugable.
+- **vX.Y.Z**: versión funcional o de contenido/pulido identificable.
+- **vX.Y.Z.1**: parche técnico o de infraestructura posterior a una versión base.
+- Un cambio exclusivamente de portal/documentación puede publicarse en `main` sin cambiar `APP_VERSION`.
+- Los tags de releases publicadas son inmutables.
+- Cada nueva versión del juego debe salir desde una rama propia y cerrar con pruebas antes de merge/tag.
 
-El objetivo es que cada versión importante quede cerrada, etiquetada y reproducible antes de comenzar la siguiente.
+El objetivo es que cada release importante quede reproducible, documentada y congelada antes de iniciar la siguiente.

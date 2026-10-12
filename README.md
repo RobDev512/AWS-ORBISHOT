@@ -38,8 +38,21 @@ Sin frameworks externos.
 - `aws-game-v1.4.2` — Economy & Lives Update
 - `aws-game-v1.4.3` — UI & Progression Polish
 - `aws-game-v1.4.3.1` — Performance & Infrastructure Patch
+- `aws-game-v1.4.3.2` — Structure & Boss HUD Hotfix
 
 Las versiones anteriores se conservan mediante tags de Git en este repositorio.
+
+## Enlaces de AWS ORBISHOT
+
+- **Jugar:** https://robdev512.github.io/Proyectos-Taller-AWS/AWS-Game/
+- **Portal:** https://robdev512.github.io/Proyectos-Taller-AWS/
+- **Roadmap:** `AWS-Game/docs/ROADMAP.md`
+- **Changelog:** `AWS-Game/docs/CHANGELOG.md`
+- **Release Notes:** `AWS-Game/docs/RELEASE_NOTES.md`
+
+La próxima versión planeada es **v1.4.4 — Boss Presentation & Life Flow Polish**.
+La instalación como aplicación web para PC y móvil queda reservada para
+**v1.4.6 — PWA & Platform Experience**.
 
 ## Estructura del repositorio
 

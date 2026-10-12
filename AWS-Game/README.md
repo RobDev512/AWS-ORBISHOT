@@ -44,7 +44,7 @@ https://robdev512.github.io/Proyectos-Taller-AWS/AWS-Game/
 - Pulido móvil completo: barra superior, monedas/vidas, progreso, controles táctiles, Power-Ups y panel Power/Core.
 - Hitboxes de Tienda/Ajustes alineadas con los botones visibles en móvil.
 - Boss HUD móvil sin elementos duplicados ni solapamientos.
-- Cache-buster final `v143-pages-hotfix1`.
+- Cache-buster final `v143-pages-hotfix2`.
 - Sin cambios a la hitbox base: `fp.radius * 0.35`.
 
 ## Economy & Lives Update (v1.4.2)
@@ -176,6 +176,26 @@ Documentación principal:
 - `docs/CHANGELOG.md`
 - `docs/RELEASE_NOTES.md`
 - `docs/ROADMAP.md`
+
+## Roadmap futuro
+
+La siguiente etapa planeada es **v1.4.4 — Boss Presentation & Life Flow Polish**:
+cinemáticas de entrada/derrota de bosses, daño progresivo, geometría visual fiel por familia,
+mejor transición al perder vidas y una compra de emergencia antes del Game Over cuando haya
+monedas suficientes.
+
+Después quedan reservadas estas líneas:
+
+- **v1.4.5** — Power-Up Loadout Expansion.
+- **v1.4.6** — PWA & Platform Experience (instalable en PC y móvil).
+- **v1.5** — Challenge Update.
+- **v1.6** — Mastery & Weapon Progression.
+- **v1.7** — Visual FX & Shader System.
+- **v1.8** — Cosmetics & Customization.
+- **v1.9** — Modes & Events Foundation.
+- **v2.0** — Campaign Update / Major Expansion.
+
+Consulta el alcance completo en [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Tecnologías
 

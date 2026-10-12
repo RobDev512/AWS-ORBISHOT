@@ -4,85 +4,173 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0d1117">
-  <meta name="description" content="Portal general de proyectos, juegos, páginas y experimentos de Proyectos Taller AWS.">
-  <title>Proyectos Taller AWS</title>
+  <meta
+    name="description"
+    content="Portal de AWS ORBISHOT, arcade de timing y precisión con Boss Levels, Power Cores, economía, vidas y progresión."
+  >
+  <title>AWS ORBISHOT</title>
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./roadmap.css">
 </head>
 <body>
-  <div class="hub-shell">
-    <header class="hub-header">
-      <div>
-        <span class="hub-kicker">Portal de proyectos</span>
-        <h1>Proyectos Taller AWS</h1>
-        <p>
-          Juegos, páginas, experimentos y proyectos personales desarrollados
-          alrededor de talleres, aprendizaje y exploración técnica.
-        </p>
-      </div>
-      <a class="github-link" href="https://github.com/RobDev512/Proyectos-Taller-AWS" target="_blank" rel="noreferrer">GitHub</a>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="site-brand" href="https://robdev512.github.io/" aria-label="Volver al hub de RobDev512">
+        <span class="brand-dot"></span>
+        <span>RobDev512</span>
+      </a>
+      <nav class="site-nav" aria-label="Navegación principal">
+        <a href="#version">Versión</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="https://github.com/RobDev512/AWS-ORBISHOT" target="_blank" rel="noreferrer">GitHub</a>
+      </nav>
     </header>
 
     <main>
-      <section class="projects-heading">
-        <div>
-          <span>Proyectos</span>
-          <h2>Selecciona una experiencia</h2>
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">Precision Arcade · HTML5 Canvas</div>
+          <h1>AWS <span>ORBISHOT</span></h1>
+          <p class="hero-lead">
+            Timing, precisión y progresión en un arcade construido sin frameworks:
+            Boss Levels por capas, Power Cores, economía, vidas, tienda, música dinámica
+            y una base técnica preparada para seguir creciendo.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="./AWS-Game/">Jugar ahora</a>
+            <a
+              class="btn btn-secondary"
+              href="#roadmap-explorer"
+            >Ver roadmap</a>
+          </div>
+
+          <div class="hero-meta">
+            <div>
+              <strong>v1.4.3.2</strong>
+              <span>Structure & Boss HUD Hotfix</span>
+            </div>
+            <div>
+              <strong>PC + móvil</strong>
+              <span>Mouse · teclado · touch</span>
+            </div>
+            <div>
+              <strong>Sin frameworks</strong>
+              <span>HTML · CSS · JavaScript</span>
+            </div>
+          </div>
         </div>
-        <p>
-          Este portal está preparado para crecer. Cada proyecto puede tener su
-          propia página, documentación y experiencia independiente.
-        </p>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="orbit orbit-a"></div>
+          <div class="orbit orbit-b"></div>
+          <div class="orbit orbit-c"></div>
+          <div class="hero-logo-wrap">
+            <img src="./AWS-Game/assets/branding/aws-orbishot-logo.png" alt="">
+          </div>
+          <span class="satellite satellite-a"></span>
+          <span class="satellite satellite-b"></span>
+          <span class="satellite satellite-c"></span>
+        </div>
       </section>
 
-      <section class="projects-grid">
-        <article class="project-card project-card-featured">
-          <div class="project-art">
-            <div class="project-orbit orbit-a"></div>
-            <div class="project-orbit orbit-b"></div>
-            <img src="./AWS-Game/assets/branding/aws-orbishot-logo.png" alt="Logo de AWS ORBISHOT">
-          </div>
-
-          <div class="project-copy">
-            <div class="project-meta">
-              <span class="project-type">Juego · Precision Arcade</span>
-              <span class="project-version">v1.4.3.2</span>
-            </div>
-
-            <h3>AWS ORBISHOT</h3>
-            <p>
-              Arcade de timing y precisión con Boss Levels, Power Cores,
-              Power-Ups, economía, vidas, tienda y música dinámica.
-            </p>
-
-            <div class="project-tags">
-              <span>HTML5 Canvas</span>
-              <span>JavaScript</span>
-              <span>PC + móvil</span>
-            </div>
-
-            <div class="project-actions">
-              <a class="btn btn-primary" href="./projects/orbishot/">Ver proyecto</a>
-              <a class="btn btn-secondary" href="./AWS-Game/">Jugar</a>
-            </div>
-          </div>
+      <section class="feature-strip" aria-label="Características principales">
+        <article>
+          <span class="feature-number">01</span>
+          <h2>Boss Levels</h2>
+          <p>Encuentros por fases con Armor, Exposed, Core, Overload y ranking final.</p>
         </article>
+        <article>
+          <span class="feature-number">02</span>
+          <h2>Power System</h2>
+          <p>Power Charge, Power Cores, Freeze, Shield, Double y Cleanup.</p>
+        </article>
+        <article>
+          <span class="feature-number">03</span>
+          <h2>Progression</h2>
+          <p>Niveles, dificultad, Perfect Shots, combos, monedas, vidas y tienda.</p>
+        </article>
+        <article>
+          <span class="feature-number">04</span>
+          <h2>Cross-device</h2>
+          <p>Responsive para escritorio y móvil, con PWA instalable ya planeada.</p>
+        </article>
+      </section>
 
-        <article class="project-card project-card-placeholder">
-          <div class="placeholder-mark">+</div>
-          <span class="project-type">Espacio disponible</span>
-          <h3>Próximo proyecto</h3>
+      <section class="section-grid" id="version">
+        <div class="section-heading">
+          <span class="section-kicker">Release estable</span>
+          <h2>v1.4.3.2</h2>
           <p>
-            Este espacio podrá convertirse después en otro juego, página,
-            experimento o proyecto independiente.
+            La línea v1.4.3 cerró su etapa de UI, rendimiento e infraestructura.
+            La versión actual mantiene el gameplay aprobado y deja el proyecto
+            reestructurado para las siguientes expansiones.
           </p>
-        </article>
+        </div>
+
+        <div class="release-card">
+          <span class="status-pill">Publicado</span>
+          <h3>Structure & Boss HUD Hotfix</h3>
+          <ul>
+            <li>Hotfix del HUD durante la victoria de bosses.</li>
+            <li>JavaScript reorganizado bajo <code>src/</code>.</li>
+            <li>CSS dividido por responsabilidad.</li>
+            <li>Documentación consolidada bajo <code>docs/</code>.</li>
+            <li>Base lista para v1.4.4 sin modificar física ni balance.</li>
+          </ul>
+          <a
+            class="text-link"
+            href="https://github.com/RobDev512/AWS-ORBISHOT/tags"
+            target="_blank"
+            rel="noreferrer"
+          >Explorar historial en GitHub →</a>
+        </div>
+      </section>
+
+      <section class="roadmap-section" id="roadmap-explorer">
+        <div class="section-heading roadmap-heading">
+          <span class="section-kicker">Roadmap dinámico</span>
+          <h2>Explora el futuro de ORBISHOT</h2>
+          <p>
+            Esta vista se genera directamente desde <code>AWS-Game/docs/ROADMAP.md</code>.
+            Al actualizar el documento, la página refleja automáticamente las versiones nuevas.
+          </p>
+        </div>
+
+        <div class="roadmap-live-toolbar" aria-label="Filtros del roadmap">
+          <button class="roadmap-filter active" type="button" data-roadmap-filter="all" aria-pressed="true">Todas</button>
+          <button class="roadmap-filter" type="button" data-roadmap-filter="next" aria-pressed="false">Próxima</button>
+          <button class="roadmap-filter" type="button" data-roadmap-filter="planned" aria-pressed="false">Planeadas</button>
+          <button class="roadmap-filter" type="button" data-roadmap-filter="published" aria-pressed="false">Publicadas</button>
+          <button class="roadmap-filter" type="button" data-roadmap-filter="future" aria-pressed="false">Largo plazo</button>
+        </div>
+
+        <p class="roadmap-load-status" id="roadmapLoadStatus" aria-live="polite">
+          Preparando roadmap…
+        </p>
+
+        <div class="roadmap-live-grid" id="roadmapGrid"></div>
+        <article class="roadmap-detail" id="roadmapDetail" hidden></article>
+      </section>
+
+      <section class="next-release">
+        <div>
+          <span class="section-kicker">Siguiente versión</span>
+          <h2>v1.4.4 · Boss Presentation & Life Flow Polish</h2>
+        </div>
+        <p>
+          La siguiente etapa hará que ganar y perder tengan más peso visual:
+          entradas y derrotas de bosses, daño visible, formas coherentes por familia,
+          animación al perder vidas y una posible compra de emergencia antes del Game Over.
+        </p>
       </section>
     </main>
 
     <footer>
-      <span>RobDev512 · Proyectos Taller AWS</span>
-      <span>Hub preparado para múltiples proyectos</span>
+      <span>AWS ORBISHOT · Proyecto personal en evolución</span>
+      <a href="./AWS-Game/">Entrar al juego</a>
     </footer>
   </div>
+  <script type="module" src="./roadmap.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const ROADMAP_URL = "../../AWS-Game/docs/ROADMAP.md";
+const ROADMAP_URL = "./AWS-Game/docs/ROADMAP.md";
 
 const grid = document.querySelector("#roadmapGrid");
 const detail = document.querySelector("#roadmapDetail");

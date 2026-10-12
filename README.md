@@ -1,88 +1,109 @@
-# Proyectos Taller AWS
+# AWS ORBISHOT
 
-Repositorio general para proyectos, ejercicios, pruebas y experimentos realizados durante talleres relacionados con Amazon Web Services (AWS).
+AWS ORBISHOT es un juego web arcade de timing y precisión desarrollado con HTML5, CSS, JavaScript Modules y HTML5 Canvas, sin frameworks externos.
 
-## Proyectos
+El proyecto comenzó durante un workshop y posteriormente continuó como un proyecto personal independiente, creciendo mediante nuevas versiones, sistemas de progresión, bosses, economía, audio y mejoras técnicas.
 
-### AWS ORBISHOT (`AWS-Game/`)
+## Versión estable
 
-Juego arcade de timing y precisión desarrollado originalmente durante un workshop utilizando Kiro y un flujo de Spec-Driven Development. Desde v1.4.0 adopta oficialmente el nombre **AWS ORBISHOT**.
+v1.4.3.2 — Structure & Boss HUD Hotfix
 
-🎮 **Jugar en línea:**
-https://robdev512.github.io/Proyectos-Taller-AWS/AWS-Game/
+Tag oficial: aws-game-v1.4.3.2
 
-📦 **Repositorio público del juego:**
-https://github.com/RobDev512/Proyectos-Taller-AWS/tree/main/AWS-Game
+El historial completo desde v1.0.0 se conserva mediante Git y sus tags.
 
-El proyecto está desarrollado con:
+## Enlaces
 
-- HTML
-- CSS
+- Jugar: https://robdev512.github.io/AWS-ORBISHOT/AWS-Game/
+- Página de AWS ORBISHOT: https://robdev512.github.io/AWS-ORBISHOT/projects/orbishot/
+- Repositorio: https://github.com/RobDev512/AWS-ORBISHOT
+- Roadmap: AWS-Game/docs/ROADMAP.md
+- Changelog: AWS-Game/docs/CHANGELOG.md
+- Release Notes: AWS-Game/docs/RELEASE_NOTES.md
+
+## Características
+
+- Levels y Difficulty.
+- High Score.
+- Combos.
+- Perfect Shots.
+- Power-Ups.
+- Power Charge.
+- Power Core.
+- Boss Levels.
+- Boss Overload.
+- Boss Rank.
+- Economía.
+- Monedas.
+- Vidas.
+- Tienda.
+- Split Shot.
+- Música procedural.
+- SFX.
+- HUD responsive.
+- Soporte para PC y móvil.
+- Mouse, teclado y touch.
+- Monitor de rendimiento.
+- Developer Mode.
+
+## Tecnologías
+
+- HTML5
+- CSS3
 - JavaScript
+- JavaScript Modules
 - HTML5 Canvas
-- Kiro
+- LocalStorage
 
 Sin frameworks externos.
 
-### Historial de versiones de AWS ORBISHOT
+## Organización actual del repositorio
 
-- `aws-game-v1.0.0` — Workshop Build
-- `aws-game-v1.1.0` — Progression Update
-- `aws-game-v1.2.0` — Level Update
-- `aws-game-v1.2.1` — HUD Fix
-- `aws-game-v1.3.0` — Power-Ups Update
-- `aws-game-v1.3.1` — Interactive Power-Ups Patch
-- `aws-game-v1.3.2` — Power Core Update
-- `aws-game-v1.4.0` — Boss Update + rebranding AWS ORBISHOT
-- `aws-game-v1.4.1` — Audio Update / Soundtrack Patch
-- `aws-game-v1.4.2` — Economy & Lives Update
-- `aws-game-v1.4.3` — UI & Progression Polish
-- `aws-game-v1.4.3.1` — Performance & Infrastructure Patch
-- `aws-game-v1.4.3.2` — Structure & Boss HUD Hotfix
+- AWS-Game/ contiene el juego, código fuente, assets y documentación.
+- AWS-Game/docs/ROADMAP.md es la fuente de verdad del roadmap.
+- site/projects/orbishot/ contiene la landing específica de AWS ORBISHOT.
+- site/index.html todavía contiene temporalmente el hub general heredado.
+- .github/workflows/pages.yml realiza el despliegue mediante GitHub Pages.
 
-Las versiones anteriores se conservan mediante tags de Git en este repositorio.
+El hub general será separado posteriormente a su propio repositorio para que AWS ORBISHOT quede completamente independiente.
 
-## Enlaces de AWS ORBISHOT
+## Historial de versiones
 
-- **Jugar:** https://robdev512.github.io/Proyectos-Taller-AWS/AWS-Game/
-- **Portal:** https://robdev512.github.io/Proyectos-Taller-AWS/
-- **Roadmap:** `AWS-Game/docs/ROADMAP.md`
-- **Changelog:** `AWS-Game/docs/CHANGELOG.md`
-- **Release Notes:** `AWS-Game/docs/RELEASE_NOTES.md`
+- v1.0.0 — Workshop Build
+- v1.1.0 — Progression Update
+- v1.2.0 — Level Update
+- v1.2.1 — HUD Fix
+- v1.3.0 — Power-Ups Update
+- v1.3.1 — Interactive Power-Ups Patch
+- v1.3.2 — Power Core Update
+- v1.4.0 — Boss Update
+- v1.4.1 — Audio Update
+- v1.4.2 — Economy & Lives Update
+- v1.4.3 — UI & Progression Polish
+- v1.4.3.1 — Performance & Infrastructure Patch
+- v1.4.3.2 — Structure & Boss HUD Hotfix
 
-La próxima versión planeada es **v1.4.4 — Boss Presentation & Life Flow Polish**.
-La instalación como aplicación web para PC y móvil queda reservada para
-**v1.4.6 — PWA & Platform Experience**.
+## Roadmap
 
-## Portal web
+La próxima versión planeada es:
 
-La raíz de GitHub Pages funciona como **hub general de proyectos**:
+v1.4.4 — Boss Presentation & Life Flow Polish
 
-- Portal: https://robdev512.github.io/Proyectos-Taller-AWS/
-- Página de AWS ORBISHOT: https://robdev512.github.io/Proyectos-Taller-AWS/projects/orbishot/
-- Juego: https://robdev512.github.io/Proyectos-Taller-AWS/AWS-Game/
+Después:
 
-La página propia de AWS ORBISHOT incluye un explorador dinámico que lee
-`AWS-Game/docs/ROADMAP.md` directamente desde el mismo sitio. Esto permite
-consultar versiones, estados y detalles sin salir a GitHub.
+- v1.4.5 — Power-Up Loadout Expansion
+- v1.4.6 — PWA & Platform Experience
+- v1.5 — Challenge Update
+- v1.6 — Mastery & Weapon Progression
+- v1.7 — Visual FX & Shader System
+- v1.8 — Cosmetics & Customization
+- v1.9 — Modes & Events Foundation
+- v2.0 — Campaign Update / Major Expansion
 
-## Estructura del repositorio
+La fuente de verdad del roadmap es AWS-Game/docs/ROADMAP.md.
 
-- `AWS-Game/` — Juego arcade desarrollado durante el workshop.
-- `.gitattributes` — Configuración de normalización de archivos.
-- `.gitignore` — Archivos que Git debe ignorar.
-- `README.md` — Información general del repositorio.
+## Origen del proyecto
 
-En el futuro este repositorio podrá contener más proyectos realizados durante talleres o actividades relacionadas con AWS.
+La primera versión nació durante un workshop con temática AWS y un flujo de desarrollo basado en especificaciones.
 
-## Sobre AWS ORBISHOT
-
-La versión original fue creada como parte de un reto de desarrollo arcade con temática AWS.
-
-La mecánica consiste en lanzar proyectiles hacia un elemento central en rotación evitando colisionar con los proyectiles ya colocados.
-
-Posteriormente el proyecto continuó desarrollándose fuera del workshop con nuevas versiones, sistemas de progresión, estadísticas, niveles, Power-Ups, bosses, audio, economía y otras mejoras.
-
-La versión estable publicada actualmente es:
-
-**v1.4.3.2 - Structure & Boss HUD Hotfix**
+Posteriormente AWS ORBISHOT continuó evolucionando como proyecto independiente.

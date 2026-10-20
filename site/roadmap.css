@@ -210,3 +210,215 @@
   .roadmap-detail { padding: 22px 18px; }
   .roadmap-detail-header { flex-direction: column; }
 }
+
+
+/* =========================================================
+   AWS ORBISHOT · HUB IDENTITY ALIGNMENT
+   Card identity: solar amber + orbital coral.
+   This layer is intentionally appended here because roadmap.css
+   already loads after the main site stylesheet.
+   ========================================================= */
+
+:root {
+  --orange: #ffb84a;
+  --orange-soft: #ffd08a;
+  --cyan: #ff5678;
+}
+
+
+body {
+  background:
+    radial-gradient(
+      circle at 78% 4%,
+      rgba(255, 86, 120, .09),
+      transparent 25rem
+    ),
+    radial-gradient(
+      circle at 12% 30%,
+      rgba(255, 184, 74, .09),
+      transparent 24rem
+    ),
+    var(--bg);
+}
+
+
+.brand-dot {
+  background:
+    linear-gradient(
+      135deg,
+      #ffb84a,
+      #ff5678
+    );
+
+  box-shadow:
+    0 0 20px
+    rgba(255, 86, 120, .42);
+}
+
+
+.eyebrow,
+.section-kicker {
+  color: #ff5678;
+}
+
+
+.hero h1 span {
+  color: #ffb84a;
+}
+
+
+.btn-primary {
+  color: #1a1210;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffb84a 0%,
+      #ff9b5f 52%,
+      #ff5678 100%
+    );
+
+  box-shadow:
+    0 12px 30px
+    rgba(255, 184, 74, .18);
+}
+
+
+.btn-secondary:hover,
+.btn-roadmap:hover {
+  border-color:
+    rgba(255, 86, 120, .62);
+}
+
+
+.hero-logo-wrap {
+  border-color:
+    rgba(255, 184, 74, .26);
+
+  background:
+    radial-gradient(
+      circle at 50% 40%,
+      rgba(255, 86, 120, .08),
+      transparent 58%
+    ),
+    rgba(15, 21, 29, .78);
+
+  box-shadow:
+    0 0 70px
+    rgba(255, 184, 74, .10),
+    inset 0 0 50px
+    rgba(255, 255, 255, .025);
+}
+
+
+.orbit-b {
+  border-color:
+    rgba(255, 86, 120, .15);
+}
+
+
+.orbit-c {
+  border-color:
+    rgba(255, 184, 74, .11);
+}
+
+
+.satellite {
+  background:
+    #ffb84a;
+
+  box-shadow:
+    0 0 18px
+    rgba(255, 184, 74, .72);
+}
+
+
+.satellite-b {
+  background:
+    #ff5678;
+
+  box-shadow:
+    0 0 18px
+    rgba(255, 86, 120, .72);
+}
+
+
+/* Roadmap follows the same amber + coral system. */
+
+.roadmap-filter:hover,
+.roadmap-filter.active {
+  border-color:
+    rgba(255, 86, 120, .50);
+}
+
+
+.roadmap-filter.active {
+  background:
+    rgba(255, 184, 74, .10);
+
+  color:
+    #ffb84a;
+}
+
+
+.roadmap-load-status a,
+.roadmap-live-version,
+.roadmap-open,
+.roadmap-detail-body code {
+  color:
+    #ffb84a;
+}
+
+
+.roadmap-live-card:hover,
+.roadmap-live-card.selected {
+  border-color:
+    rgba(255, 86, 120, .38);
+
+  background:
+    linear-gradient(
+      150deg,
+      rgba(255, 184, 74, .07),
+      rgba(255, 86, 120, .025) 58%,
+      transparent 76%
+    ),
+    rgba(18, 25, 34, .96);
+}
+
+
+.roadmap-status-next {
+  color:
+    #ffb84a;
+
+  border-color:
+    rgba(255, 184, 74, .28);
+
+  background:
+    rgba(255, 184, 74, .07);
+}
+
+
+.roadmap-status-planned {
+  color:
+    #ff8aa0;
+
+  border-color:
+    rgba(255, 86, 120, .26);
+
+  background:
+    rgba(255, 86, 120, .07);
+}
+
+
+.roadmap-detail {
+  border-color:
+    rgba(255, 184, 74, .24);
+
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(255, 86, 120, .06),
+      transparent 38%
+    ),
+    #121922;
+}

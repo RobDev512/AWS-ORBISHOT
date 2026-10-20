@@ -75,9 +75,6 @@ body::after {
 
   filter:
     blur(72px);
-
-  will-change:
-    transform;
 }
 
 
@@ -1445,4 +1442,15 @@ footer a {
     translate:
       0 0;
   }
+}
+
+
+/* =========================================================
+   AWS ORBISHOT · PERFORMANCE FLUIDITY
+   Mantiene los blobs ambientales visibles, pero estáticos.
+   ========================================================= */
+
+body::before,
+body::after {
+  animation: none !important;
 }
